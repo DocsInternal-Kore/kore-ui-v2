@@ -37,6 +37,7 @@ import kore.botssdk.utils.BundleConstants;
 import kore.botssdk.utils.DateUtils;
 import kore.botssdk.utils.LogUtils;
 import kore.botssdk.utils.NetworkUtility;
+import kore.botssdk.utils.StringUtils;
 import kore.botssdk.utils.TTSSynthesizer;
 import kore.botssdk.utils.Utils;
 import retrofit2.Call;
@@ -121,6 +122,8 @@ public class BotSocketConnectionManager extends BaseSocketConnectionManager {
     public void refreshJwtToken() {
         if (isWithAuth) {
             makeJwtCallWithToken(true);
+        } else if (!StringUtils.isNullOrEmpty(SDKConfiguration.JWTServer.getJwt_token())) {
+            makeJwtGrantCall(SDKConfiguration.JWTServer.getJwt_token(), true);
         } else {
             makeStsJwtCallWithConfig(true);
         }
@@ -167,6 +170,23 @@ public class BotSocketConnectionManager extends BaseSocketConnectionManager {
             }
         });
 
+    }
+
+    private void makeJwtGrantCall(String jwtToken, boolean isRefresh) {
+        try {
+            botName = SDKConfiguration.Client.bot_name;
+            streamId = SDKConfiguration.Client.bot_id;
+            if (!isRefresh) {
+                botClient.connectAsAnonymousUser(jwtToken, botName, streamId, botSocketConnectionManager, isReconnect);
+            } else {
+                KoreEventCenter.post(jwtToken);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            Toast.makeText(mContext, "Something went wrong in fetching JWT", Toast.LENGTH_SHORT).show();
+            connection_state = isRefresh ? CONNECTION_STATE.CONNECTED_BUT_DISCONNECTED : DISCONNECTED;
+            if (chatListener != null) chatListener.onConnectionStateChanged(connection_state, false);
+        }
     }
 
     private HashMap<String, Object> getRequestObject() {
@@ -323,6 +343,8 @@ public class BotSocketConnectionManager extends BaseSocketConnectionManager {
 
         if (isWithAuth) {
             makeJwtCallWithToken(false);
+        } else if (!StringUtils.isNullOrEmpty(SDKConfiguration.JWTServer.getJwt_token())) {
+            makeJwtGrantCall(SDKConfiguration.JWTServer.getJwt_token(), SDKConfiguration.Client.isWebHook);
         } else {
             makeStsJwtCallWithConfig(SDKConfiguration.Client.isWebHook);
         }

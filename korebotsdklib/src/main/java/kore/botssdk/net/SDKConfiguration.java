@@ -53,6 +53,16 @@ public class SDKConfiguration {
         public static void setJwtServerUrl(String jwtServerUrl) {
             JWT_SERVER_URL = jwtServerUrl;
         }
+
+        static String jwt_token = "";
+
+        public static void setJwt_token(String jwt_token) {
+            JWTServer.jwt_token = jwt_token;
+        }
+
+        public static String getJwt_token() {
+            return jwt_token;
+        }
     }
 
     //Server related configurations
