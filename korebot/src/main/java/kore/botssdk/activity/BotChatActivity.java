@@ -419,6 +419,7 @@ public class BotChatActivity extends BotAppCompactActivity implements ComposeFoo
         editor.putString(BotResponse.WIDGET_BORDER_COLOR, brandingModel.getWidgetBorderColor());
         editor.putString(BotResponse.BUTTON_BORDER_COLOR, brandingModel.getButtonBorderColor());
         editor.putString(BotResponse.WIDGET_DIVIDER_COLOR, brandingModel.getWidgetDividerColor());
+        editor.putString(BundleConstants.BUBBLE_STYLE, brandingModel.getBubbleShape());
         editor.apply();
 
         SDKConfiguration.BubbleColors.quickReplyColor = brandingModel.getButtonActiveBgColor();
@@ -598,7 +599,9 @@ public class BotChatActivity extends BotAppCompactActivity implements ComposeFoo
                 return;
             }
 
-            if (botClient != null && enable_ack_delivery) botClient.sendMsgAcknowledgement(botResponse.getTimestamp(), botResponse.getKey());
+            if (!StringUtils.isNullOrEmpty(botResponse.getIcon())) SDKConfiguration.BubbleColors.setIcon_url(botResponse.getIcon());
+            if (botClient != null && enable_ack_delivery)
+                botClient.sendMsgAcknowledgement(botResponse.getTimestamp(), botResponse.getKey());
 
             LogUtils.d(LOG_TAG, payload);
             isAgentTransfer = botResponse.isFromAgent();
@@ -687,7 +690,11 @@ public class BotChatActivity extends BotAppCompactActivity implements ComposeFoo
                         if (botResponse == null || botResponse.getMessage() == null || botResponse.getMessage().isEmpty()) {
                             return;
                         }
+
                         LogUtils.d(LOG_TAG, payload);
+                        if (!StringUtils.isNullOrEmpty(botResponse.getIcon()))
+                            SDKConfiguration.BubbleColors.setIcon_url(botResponse.getIcon());
+
                         if (!botResponse.getMessage().isEmpty()) {
                             ComponentModelPayloadText compModel = botResponse.getMessage().get(0).getComponent();
                             if (compModel != null && !StringUtils.isNullOrEmpty(compModel.getPayload())) {
@@ -1201,6 +1208,8 @@ public class BotChatActivity extends BotAppCompactActivity implements ComposeFoo
                             brandingModel.setWidgetFooterColor(brandingNewDos.getWidgetFooter().getBackgroundColor());
                             brandingModel.setWidgetFooterBorderColor(brandingNewDos.getWidgetFooter().getBorderColor());
                             brandingModel.setWidgetFooterHintColor(brandingNewDos.getWidgetFooter().getPlaceHolder());
+                            brandingModel.setBubbleShape(brandingNewDos.getGeneralAttributes().getBubbleShape());
+
                             onEvent(brandingModel);
                         } else {
                             throw new Exception("Something went wrong!");
@@ -1241,6 +1250,11 @@ public class BotChatActivity extends BotAppCompactActivity implements ComposeFoo
                                     brandingModel.setWidgetFooterBorderColor(brandingNewDos.getFooter().getCompose_bar().getOutline_color());
                                     brandingModel.setWidgetFooterHintColor(brandingNewDos.getFooter().getCompose_bar().getOutline_color());
                                     brandingModel.setWidgetFooterHintText(brandingNewDos.getFooter().getCompose_bar().getPlaceholder());
+
+                                    if (brandingNewDos.getChat_bubble() != null && !StringUtils.isNullOrEmpty(brandingNewDos.getChat_bubble().getStyle())) {
+                                        brandingModel.setBubbleShape(brandingNewDos.getChat_bubble().getStyle());
+                                    }
+
                                     onEvent(brandingModel);
 
                                 } catch (Exception ex) {
@@ -1306,7 +1320,8 @@ public class BotChatActivity extends BotAppCompactActivity implements ComposeFoo
                             }
                         }
 
-                        if (!StringUtils.isNullOrEmpty(webHookResponseDataModel.getPollId())) startSendingPo11(webHookResponseDataModel.getPollId());
+                        if (!StringUtils.isNullOrEmpty(webHookResponseDataModel.getPollId()))
+                            startSendingPo11(webHookResponseDataModel.getPollId());
                     }
                 } else {
                     taskProgressBar.setVisibility(View.GONE);

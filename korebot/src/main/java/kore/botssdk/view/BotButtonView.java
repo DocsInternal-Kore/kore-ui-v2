@@ -5,6 +5,7 @@ import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 
 import java.util.ArrayList;
@@ -18,11 +19,10 @@ import kore.botssdk.view.viewUtils.DimensionUtil;
 import kore.botssdk.view.viewUtils.LayoutUtils;
 import kore.botssdk.view.viewUtils.MeasureUtils;
 
-/**
- * Created by Pradeep Mahato on 21/7/17.
+/*
  * Copyright (c) 2014 Kore Inc. All rights reserved.
  */
-public class BotButtonView extends ViewGroup {
+public class BotButtonView extends LinearLayout {
 
     float dp1, layoutItemHeight = 0;
     ListView autoExpandListView;
@@ -81,53 +81,5 @@ public class BotButtonView extends ViewGroup {
             autoExpandListView.setVisibility(GONE);
         }
 
-    }
-
-    private int getViewHeight() {
-        int viewHeight = 0;
-        if (autoExpandListView != null) {
-            int count = 0;
-            if (autoExpandListView.getAdapter() != null) {
-                count = autoExpandListView.getAdapter().getCount();
-            }
-            viewHeight = (int) (layoutItemHeight * count)+(int)(count*(3*dp1));
-        }
-        return viewHeight;
-    }
-
-    @Override
-    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-        int viewHeight = getViewHeight();
-        int viewWidth = (viewHeight == 0) ? 0 : (int) restrictedMaxWidth;
-        int childHeightSpec = MeasureSpec.makeMeasureSpec(viewHeight, MeasureSpec.EXACTLY);
-        int childWidthSpec = MeasureSpec.makeMeasureSpec(viewWidth, MeasureSpec.EXACTLY);
-
-        MeasureUtils.measure(autoExpandListView, childWidthSpec, childHeightSpec);
-
-        int parentWidthSpec = childWidthSpec;
-        int parentHeightSpec = childHeightSpec;
-
-        super.onMeasure(parentWidthSpec, parentHeightSpec);
-    }
-
-    @Override
-    protected void onLayout(boolean changed, int l, int t, int r, int b) {
-
-        final int count = getChildCount();
-        int parentWidth = getMeasuredWidth();
-
-        //get the available size of child view
-        int childLeft = this.getPaddingLeft();
-        int childTop = this.getPaddingTop();
-
-        int itemWidth = (r - l) / getChildCount();
-
-        for (int i = 0; i < count; i++) {
-            View child = getChildAt(i);
-            if (child.getVisibility() != GONE) {
-                LayoutUtils.layoutChild(child, childLeft, childTop);
-                childTop += child.getMeasuredHeight();
-            }
-        }
     }
 }

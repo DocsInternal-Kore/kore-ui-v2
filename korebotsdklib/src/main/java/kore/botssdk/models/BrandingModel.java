@@ -24,6 +24,15 @@ public class BrandingModel
     private String widgetDividerColor;
     private String widgetBodyColor;
     private String botName;
+    private String bubbleShape;
+
+    public void setBubbleShape(String bubbleShape) {
+        this.bubbleShape = bubbleShape;
+    }
+
+    public String getBubbleShape() {
+        return bubbleShape;
+    }
 
     public String getWidgetFooterHintText() {
         return widgetFooterHintText;

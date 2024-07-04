@@ -99,9 +99,9 @@ public class KaReceivedBubbleLayout extends KaBaseBubbleLayout {
         BUBBLE_LEFT_PROFILE_PIC_MARGIN_LEFT = (BUBBLE_LEFT_PROFILE_PIC != 0) ? (int) (10 * dp1) : 0;
         BUBBLE_LEFT_PROFILE_PIC_MARGIN_RIGHT = 0;
         if (isContinuousMessage) {
-            BUBBLE_TOP_BORDER = 0;
+            BUBBLE_TOP_BORDER = (int) (2 * dp1);
         } else {
-            BUBBLE_TOP_BORDER = (int) (10 * dp1);
+            BUBBLE_TOP_BORDER = (int) (7 * dp1);
         }
         BUBBLE_LEFT_BORDER = (int) ((!isGroupMessage) ? BubbleUI ? dp4 : 0 : dp1);
         BUBBLE_RIGHT_BORDER = (int) dp1;
@@ -111,7 +111,7 @@ public class KaReceivedBubbleLayout extends KaBaseBubbleLayout {
         BUBBLE_RIGHT_ARROW_WIDTH = 0;
         if (bubbleTextMediaLayout.getMeasuredHeight() != 0) {
             BUBBLE_CONTENT_TOP_MARGIN = 0;
-            BUBBLE_CONTENT_BOTTOM_MARGIN = (int) (BubbleUI ? 8 * dp1 : 21 * dp1);
+            BUBBLE_CONTENT_BOTTOM_MARGIN = BubbleUI ? (int) (0 * dp1) : (int) (1 * dp1);
         } else {
             BUBBLE_CONTENT_TOP_MARGIN = 0;
             BUBBLE_CONTENT_BOTTOM_MARGIN = 0;
@@ -442,14 +442,11 @@ public class KaReceivedBubbleLayout extends KaBaseBubbleLayout {
 
 
     protected void cosmetiseForProfilePic(BaseBotMessage baseBotMessage) {
-/*        if (isGroupMessage) {
+        if(StringUtils.isNullOrEmpty(SDKConfiguration.BubbleColors.getIcon_url())) {
             String icon = ((BotResponse) baseBotMessage).getIcon();
-            cpvSenderImage.setVisibility(VISIBLE);
-            cpvSenderImage.populateLayout(" ", null, icon, null, SDKConfiguration.BubbleColors.getIcon(), 0, true, BUBBLE_LEFT_PROFILE_PIC, BUBBLE_LEFT_PROFILE_PIC);
-        } else {
-            cpvSenderImage.setVisibility(GONE);
-        }*/
-        String icon = ((BotResponse) baseBotMessage).getIcon();
+            SDKConfiguration.BubbleColors.setIcon_url(icon);
+        }
+
         if(SDKConfiguration.BubbleColors.showIcon)
         {
             if(!StringUtils.isNullOrEmpty(SDKConfiguration.BubbleColors.getIcon_url()))
@@ -893,7 +890,6 @@ public class KaReceivedBubbleLayout extends KaBaseBubbleLayout {
         childWidthSpec = MeasureSpec.makeMeasureSpec(parentWidth, MeasureSpec.AT_MOST);
         int fullWidthSpec = MeasureSpec.makeMeasureSpec(parentWidth, MeasureSpec.EXACTLY);
         MeasureUtils.measure(bubbleTextMediaLayout, childWidthSpec, wrapSpec);
-        // MeasureUtils.measure(meetingSlotsView, childWidthSpec, wrapSpec);
         MeasureUtils.measure(timeStampsTextView, wrapSpec, wrapSpec);
         MeasureUtils.measure(timeLineView, fullWidthSpec, wrapSpec);
 
@@ -924,22 +920,19 @@ public class KaReceivedBubbleLayout extends KaBaseBubbleLayout {
          * For List View Templates
          */
         childWidthSpec = MeasureSpec.makeMeasureSpec((int) screenWidth - 70 * (int) dp1, MeasureSpec.EXACTLY);
-//        childHeightSpec = MeasureSpec.makeMeasureSpec((int) (pieViewHeight), MeasureSpec.EXACTLY);
         MeasureUtils.measure(botListViewTemplateView, childWidthSpec, wrapSpec);
 
         /*
          * For List Widget Templates
          */
         childWidthSpec = MeasureSpec.makeMeasureSpec((int) screenWidth - 70 * (int) dp1, MeasureSpec.EXACTLY);
-//        childHeightSpec = MeasureSpec.makeMeasureSpec((int) (pieViewHeight), MeasureSpec.EXACTLY);
         MeasureUtils.measure(botListWidgetTemplateView, childWidthSpec, wrapSpec);
 
         /**
          * For TableViev
          */
 
-        childWidthSpec = MeasureSpec.makeMeasureSpec((int) screenWidth - 40 * (int) dp1, MeasureSpec.EXACTLY);
-//        childHeightSpec = MeasureSpec.makeMeasureSpec((int) (tableHeight), MeasureSpec.EXACTLY);
+        childWidthSpec = MeasureSpec.makeMeasureSpec((int) screenWidth - 60 * (int) dp1, MeasureSpec.EXACTLY);
         MeasureUtils.measure(tableView, childWidthSpec,wrapSpec);
         MeasureUtils.measure(botCustomTableView, childWidthSpec,wrapSpec);
 
@@ -947,9 +940,7 @@ public class KaReceivedBubbleLayout extends KaBaseBubbleLayout {
          * For Responsive TableViev
          */
 
-        childWidthSpec = MeasureSpec.makeMeasureSpec((int) screenWidth - 40 * (int) dp1, MeasureSpec.EXACTLY);
-//        childHeightSpec = MeasureSpec.makeMeasureSpec((int) (respTableViewHeight), MeasureSpec.EXACTLY);
-//        MeasureUtils.measure(responsiveTableView, childWidthSpec,childHeightSpec);
+        childWidthSpec = MeasureSpec.makeMeasureSpec((int) screenWidth - 60 * (int) dp1, MeasureSpec.EXACTLY);
         MeasureUtils.measure(responsiveTableView, childWidthSpec,wrapSpec);
 
         /**
@@ -957,20 +948,16 @@ public class KaReceivedBubbleLayout extends KaBaseBubbleLayout {
          */
 
         childWidthSpec = MeasureSpec.makeMeasureSpec((int) screenWidth - 70 * (int) dp1, MeasureSpec.EXACTLY);
-//        childHeightSpec = MeasureSpec.makeMeasureSpec((int) (respTableViewHeight), MeasureSpec.EXACTLY);
-//        MeasureUtils.measure(responsiveTableView, childWidthSpec,childHeightSpec);
         MeasureUtils.measure(botFormTemplateView, childWidthSpec,wrapSpec);
 
-        /**
+        /*
          * For Bot Form TableViev
          */
 
-        childWidthSpec = MeasureSpec.makeMeasureSpec((int) screenWidth - 40 * (int) dp1, MeasureSpec.EXACTLY);
-//        childHeightSpec = MeasureSpec.makeMeasureSpec((int) (respTableViewHeight), MeasureSpec.EXACTLY);
-//        MeasureUtils.measure(responsiveExpandTableView, childWidthSpec,childHeightSpec);
+        childWidthSpec = MeasureSpec.makeMeasureSpec((int) screenWidth - 60 * (int) dp1, MeasureSpec.EXACTLY);
         MeasureUtils.measure(responsiveExpandTableView, childWidthSpec,wrapSpec);
 
-        /**
+        /*
          * For minitable
          */
         childWidthSpec = MeasureSpec.makeMeasureSpec((int) screenWidth , MeasureSpec.EXACTLY);
@@ -1092,11 +1079,13 @@ public class KaReceivedBubbleLayout extends KaBaseBubbleLayout {
         int bubbleTextMediaLayouMarginLeft = BUBBLE_CONTENT_LEFT_MARGIN;
         int bubbleTextMediaLayouMarginTop = BUBBLE_CONTENT_TOP_MARGIN + BUBBLE_FORWARD_LAYOUT_HEIGHT_CONSIDERATION_FOR_PAINT;
 
+        LayoutUtils.layoutChild(timeStampsTextView, bubbleTextMediaLayouMarginLeft + cpvSenderImage.getMeasuredWidth() + (int) dp2, top);
+
         /*
          * For TextMedia Layout
          */
-        left += bubbleTextMediaLayouMarginLeft;
-        top = top + bubbleTextMediaLayouMarginTop;
+        left += bubbleTextMediaLayouMarginLeft + cpvSenderImage.getMeasuredWidth();
+        top = top + bubbleTextMediaLayouMarginTop + (timeStampsTextView.getMeasuredHeight());
         LayoutUtils.layoutChild(bubbleTextMediaLayout, left, top);
         arrayList.add(bubbleTextMediaLayout.getBottom());
 
@@ -1147,16 +1136,9 @@ public class KaReceivedBubbleLayout extends KaBaseBubbleLayout {
         layoutView(cardTemplateView, top, left, arrayList);
         layoutView(emptyTemplateView, top, left, arrayList);
 
-        left = bubbleTextMediaLayout.getLeft();
+        left = bubbleTextMediaLayout.getLeft() - (int) (13 * dp1);
         top = Collections.max(arrayList);
-        LayoutUtils.layoutChild(cpvSenderImage, left, top);
-        if (cpvSenderImage.getMeasuredWidth() > 0) {
-            left = cpvSenderImage.getRight() + (int) (9 * dp1);
-            top = top + (int) (1 * dp1);
-        }
-
-
-        LayoutUtils.layoutChild(timeStampsTextView, left, top);
+        LayoutUtils.layoutChild(cpvSenderImage,left - (int)(15 * dp1), top - (int)(25 * dp1));
         LayoutUtils.layoutChild(timeLineView, 0, top);
 
         botCarouselView.bringToFront();
