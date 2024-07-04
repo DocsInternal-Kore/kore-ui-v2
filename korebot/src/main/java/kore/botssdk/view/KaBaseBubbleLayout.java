@@ -762,7 +762,7 @@ public abstract class KaBaseBubbleLayout extends ViewGroup {
         setDoDrawBubbleBackground(false);
         determineTextColor();
         textViewCosmeticChanges();
-        timeStampsTextView.setVisibility(GONE);
+        timeStampsTextView.setVisibility(SDKConfiguration.isTimeStampsRequired() ? VISIBLE : GONE);
     }
 
     /**

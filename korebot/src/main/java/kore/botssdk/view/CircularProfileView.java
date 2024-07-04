@@ -308,7 +308,6 @@ public class CircularProfileView extends RoundedImageView {
         public void onBitmapFailed(Exception e, Drawable errorDrawable) {
             setImageDrawable(null);
             setBackgroundResource(0);
-            setDefaultBackground(profileColor, initials);
         }
 
 
@@ -316,7 +315,6 @@ public class CircularProfileView extends RoundedImageView {
         public void onPrepareLoad(Drawable drawable) {
             setImageDrawable(null);
             setBackgroundResource(0);
-            setDefaultBackground(profileColor, initials);
         }
     };
 

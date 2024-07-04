@@ -197,6 +197,7 @@ public class SDKConfiguration {
         public static  String leftLinkColor = APP_REQ_COLOR;
         public static final boolean BubbleUI = false;
         public static boolean showIcon = true;
+        public static boolean showIconTop = true;
 
         public static int getIcon() {
             return icon;

@@ -43,14 +43,14 @@ public class DateUtils {
     public static final Format calendar_list_format = new SimpleDateFormat("EEE, MMM d, yyyy", Locale.ENGLISH);
     public static final Format calendar_list_format_2 = new SimpleDateFormat("hh:mm a", Locale.ENGLISH);
     public static final SimpleDateFormat dateWeekDayTime = new SimpleDateFormat("EE, MMM dd yyyy 'at' hh:mm a", Locale.ENGLISH);
-
+    public static final SimpleDateFormat dateWeekMsgBubble = new SimpleDateFormat("EE MMM dd", Locale.ENGLISH);
     public static final SimpleDateFormat dateWeekDayTime2 = new SimpleDateFormat("MMM dd yyyy 'at' hh:mm a", Locale.ENGLISH);
     public static final SimpleDateFormat dateWeekDayTime3 = new SimpleDateFormat("MMM dd 'at' hh:mm a", Locale.ENGLISH);
     public static final SimpleDateFormat dateWeekDayTime4 = new SimpleDateFormat("dd MMM, yyyy, hh:mm a", Locale.ENGLISH);
     public static final SimpleDateFormat dateWeekDayTime5 = new SimpleDateFormat("EEE, MMM dd, yyyy, ", Locale.ENGLISH);
     public static final Format calendar_list_format2 = new SimpleDateFormat("EEE, MMM d, ", Locale.ENGLISH);
     public static final Format calendar_list_req_format2 = new SimpleDateFormat("EEE, MMM d ", Locale.ENGLISH);
-
+    public static final SimpleDateFormat chat_bubble_dateTime = new SimpleDateFormat("EE MMM dd yyyy 'at' hh:mm:ss a", Locale.ENGLISH);
     public static final Format calendar_event_list_format1 = new SimpleDateFormat("EEE, d MMM", Locale.ENGLISH);
 
     private static final Format dateMonthDay = new SimpleDateFormat("MMM dd", Locale.ENGLISH);
@@ -96,7 +96,33 @@ public class DateUtils {
     }
 
     public static String getTimeInAmPm(long dateInMs) {
-        return dateTime.format(new Date(dateInMs));
+        return chat_bubble_dateTime.format(new Date(dateInMs));
+    }
+
+    public static String formattedSentDate(long lastModified) {
+        // CREATE DateFormatSymbols WITH ALL SYMBOLS FROM (DEFAULT) Locale
+        DateFormatSymbols symbols = new DateFormatSymbols(Locale.getDefault());
+
+        // OVERRIDE SOME symbols WHILE RETAINING OTHERS
+        symbols.setAmPmStrings(new String[]{"am", "pm"});
+        dateWeekDay.setDateFormatSymbols(symbols);
+        int messageYear = Integer.parseInt(yearFormat.format(new Date(lastModified)));
+        int currentYear = Integer.parseInt(yearFormat.format(new Date()));
+
+        String time = "";
+        if (android.text.format.DateUtils.isToday(lastModified)) {
+            time = "Today";
+        } else if (isYesterday(lastModified)) {
+            time = "Yesterday";
+        } else if (isTomorrow(lastModified)) {
+            time = "Tomorrow";
+        }
+        else {
+            time = currentYear == messageYear ? dateWeekMsgBubble.format(new Date(lastModified)) : dateWeekDay.format(new Date(lastModified));
+        }
+
+
+        return time;
     }
 
     /**

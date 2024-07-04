@@ -55,7 +55,15 @@ public class MainActivity extends AppCompatActivity {
 
         //Inject the custom template like below
         SDKConfig.setCustomTemplateView("link", new LinkTemplateView(MainActivity.this));
+
+        //Flag to show the bot icon beside the bot response
         SDKConfiguration.BubbleColors.showIcon = true;
+
+        //Flag to show the bot icon in top position or bottom of the bot response
+        SDKConfiguration.BubbleColors.showIconTop = true;
+
+        //Flag to show timestamp of each bot and user messages
+        SDKConfiguration.setTimeStampsRequired(true);
 
         btnBotConnect.setOnClickListener(new View.OnClickListener() {
             @Override

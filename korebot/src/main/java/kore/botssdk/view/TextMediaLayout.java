@@ -73,9 +73,11 @@ public class TextMediaLayout extends ViewGroup {
     private String leftTextColor;
     private String rightTextColor;
     private String themeName;
+
     public boolean isClicable() {
         return isClicable;
     }//
+
     public void setClicable(boolean clicable) {
         isClicable = clicable;
     }
@@ -94,8 +96,8 @@ public class TextMediaLayout extends ViewGroup {
     }
 
     private void init() {
-        medium = KaFontUtils.getCustomTypeface("medium",mContext);
-        regular = KaFontUtils.getCustomTypeface("regular",mContext);
+        medium = KaFontUtils.getCustomTypeface("medium", mContext);
+        regular = KaFontUtils.getCustomTypeface("regular", mContext);
         if (!isInEditMode()) {
             dp1 = DimensionUtil.dp1;
         }
@@ -113,17 +115,17 @@ public class TextMediaLayout extends ViewGroup {
 
         rightDrawable = (GradientDrawable) ResourcesCompat.getDrawable(getContext().getResources(), R.drawable.theme1_right_bubble_bg, getContext().getTheme());
 
-        if(rightDrawable != null) {
+        if (rightDrawable != null) {
             rightDrawable.setColor(Color.parseColor(rightbgColor));
             rightDrawable.setStroke((int) (1 * dp1), Color.parseColor(rightbgColor));
         }
 
         leftDrawable = (GradientDrawable) ResourcesCompat.getDrawable(getContext().getResources(), R.drawable.theme1_left_bubble_bg, getContext().getTheme());
 
-        if(themeName.equalsIgnoreCase(BotResponse.THEME_NAME_2))
+        if (themeName.equalsIgnoreCase(BotResponse.THEME_NAME_2))
             leftDrawable = (GradientDrawable) ResourcesCompat.getDrawable(getContext().getResources(), R.drawable.theme2_left_bubble, getContext().getTheme());
 
-        if(leftDrawable != null) {
+        if (leftDrawable != null) {
             leftDrawable.setColor(Color.parseColor(leftbgColor));
             leftDrawable.setStroke((int) (1 * dp1), Color.parseColor(leftbgColor));
         }
@@ -132,15 +134,19 @@ public class TextMediaLayout extends ViewGroup {
         float[] roundedRadii = {16 * dp1, 16 * dp1, 16 * dp1, 16 * dp1, 16 * dp1, 16 * dp1, 16 * dp1, 16 * dp1};
         float[] recRightRadii = {8 * dp1, 8 * dp1, 2 * dp1, 2 * dp1, 8 * dp1, 8 * dp1, 8 * dp1, 8 * dp1};
         float[] recLeftRadii = {2 * dp1, 2 * dp1, 8 * dp1, 8 * dp1, 8 * dp1, 8 * dp1, 8 * dp1, 8 * dp1};
-        float[] balRightRadii = {8 * dp1, 8 * dp1, 8 * dp1, 8 * dp1, 2 * dp1, 2 * dp1, 8 * dp1, 8 * dp1};
-        float[] balLeftRadii = {8 * dp1, 8 * dp1, 8 * dp1, 8 * dp1, 8 * dp1, 8 * dp1, 2 * dp1, 2 * dp1};
+        float[] sqrRightRadii = {8 * dp1, 8 * dp1, 8 * dp1, 8 * dp1, 2 * dp1, 2 * dp1, 8 * dp1, 8 * dp1};
+        float[] balRightRadii = {8 * dp1, 8 * dp1, 2 * dp1, 2 * dp1, 8 * dp1, 8 * dp1, 8 * dp1, 8 * dp1};
+        float[] sqrLeftRadii = {8 * dp1, 8 * dp1, 8 * dp1, 8 * dp1, 8 * dp1, 8 * dp1, 2 * dp1, 2 * dp1};
+        float[] balLeftRadii = {2 * dp1, 2 * dp1, 8 * dp1, 8 * dp1, 8 * dp1, 8 * dp1, 8 * dp1, 8 * dp1};
 
         if (rightDrawable != null) {
             rightDrawable.setColor(Color.parseColor(rightbgColor));
             rightDrawable.setStroke((int) (1 * dp1), Color.parseColor(rightbgColor));
 
-            if (bubble_style.equalsIgnoreCase(BundleConstants.ROUNDED) || bubble_style.equalsIgnoreCase(BundleConstants.CIRCLE)) rightDrawable.setCornerRadii(roundedRadii);
+            if (bubble_style.equalsIgnoreCase(BundleConstants.ROUNDED) || bubble_style.equalsIgnoreCase(BundleConstants.CIRCLE))
+                rightDrawable.setCornerRadii(roundedRadii);
             else if (bubble_style.equalsIgnoreCase(BundleConstants.RECTANGLE)) rightDrawable.setCornerRadii(recRightRadii);
+            else if (bubble_style.equalsIgnoreCase(BundleConstants.SQUARE)) rightDrawable.setCornerRadii(sqrRightRadii);
             else rightDrawable.setCornerRadii(balRightRadii);
         }
 
@@ -148,13 +154,14 @@ public class TextMediaLayout extends ViewGroup {
             leftDrawable.setColor(Color.parseColor(leftbgColor));
             leftDrawable.setStroke((int) (1 * dp1), Color.parseColor(leftbgColor));
 
-            if (bubble_style.equalsIgnoreCase(BundleConstants.ROUNDED) || bubble_style.equalsIgnoreCase(BundleConstants.CIRCLE)) leftDrawable.setCornerRadii(roundedRadii);
+            if (bubble_style.equalsIgnoreCase(BundleConstants.ROUNDED) || bubble_style.equalsIgnoreCase(BundleConstants.CIRCLE))
+                leftDrawable.setCornerRadii(roundedRadii);
             else if (bubble_style.equalsIgnoreCase(BundleConstants.RECTANGLE)) leftDrawable.setCornerRadii(recLeftRadii);
+            else if (bubble_style.equalsIgnoreCase(BundleConstants.SQUARE)) leftDrawable.setCornerRadii(sqrLeftRadii);
             else leftDrawable.setCornerRadii(balLeftRadii);
         }
 
-        RelativeLayout.LayoutParams txtVwParams = new RelativeLayout.LayoutParams(
-                LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+        RelativeLayout.LayoutParams txtVwParams = new RelativeLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
         botContentTextView.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 17);
         botContentTextView.setText("");
         botContentTextView.setLayoutParams(txtVwParams);
@@ -171,13 +178,12 @@ public class TextMediaLayout extends ViewGroup {
 
     }
 
-    private SharedPreferences getSharedPreferences()
-    {
+    private SharedPreferences getSharedPreferences() {
         sharedPreferences = mContext.getSharedPreferences(BotResponse.THEME_NAME, Context.MODE_PRIVATE);
         return sharedPreferences;
     }
 
-    public void onEvent(ProfileColorUpdateEvent event){
+    public void onEvent(ProfileColorUpdateEvent event) {
     }
 
     @Override
@@ -192,30 +198,30 @@ public class TextMediaLayout extends ViewGroup {
         KoreEventCenter.unregister(this);
     }
 
-    private String getRemovedEntityEditString(String _str){
-        String str = _str.replaceAll(REGEX_CHAR,"");
+    private String getRemovedEntityEditString(String _str) {
+        String str = _str.replaceAll(REGEX_CHAR, "");
         str = str.replaceAll("\\s{2,}", " ");
         return str;
     }
 
-    private String getReqText(String str){
+    private String getReqText(String str) {
         String newT = str;
 
         Pattern pattern = Pattern.compile(REGEX_CHAR);
         Matcher matcher1 = pattern.matcher(str);
 
-        while(matcher1.find()) {
-            int _start = matcher1.start() ;
+        while (matcher1.find()) {
+            int _start = matcher1.start();
             int _end = matcher1.end();
 
-            String replaceText = str.substring(_start,_end);
-            String _payload = replaceText.substring(2,replaceText.length()-2);
+            String replaceText = str.substring(_start, _end);
+            String _payload = replaceText.substring(2, replaceText.length() - 2);
             LogUtils.d("!@#$% getReqText(", _payload);
             _payload = _payload.substring(_payload.indexOf("{"));
             EntityEditModel model = gson.fromJson(_payload, EntityEditModel.class);
-            String addableText = !StringUtils.isNullOrEmpty(model.getTitle())?model.getTitle().trim():"";
+            String addableText = !StringUtils.isNullOrEmpty(model.getTitle()) ? model.getTitle().trim() : "";
 
-            newT = newT.replace(replaceText, addableText+replaceText);
+            newT = newT.replace(replaceText, addableText + replaceText);
         }
         return newT;
     }
@@ -225,8 +231,7 @@ public class TextMediaLayout extends ViewGroup {
             textualContent = unescapeHtml4(textualContent.trim());
             textualContent = StringUtils.unescapeHtml3(textualContent.trim());
             textualContent = MarkdownUtil.processMarkDown(textualContent);
-            CharSequence sequence = HtmlCompat.fromHtml(textualContent.replace("\n", "<br />"), HtmlCompat.FROM_HTML_MODE_LEGACY,
-                    new MarkdownImageTagHandler(mContext, botContentTextView, textualContent), new MarkdownTagHandler());
+            CharSequence sequence = HtmlCompat.fromHtml(textualContent.replace("\n", "<br />"), HtmlCompat.FROM_HTML_MODE_LEGACY, new MarkdownImageTagHandler(mContext, botContentTextView, textualContent), new MarkdownTagHandler());
             SpannableStringBuilder strBuilder = new SpannableStringBuilder(sequence);
             URLSpan[] urls = strBuilder.getSpans(0, sequence.length(), URLSpan.class);
 
@@ -239,7 +244,7 @@ public class TextMediaLayout extends ViewGroup {
             ImageSpan pencilImageSpan;
             boolean isPencilSpanClick = false;
 
-            if(textualContent.indexOf("%%{")>0){
+            if (textualContent.indexOf("%%{") > 0) {
                 LogUtils.d("!@#$% BEFORE ", textualContent);// munduki%%{} %%
                 textualContent = getReqText(textualContent);
                 LogUtils.d("!@#$% AFTER ", textualContent);
@@ -247,29 +252,29 @@ public class TextMediaLayout extends ViewGroup {
             }
             Matcher matcher = pattern.matcher(textualContent);
 
-            while(matcher.find()) {
+            while (matcher.find()) {
                 pencilImageSpan = new ImageSpan(mContext, R.drawable.pencil_18);
                 isPencilSpanClick = true;
                 int _start = matcher.start();
                 int _end = matcher.end();
 
-                String reqText = textualContent.substring(_start+2, _end-2);
+                String reqText = textualContent.substring(_start + 2, _end - 2);
                 reqText = reqText.substring(reqText.indexOf("{"));
 
                 LogUtils.d("!@#$% REQ_TEXT while", reqText);
 
                 EntityEditModel model = gson.fromJson(reqText, EntityEditModel.class);
-                String addableText = !StringUtils.isNullOrEmpty(model.getTitle())?model.getTitle().trim():"";
+                String addableText = !StringUtils.isNullOrEmpty(model.getTitle()) ? model.getTitle().trim() : "";
 
                 int addableTextLength = 0;
-                if(!StringUtils.isNullOrEmpty(addableText)) {
+                if (!StringUtils.isNullOrEmpty(addableText)) {
                     addableTextLength = addableText.length();
                 }
 
                 boolean isIconNeeded = Boolean.parseBoolean(model.isIcon());
-                if(isIconNeeded){
+                if (isIconNeeded) {
                     strBuilder.setSpan(pencilImageSpan, _start, _end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-                }else{
+                } else {
                     strBuilder.setSpan(new ImageSpan(mContext, R.drawable.transparant_image), _start, _end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
                 }
 
@@ -281,7 +286,7 @@ public class TextMediaLayout extends ViewGroup {
                     @Override
                     public void onClick(@NonNull View widget) {
 
-                        if(isClicable()) {
+                        if (isClicable()) {
                             botContentTextView.setText(getRemovedEntityEditString(finalStrBuilder.toString()));
                             EntityEditModel model = gson.fromJson(finalReqText, EntityEditModel.class);
                             EntityEditEvent event = new EntityEditEvent();
@@ -294,26 +299,24 @@ public class TextMediaLayout extends ViewGroup {
                 strBuilder.setSpan(clickable, dashStart, _start, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
             }
 
-            if(leftTextColor != null)
-            {
+            if (leftTextColor != null) {
                 botContentTextView.setTextColor(Color.parseColor(leftTextColor));
                 themeName = getSharedPreferences().getString(BotResponse.APPLY_THEME_NAME, BotResponse.THEME_NAME_1);
                 leftDrawable = (GradientDrawable) ResourcesCompat.getDrawable(getContext().getResources(), R.drawable.theme1_left_bubble_bg, getContext().getTheme());
 
-                if(themeName.equalsIgnoreCase(BotResponse.THEME_NAME_2))
+                if (themeName.equalsIgnoreCase(BotResponse.THEME_NAME_2))
                     leftDrawable = (GradientDrawable) ResourcesCompat.getDrawable(getContext().getResources(), R.drawable.theme2_left_bubble, getContext().getTheme());
 
                 botContentTextView.setBackground(leftDrawable);
             }
 
-            if(isPencilSpanClick && !isClicable()){
+            if (isPencilSpanClick && !isClicable()) {
                 botContentTextView.setText(getRemovedEntityEditString(strBuilder.toString()));
-            }else{
+            } else {
                 String REGEX_SIMLEY = ":)";
                 String REGEX_THUMSUB = ":thumbsup";
                 String REGEX_SAD = ":(";
-                if(strBuilder.toString().contains(REGEX_SIMLEY))
-                {
+                if (strBuilder.toString().contains(REGEX_SIMLEY)) {
                     botContentTextView.setText(strBuilder);
 
                     Client client = new Client(getContext());
@@ -323,26 +326,24 @@ public class TextMediaLayout extends ViewGroup {
                     client.setRiskyMatchAscii(true);
 
                     SpannableStringBuilder finalStrBuilder1 = strBuilder;
-                    client.shortnameToImage(REGEX_SIMLEY,(int)(20 * dp1), new com.emojione.tools.Callback() {
+                    client.shortnameToImage(REGEX_SIMLEY, (int) (20 * dp1), new com.emojione.tools.Callback() {
                         @Override
                         public void onFailure(IOException e) {
                             botContentTextView.setText(e.getMessage());
                         }
+
                         @Override
                         public void onSuccess(final SpannableStringBuilder ssb) {
                             int start = finalStrBuilder1.toString().indexOf(":");
                             int end = finalStrBuilder1.toString().indexOf(")", start);
 
-                            if(start != -1 && end != -1)
-                                finalStrBuilder1.delete(start, end+1);
+                            if (start != -1 && end != -1) finalStrBuilder1.delete(start, end + 1);
 
                             finalStrBuilder1.append(ssb);
                             botContentTextView.setText(finalStrBuilder1);
                         }
                     });
-                }
-                else if(strBuilder.toString().contains(REGEX_THUMSUB))
-                {
+                } else if (strBuilder.toString().contains(REGEX_THUMSUB)) {
                     botContentTextView.setText(strBuilder);
 
                     Client client = new Client(getContext());
@@ -352,26 +353,24 @@ public class TextMediaLayout extends ViewGroup {
                     client.setRiskyMatchAscii(true);
 
                     SpannableStringBuilder finalStrBuilder1 = strBuilder;
-                    client.shortnameToImage(REGEX_THUMSUB,(int)(20 * dp1), new com.emojione.tools.Callback() {
+                    client.shortnameToImage(REGEX_THUMSUB, (int) (20 * dp1), new com.emojione.tools.Callback() {
                         @Override
                         public void onFailure(IOException e) {
                             botContentTextView.setText(e.getMessage());
                         }
+
                         @Override
                         public void onSuccess(final SpannableStringBuilder ssb) {
                             int start = finalStrBuilder1.toString().indexOf(":");
                             int end = finalStrBuilder1.toString().indexOf("p", start);
 
-                            if(start != -1 && end != -1)
-                                finalStrBuilder1.delete(start, end+1);
+                            if (start != -1 && end != -1) finalStrBuilder1.delete(start, end + 1);
 
                             finalStrBuilder1.append(ssb);
                             botContentTextView.setText(finalStrBuilder1);
                         }
                     });
-                }
-                else if(strBuilder.toString().contains(REGEX_SAD))
-                {
+                } else if (strBuilder.toString().contains(REGEX_SAD)) {
                     botContentTextView.setText(strBuilder);
 
                     Client client = new Client(getContext());
@@ -381,30 +380,27 @@ public class TextMediaLayout extends ViewGroup {
                     client.setRiskyMatchAscii(true);
 
                     SpannableStringBuilder finalStrBuilder1 = strBuilder;
-                    client.shortnameToImage(REGEX_SAD,(int)(20 * dp1), new com.emojione.tools.Callback() {
+                    client.shortnameToImage(REGEX_SAD, (int) (20 * dp1), new com.emojione.tools.Callback() {
                         @Override
                         public void onFailure(IOException e) {
                             botContentTextView.setText(e.getMessage());
                         }
+
                         @Override
                         public void onSuccess(final SpannableStringBuilder ssb) {
                             int start = finalStrBuilder1.toString().indexOf(":");
                             int end = finalStrBuilder1.toString().indexOf("(", start);
 
-                            if(start != -1 && end != -1)
-                                finalStrBuilder1.delete(start, end+1);
+                            if (start != -1 && end != -1) finalStrBuilder1.delete(start, end + 1);
 
                             finalStrBuilder1.append(ssb);
                             botContentTextView.setText(finalStrBuilder1);
                         }
                     });
-                }
-                else
-                    botContentTextView.setText(strBuilder);
+                } else botContentTextView.setText(strBuilder);
             }
 
-            if(isPencilSpanClick)
-                botContentTextView.setMovementMethod(LinkMovementMethod.getInstance());
+            if (isPencilSpanClick) botContentTextView.setMovementMethod(LinkMovementMethod.getInstance());
             else
 //                botContentTextView.setMovementMethod(null);
                 botContentTextView.setMovementMethod(LinkMovementMethod.getInstance());
@@ -415,14 +411,11 @@ public class TextMediaLayout extends ViewGroup {
         }
     }
 
-    public void populateTextSenders(String textualContent)
-    {
-        if (textualContent != null && !textualContent.isEmpty())
-        {
+    public void populateTextSenders(String textualContent) {
+        if (textualContent != null && !textualContent.isEmpty()) {
             textualContent = unescapeHtml4(textualContent.trim());
             textualContent = StringUtils.unescapeHtml3(textualContent.trim());
-            CharSequence sequence = HtmlCompat.fromHtml(textualContent.replace("\n", "<br />"), HtmlCompat.FROM_HTML_MODE_LEGACY,
-                    new MarkdownImageTagHandler(mContext, botContentTextView, textualContent), new MarkdownTagHandler());
+            CharSequence sequence = HtmlCompat.fromHtml(textualContent.replace("\n", "<br />"), HtmlCompat.FROM_HTML_MODE_LEGACY, new MarkdownImageTagHandler(mContext, botContentTextView, textualContent), new MarkdownTagHandler());
             SpannableStringBuilder strBuilder = new SpannableStringBuilder(sequence);
             URLSpan[] urls = strBuilder.getSpans(0, sequence.length(), URLSpan.class);
 
@@ -430,8 +423,7 @@ public class TextMediaLayout extends ViewGroup {
                 makeLinkClickable(strBuilder, span);
             }
 
-            if(rightTextColor != null)
-                botContentTextView.setTextColor(Color.parseColor(rightTextColor));
+            if (rightTextColor != null) botContentTextView.setTextColor(Color.parseColor(rightTextColor));
 
             botContentTextView.setText(strBuilder);
             botContentTextView.setMovementMethod(null);
@@ -463,7 +455,7 @@ public class TextMediaLayout extends ViewGroup {
 
     }
 
-    public void setGravityAndTypeFace(){
+    public void setGravityAndTypeFace() {
         if (gravity == BubbleConstants.GRAVITY_LEFT) {
             //   botContentTextView.setGravity(Gravity.START);
             botContentTextView.setTypeface(medium);
@@ -498,7 +490,6 @@ public class TextMediaLayout extends ViewGroup {
     public void setRestrictedLayoutWidth(float restrictedLayoutWidth) {
         this.restrictedLayoutWidth = restrictedLayoutWidth;
     }
-
 
 
     @Override
