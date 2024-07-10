@@ -46,7 +46,7 @@ dependencies {
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.6.1'
     testImplementation 'junit:junit:4.13.2'
     implementation 'com.google.code.gson:gson:2.10.1'
-//    implementation 'com.github.DocsInternal-Kore:kore-ui-v2:0.1.5'
+//    implementation 'com.github.DocsInternal-Kore:kore-ui-v2:0.1.6'
 
     implementation project(':korebot')
     implementation project(path: ':korebotsdklib')
