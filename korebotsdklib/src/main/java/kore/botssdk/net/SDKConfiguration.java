@@ -49,7 +49,7 @@ public class SDKConfiguration {
 
     //JWTServer related configurations
     public static class JWTServer {
-        static String JWT_SERVER_URL = "https://mk2r2rmj21.execute-api.us-east-1.amazonaws.com/dev/";
+        static String JWT_SERVER_URL = "PLEASE_ENTER_JWT_SERVER_URL";
         public static void setJwtServerUrl(String jwtServerUrl) {
             JWT_SERVER_URL = jwtServerUrl;
         }
@@ -74,13 +74,13 @@ public class SDKConfiguration {
         public static void setServerUrl(String serverUrl) {
             SERVER_URL = serverUrl;
         }
-        static  String KORE_BOT_SERVER_URL = "https://bots.kore.ai/";//https://qa-bots.kore.ai";
+        static  String KORE_BOT_SERVER_URL = "PLEASE_ENTER_BOT_SERVER_URL";
         public static final String TTS_WS_URL = "wss://speech.kore.ai/tts/ws";
         public static final boolean IS_ANONYMOUS_USER = false;
-        public static String SERVER_URL = "https://bots.kore.ai/"; // "https://demo.kore.net";
-        public static String TOKEN_SERVER_URL ="https://demodpd.kore.ai/";
-        public static String Branding_SERVER_URL ="https://bots.kore.ai/";
-        public static final String koreAPIUrl = "https://sit-bots.kore.ai/";
+        public static String SERVER_URL = "PLEASE_ENTER_SERVER_URL";
+        public static String TOKEN_SERVER_URL ="PLEASE_ENTER_TOKEN_SERVER_URL";
+        public static String Branding_SERVER_URL ="PLEASE_ENTER_BRANDING_SERVER_URL";
+        public static final String koreAPIUrl = "PLEASE_ENTER_KORE_API_URL";
         public static HashMap<String, Object> queryParams = new HashMap<>();
 
         public static RestResponse.BotCustomData customData = new RestResponse.BotCustomData();
@@ -124,21 +124,21 @@ public class SDKConfiguration {
             Client.bot_id = bot_id;
         }
 
-        public static String client_id = "cs-1e845b00-81ad-5757-a1e7-d0f6fea227e9";
-        public static String client_secret = "5OcBSQtH/k6Q/S6A3bseYfOee02YjjLLTNoT1qZDBso=";
-        public static String identity = "email@kore.com";
-        public static String bot_name = "Kore.ai Bot";
-        public static String bot_id = "st-b9889c46-218c-58f7-838f-73ae9203488c";
+        public static String client_id = "PLEASE_ENTER_CLIENT_ID";
+        public static String client_secret = "PLEASE_ENTER_CLIENT_SECRET";
+        public static String identity = "PLEASE_ENTER_IDENTITY";
+        public static String bot_name = "PLEASE_ENTER_BOT_NAME";
+        public static String bot_id = "PLEASE_ENTER_BOT_ID";
         public static final boolean enable_ack_delivery = false;
         public static final boolean isWebHook = false;
-        public static final String webHook_client_id = "cs-ab324147-4c82-5eb5-b73e-42cf8d8340f8";
-        public static final String webHook_client_secret = "kD9HrB5CPeneebDZFXpRmUxamx55NfVsx0t4nVr78v8=";
-        public static final String webHook_identity = "sudheer.jampana@kore.com";
-        public static final String webHook_bot_id = "st-fd0f5024-2318-56fe-8354-555e1786133e";
+        public static final String webHook_client_id = "PLEASE_ENTER_WEBHOOK_CLIENT_ID";
+        public static final String webHook_client_secret = "PLEASE_ENTER_WEBHOOK_CLIENT_SECRET";
+        public static final String webHook_identity = "PLEASE_ENTER_WEBHOOK_IDENTITY";
+        public static final String webHook_bot_id = "PLEASE_ENTER_WEBHOOK_BOTID";
 
         //Weebhook
         // for webhook based communication use following option
-        public static String webhookURL = "https://qa1-bots.kore.ai/chatbot/v2/webhook/st-ea1b128f-7895-581a-8c87-bbfe3b9f1ff1";
+        public static String webhookURL = "PLEASE_ENTER_WEBHOOK_URL";
         public static int apiVersion = 2;
     }
 
