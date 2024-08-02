@@ -1,11 +1,17 @@
 package com.kore.koreui;
 
 import android.content.Intent;
+import android.content.res.Resources;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 
 import androidx.appcompat.app.AppCompatActivity;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Properties;
 
 import kore.botssdk.activity.BotChatActivity;
 import kore.botssdk.application.AppControl;
@@ -25,28 +31,28 @@ public class MainActivity extends AppCompatActivity {
         String jwtToken = "";
 
         //Set clientId, If jwtToken is empty this value is mandatory
-        String clientId = "cs-1e845b00-81ad-5757-a1e7-d0f6fea227e9";
+        String clientId = getConfigValue("clientId");//PLEASE_ENTER_BOT_CLIENT_ID
 
         //Set clientSecret, If jwtToken is empty this value is mandatory
-        String clientSecret = "5OcBSQtH/k6Q/S6A3bseYfOee02YjjLLTNoT1qZDBso=";
+        String clientSecret = getConfigValue("clientSecret");//PLEASE_ENTER_BOT_CLIENT_SECRET
 
         //Set botId, This value is mandatory
-        String botId = "st-b9889c46-218c-58f7-838f-73ae9203488c";
+        String botId = getConfigValue("botId");//PLEASE_ENTER_BOT_ID
 
         //Set identity, This value is mandatory
-        String identity = "email@kore.com";
+        String identity = getConfigValue("identity");//PLEASE_ENTER_IDENTITY
 
         //Set botName, This value is mandatory
-        String botName = "Kore.ai Bot";
+        String botName = getConfigValue("botName");//PLEASE_ENTER_BOT_NAME
 
         //Set serverUrl, This value is mandatory
-        String serverUrl = "https://bots.kore.ai/";
+        String serverUrl = getConfigValue("serverUrl");//PLEASE_ENTER_SERVER_URL
 
         //Set brandingUrl, This value is mandatory
-        String brandingUrl = "https://bots.kore.ai/";
+        String brandingUrl = getConfigValue("brandingUrl");//PLEASE_ENTER_BRANDING_SERVER_URL
 
         //Set JwtServerUrl, This value is mandatory
-        String jwtServerUrl = "https://mk2r2rmj21.execute-api.us-east-1.amazonaws.com/dev/";
+        String jwtServerUrl = getConfigValue("jwtServerUrl");//PLEASE_ENTER_JWT_SERVER_URL
 
         //Set Server url
         SDKConfig.setServerUrl(serverUrl);
@@ -89,5 +95,20 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(intent);
             }
         });
+    }
+
+    public String getConfigValue(String name) {
+        try {
+            InputStream rawResource = getResources().openRawResource(R.raw.config);
+            Properties properties = new Properties();
+            properties.load(rawResource);
+            return properties.getProperty(name);
+        } catch (Resources.NotFoundException e) {
+            Log.e(MainActivity.class.getSimpleName(), "Unable to find the config file: " + e.getMessage());
+        } catch (IOException e) {
+            Log.e(MainActivity.class.getSimpleName(), "Failed to open config file.");
+        }
+
+        return null;
     }
 }
