@@ -45,10 +45,15 @@ public class MainActivity extends AppCompatActivity {
         //Set brandingUrl, This value is mandatory
         String brandingUrl = "https://bots.kore.ai/";
 
+        //Set JwtServerUrl, This value is mandatory
+        String jwtServerUrl = "https://mk2r2rmj21.execute-api.us-east-1.amazonaws.com/dev/";
+
         //Set Server url
         SDKConfig.setServerUrl(serverUrl);
         //Set Branding url
         SDKConfig.setBrandingUrl(brandingUrl);
+        //Set JwtServer url
+        SDKConfig.setJWTUrl(jwtServerUrl);
 
         new AppControl(MainActivity.this);
 
@@ -63,7 +68,16 @@ public class MainActivity extends AppCompatActivity {
         SDKConfiguration.BubbleColors.showIcon = true;
 
         //Flag to show the bot icon in top position or bottom of the bot response
-        SDKConfiguration.BubbleColors.showIconTop = true;
+        SDKConfiguration.BubbleColors.showIconTop = false;
+
+        //Flag to show the Speech to text micro phone icon
+        SDKConfiguration.BubbleColors.showASRMicroPhone = true;
+
+        //Flag to show the text to speech Speaker icon
+        SDKConfiguration.BubbleColors.showTextToSpeech = true;
+
+        //Flag to show the attachment icon
+        SDKConfiguration.BubbleColors.showAttachment = true;
 
         //Flag to show timestamp of each bot and user messages
         SDKConfiguration.setTimeStampsRequired(true);

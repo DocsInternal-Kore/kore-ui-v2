@@ -33,6 +33,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
+import android.os.Looper;
 import android.os.Message;
 import android.os.Messenger;
 import android.os.Process;
@@ -149,7 +150,7 @@ public class ComposeFooterFragment extends Fragment implements ComposeFooterUpda
     public void setDisabled(boolean disabled) {
         isDisabled = disabled;
     }
-    boolean isDisabled, isFirstTime, isTTSEnabled = true;
+    boolean isDisabled, isFirstTime, isTTSEnabled = false;
     ComposeFooterInterface composeFooterInterface;
     TTSUpdate ttsUpdate;
     LinearLayout linearLayoutProgress;
@@ -167,7 +168,7 @@ public class ComposeFooterFragment extends Fragment implements ComposeFooterUpda
     ComposebarAttachmentAdapter composebarAttachmentAdapter;
     RecyclerView attachment_recycler;
     private Attachment attachment;
-    private static long totalFileSize;
+    static long totalFileSize;
     private final int compressQualityInt = 100;
     private String jwt;
     RelativeLayout rlFooter;
@@ -220,6 +221,15 @@ public class ComposeFooterFragment extends Fragment implements ComposeFooterUpda
         attachemnt = view.findViewById(R.id.attachemnt);
         rlFooter = view.findViewById(R.id.rlFooter);
 
+        if(SDKConfiguration.BubbleColors.showAttachment)
+            attachemnt.setVisibility(View.VISIBLE);
+
+        if(SDKConfiguration.BubbleColors.showTextToSpeech)
+            audio_speak_tts.setVisibility(View.VISIBLE);
+
+        if(SDKConfiguration.BubbleColors.showASRMicroPhone)
+            rec_audio_img.setVisibility(View.VISIBLE);
+
         attachment_recycler = view.findViewById(R.id.attachment_recycler);
         attachment_recycler.setLayoutManager(new LinearLayoutManager(requireActivity(), LinearLayoutManager.HORIZONTAL, false));
         int[] colors = {
@@ -236,7 +246,7 @@ public class ComposeFooterFragment extends Fragment implements ComposeFooterUpda
             composebarAttachmentAdapter = new ComposebarAttachmentAdapter(requireActivity(), new AttachmentListner() {
                 @Override
                 public void onRemoveAttachment() {
-
+                    attachment_recycler.setVisibility(View.GONE);
                     enableOrDisableSendButton(composebarAttachmentAdapter.getItemCount() > 0 || !TextUtils.isEmpty(editTextMessage.getText().toString().trim()));
                 }
             });
@@ -883,7 +893,6 @@ public class ComposeFooterFragment extends Fragment implements ComposeFooterUpda
 
     void processFileUpload(String fileName, String filePath, String extn, String mediaType, String thumbnailFilePath, String orientation) {
 
-        long fileLimit = getFileMaxSize();
         if (!SDKConfiguration.Client.isWebHook) {
             KoreWorker.getInstance().addTask(new UploadBulkFile(fileName,
                     filePath, "bearer " + SocketWrapper.getInstance(requireActivity()).getAccessToken(),
@@ -923,7 +932,7 @@ public class ComposeFooterFragment extends Fragment implements ComposeFooterUpda
         return file_limit;
     }
 
-    private void processImageResponse(Intent data) {
+    void processImageResponse(Intent data) {
         String filePath = data.getStringExtra("filePath");
         String fileName;
         String filePathThumbnail;
@@ -986,6 +995,7 @@ public class ComposeFooterFragment extends Fragment implements ComposeFooterUpda
     }
 
     public void addAttachmentToAdapter(HashMap<String, String> attachmentKey) {
+        attachment_recycler.setVisibility(View.VISIBLE);
         composebarAttachmentAdapter.addAttachment(attachmentKey);
         if (composebarAttachmentAdapter.getItemCount() > 0) {
             enableOrDisableSendButton(true);
@@ -1012,7 +1022,7 @@ public class ComposeFooterFragment extends Fragment implements ComposeFooterUpda
         this.jwt = jwt;
     }
 
-    private void processVideoResponse(Uri selectedImage, boolean isCapturedVideo, Intent intent) {
+    void processVideoResponse(Uri selectedImage, boolean isCapturedVideo, Intent intent) {
         String realPath;
         String orientation;
         String fileName = null;
@@ -1030,16 +1040,7 @@ public class ComposeFooterFragment extends Fragment implements ComposeFooterUpda
 
             Bitmap thumbnail = null;
             String extn = realPath.substring(realPath.lastIndexOf(".") + 1);
-//            if (!isCapturedVideo) {
-//                int videoThumbnailIndexId = BitmapUtils.getVideoIdFromFilePath(requireActivity(), selectedImage);
-//                thumbnail = MediaStore.Video.Thumbnails.getThumbnail(requireActivity().getContentResolver(), videoThumbnailIndexId, MediaStore.Video.Thumbnails.MINI_KIND, null);
-//            } else {
-//                thumbnail = ThumbnailUtils.createVideoThumbnail(realPath, MediaStore.Video.Thumbnails.MINI_KIND);
-//            }
-
-//            if (thumbnail == null) {
             thumbnail = BitmapFactory.decodeResource(getResources(), R.drawable.videoplaceholder_left);
-//            }
 
             Bitmap hover = BitmapFactory.decodeResource(getResources(), R.drawable.btn_video_play_irc);
             thumbnail = overlay(thumbnail, hover);
@@ -1173,7 +1174,7 @@ public class ComposeFooterFragment extends Fragment implements ComposeFooterUpda
         return overlayBitmap;
     }
 
-    final Handler messagesMediaUploadAcknowledgeHandler = new Handler() {
+    final Handler messagesMediaUploadAcknowledgeHandler = new Handler(Looper.getMainLooper()) {
         @Override
         public synchronized void handleMessage(Message msg) {
             Bundle reply = msg.getData();
@@ -1193,9 +1194,6 @@ public class ComposeFooterFragment extends Fragment implements ComposeFooterUpda
                 String mediaFileName = reply.getString("fileName");
                 String componentType = reply.getString("componentType");
                 String thumbnailURL = reply.getString("thumbnailURL");
-                String orientation = reply.getString(BundleConstants.ORIENTATION);
-                String COMPONENT_DESCRIPTION = reply.getString("componentDescription") != null ? reply.getString("componentDescription") : null;
-                HashMap<String, Object> COMPONENT_DATA = reply.getSerializable("componentData") != null ? ((HashMap<String, Object>) reply.getSerializable("componentData")) : null;
                 String fileSize = reply.getString("fileSize");
                 KoreComponentModel koreMedia = new KoreComponentModel();
                 koreMedia.setMediaType(BitmapUtils.getAttachmentType(componentType));
@@ -1234,7 +1232,7 @@ public class ComposeFooterFragment extends Fragment implements ComposeFooterUpda
         }
     };
 
-    private String getComponentId(String componentType) {
+    String getComponentId(String componentType) {
         if (componentType.equalsIgnoreCase(BundleConstants.MEDIA_TYPE_IMAGE)) {
             return "image_" + System.currentTimeMillis();
         } else if (componentType.equalsIgnoreCase(BundleConstants.MEDIA_TYPE_VIDEO)) {
@@ -1244,7 +1242,7 @@ public class ComposeFooterFragment extends Fragment implements ComposeFooterUpda
         }
     }
 
-    private void showFreemiumDialog() {
+    void showFreemiumDialog() {
         if (attachment == null) {
             attachment = SharedPreferenceUtils.getInstance(requireActivity()).getAttachmentPref("");
         }
@@ -1253,67 +1251,4 @@ public class ComposeFooterFragment extends Fragment implements ComposeFooterUpda
         String enterprise_msg = "File uploads are limited to " + attachment.getSize() + "MB\nunder the Enterprise Plan";
 //        new Freemium(requireActivity(), freemiumData, null).showFreemiumDialog(true,enterprise_msg);
     }
-
-    public void setSectionSelected(/*SECTION_TYPE sectionSelected*/) {
-//        animateLayoutVisible();
-//        Log.d("IKIDO", "setting current state " + sectionSelected);
-        /*try{
-            throw new Exception("IKIDO");
-        }catch (Exception e){
-            e.printStackTrace();
-        }*/
-       /* current_state = sectionSelected;
-        switch (sectionSelected) {
-            *//*case SECTION_YOU:
-                setYouSelected(true);
-                setKnowledgeSelected(false);
-                setComposeSectionSelected(false);
-                animateLayoutGone();
-                break;
-            case SECTION_COMPOSE:
-                setYouSelected(false);
-                setKnowledgeSelected(false);
-                setComposeSectionSelected(true);
-                break;*//*
-            case SECTION_COMPOSE_WITH_COMPOSE_BAR:
-                showComposeBarOnly();
-                break;
-            case SECTION_COMPOSE_OPEN:
-                keyBoardAction();
-                break;
-            *//*case SECTION_KNOWLEDGE:
-                animateLayoutGone();
-                setYouSelected(false);
-                setKnowledgeSelected(true);
-                setComposeSectionSelected(false);
-                break;*//*
-
-        }*/
-    }
-
-    /*AudioTaskListener mListener = new AudioTaskListener() {
-        @Override
-        public void onCloseButtonClicked(int resultCode) {
-            editTextMessage.setEnabled(true);
-            try {
-                FragmentManager fm = requireActivity().getSupportFragmentManager();
-                FragmentTransaction ft = fm.beginTransaction();
-                ft.remove(fm.findFragmentByTag(TapToSpeakFragmentTag));
-                ft.commit();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-
-            stopRecording();
-        }
-
-        @Override
-        public void audioDataToTextView(String text) {
-            if (tapToSpeakFragment != null && !tapToSpeakFragment.isDetached() && tapToSpeakFragment.getState() == AudioRecorder.State.RECORDING) {
-                editTextMessage.setText(text);
-                editTextMessage.setSelection(editTextMessage.getText().length());
-            }
-        }
-    };*/
-
 }
