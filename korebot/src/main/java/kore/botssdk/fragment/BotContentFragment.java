@@ -104,7 +104,6 @@ public class BotContentFragment extends Fragment implements BotContentFragmentUp
     TTSUpdate ttsUpdate;
     private int mBotIconId;
     boolean fetching = false;
-    private boolean hasMore = true;
     TextView headerView, tvTheme1, tvTheme2;
     final Gson gson = new Gson();
     SwipeRefreshLayout swipeRefreshLayout;
@@ -293,7 +292,10 @@ public class BotContentFragment extends Fragment implements BotContentFragmentUp
 
     public void setQuickRepliesIntoFooter(BotResponse botResponse) {
         ArrayList<QuickReplyTemplate> quickReplyTemplates = getQuickReplies(botResponse);
-        quickReplyView.populateQuickReplyView(quickReplyTemplates);
+        if (quickReplyTemplates != null && quickReplyTemplates.size() > 0) {
+            quickReplyView.setVisibility(View.VISIBLE);
+            quickReplyView.populateQuickReplyView(quickReplyTemplates);
+        }
     }
 
     public void showCalendarIntoFooter(BotResponse botResponse) {
@@ -479,9 +481,13 @@ public class BotContentFragment extends Fragment implements BotContentFragmentUp
                     Response<BotHistory> rBody = _resp.execute();
                     BotHistory history = rBody.body();
 
-                    if (rBody.isSuccessful()) {
+                    if (rBody.isSuccessful() && history != null) {
                         List<BotHistoryMessage> messages = history.getMessages();
-                        ArrayList<BaseBotMessage> msgs = null;
+
+                        if (!StringUtils.isNullOrEmpty(history.getIcon()))
+                            SDKConfiguration.BubbleColors.setIcon_url(history.getIcon());
+
+                        ArrayList<BaseBotMessage> msgs;
                         if (messages != null && messages.size() > 0) {
                             msgs = new ArrayList<>();
                             for (int index = 0; index < messages.size(); index++) {
@@ -771,7 +777,6 @@ public class BotContentFragment extends Fragment implements BotContentFragmentUp
                 }
 
                 if ((list == null || list.size() < limit) && offset != 0) {
-                    hasMore = false;
                 }
             }
 
@@ -826,11 +831,10 @@ public class BotContentFragment extends Fragment implements BotContentFragmentUp
                 }
 
                 if (list != null && list.size() > 0) {
-                    addMessagesToBotChatAdapter(list, offset == 0);
+                    addMessagesToBotChatAdapter(list, _offset == 0);
                 }
 
                 if ((list == null || list.size() < limit) && offset != 0) {
-                    hasMore = false;
                 }
             }
 
@@ -948,7 +952,8 @@ public class BotContentFragment extends Fragment implements BotContentFragmentUp
 
                     if (rBody.isSuccessful() && history != null) {
 
-                        if (!StringUtils.isNullOrEmpty(history.getIcon()) && setIconUrl) SDKConfiguration.BubbleColors.setIcon_url(history.getIcon());
+                        if (!StringUtils.isNullOrEmpty(history.getIcon()) && setIconUrl)
+                            SDKConfiguration.BubbleColors.setIcon_url(history.getIcon());
 
                         List<BotHistoryMessage> messages = history.getMessages();
                         ArrayList<BaseBotMessage> msgs;

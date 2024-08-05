@@ -412,6 +412,8 @@ public class ComposeFooterFragment extends Fragment implements ComposeFooterUpda
                 composebarAttachmentAdapter.clearAll();
                 enableOrDisableSendButton(false);
             }
+
+            attachment_recycler.setVisibility(View.GONE);
         }
     };
     final View.OnClickListener keyboardIconClickListener = new View.OnClickListener() {

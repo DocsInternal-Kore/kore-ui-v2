@@ -17,6 +17,7 @@ import kore.botssdk.activity.BotChatActivity;
 import kore.botssdk.application.AppControl;
 import kore.botssdk.net.SDKConfig;
 import kore.botssdk.net.SDKConfiguration;
+import kore.botssdk.utils.BundleUtils;
 
 public class MainActivity extends AppCompatActivity {
     Button btnBotConnect;
@@ -28,7 +29,7 @@ public class MainActivity extends AppCompatActivity {
         btnBotConnect = findViewById(R.id.btnBotConnect);
 
         //If token is empty sdk token generation will happen. if not empty we will use this token for bot connection.
-        String jwtToken = "";
+        String jwtToken = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE3MjI4NDk3MzQsImV4cCI6MTcyMjkzNjEzNCwiYXVkIjoiIiwiaXNzIjoiY3MtNGVlMTA2ZjItYzAyZS01Zjk2LTg1YzQtN2VlYjcyZWVlNDJmIiwic3ViIjoiMDQxNjQ3NTEtZDA1Ni00MDhmLThkMTAtNjVhMzY1OTRkYWEyZThhOTM3NmEtYzdjZi00NzBiLWJlMTItZDJmZTZmNWNkYzdlIiwiaXNBbm9ueW1vdXMiOmZhbHNlfQ.0_pXV5fsVVAYPEfTj3zXvnk-W098aSKdMFCtyM2xf7c";
 
         //Set clientId, If jwtToken is empty this value is mandatory
         String clientId = getConfigValue("clientId");//PLEASE_ENTER_BOT_CLIENT_ID
@@ -77,10 +78,10 @@ public class MainActivity extends AppCompatActivity {
         SDKConfiguration.BubbleColors.showIconTop = false;
 
         //Flag to show the Speech to text micro phone icon
-        SDKConfiguration.BubbleColors.showASRMicroPhone = true;
+        SDKConfiguration.BubbleColors.showASRMicroPhone = false;
 
         //Flag to show the text to speech Speaker icon
-        SDKConfiguration.BubbleColors.showTextToSpeech = true;
+        SDKConfiguration.BubbleColors.showTextToSpeech = false;
 
         //Flag to show the attachment icon
         SDKConfiguration.BubbleColors.showAttachment = true;
@@ -92,6 +93,9 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(MainActivity.this, BotChatActivity.class);
+                Bundle bundle = new Bundle();
+                //This should not be null
+                bundle.putString(BundleUtils.BOT_NAME_INITIALS, String.valueOf(SDKConfiguration.Client.bot_name.charAt(0)));
                 startActivity(intent);
             }
         });

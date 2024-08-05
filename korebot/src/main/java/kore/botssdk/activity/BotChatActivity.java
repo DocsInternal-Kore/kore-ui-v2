@@ -46,6 +46,7 @@ import androidx.fragment.app.FragmentTransaction;
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.reflect.TypeToken;
+import com.squareup.picasso.Picasso;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -115,6 +116,7 @@ import kore.botssdk.utils.AsyncTaskExecutor;
 import kore.botssdk.utils.BitmapUtils;
 import kore.botssdk.utils.BundleConstants;
 import kore.botssdk.utils.BundleUtils;
+import kore.botssdk.utils.ClosingService;
 import kore.botssdk.utils.DateUtils;
 import kore.botssdk.utils.KaMediaUtils;
 import kore.botssdk.utils.KaPermissionsHelper;
@@ -351,6 +353,14 @@ public class BotChatActivity extends BotAppCompactActivity implements ComposeFoo
         RestBuilder.setContext(BotChatActivity.this);
         WebHookRestBuilder.setContext(BotChatActivity.this);
         BrandingRestBuilder.setContext(BotChatActivity.this);
+        startService(new Intent(getApplicationContext(), ClosingService.class));
+        try {
+            // You need to add the below code:
+            Picasso.setSingletonInstance(new Picasso.Builder(this).build());
+        } catch (Exception e)
+        {
+            e.printStackTrace();
+        }
     }
 
     void updateTitleBar(BaseSocketConnectionManager.CONNECTION_STATE socketConnectionEvents) {
@@ -1472,6 +1482,17 @@ public class BotChatActivity extends BotAppCompactActivity implements ComposeFoo
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 if (which == DialogInterface.BUTTON_POSITIVE) {
+
+                    if (sharedPreferences != null) {
+                        if (botClient != null && isAgentTransfer)
+                            botClient.sendAgentCloseMessage("", SDKConfiguration.Client.bot_name, SDKConfiguration.Client.bot_id);
+
+                        SharedPreferences.Editor editor = sharedPreferences.edit();
+                        editor.putBoolean(BundleConstants.IS_RECONNECT, false);
+                        editor.putInt(BotResponse.HISTORY_COUNT, 0);
+                        editor.apply();
+                    }
+
                     BotSocketConnectionManager.killInstance();
                     finish();
                 }
