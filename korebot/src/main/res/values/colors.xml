@@ -14,6 +14,8 @@
     <color name="color_c8c8c8">#c8c8c8</color>
     <color name="color_blue_1_1">#0076FF</color>
     <color name="background_tab_pressed">#efeffc</color>
+    <color name="thumbsUpBg">#E6F8EF</color>
+    <color name="thumbsDownBg">#F7D9DF</color>
 
 <!--    Associated Bank Theme-->
     <color name="colorPrimaryKa_associated">#0ea84d</color>
@@ -204,4 +206,5 @@
     <color name="color_3E3E51">#3e3e51</color>
     <color name="listview_cost">#008000</color>
     <color name="txtFontBlack">#000000</color>
+    <color name="gray_modern">#4B5565</color>
 </resources>

@@ -22,7 +22,8 @@ public class PayloadInner {
 
     private String template_type;
     private String featureId;
-
+    private List<FeedbackRatingModel> numbersArrays;
+    private List<FeedbackThumbsArrayModel> thumpsUpDownArrays;
     public String getFeatureId() {
         return featureId;
     }
@@ -179,6 +180,13 @@ public class PayloadInner {
 
     public boolean isStacked() {
         return stacked;
+    }
+
+    public List<FeedbackRatingModel> getNumbersArrays() {
+        return numbersArrays;
+    }
+    public List<FeedbackThumbsArrayModel> getThumbsArrays() {
+        return thumpsUpDownArrays;
     }
 
     public void setStacked(boolean stacked) {

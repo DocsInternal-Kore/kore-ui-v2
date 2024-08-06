@@ -40,6 +40,7 @@
     <dimen name="text_size_sub_header">16sp</dimen>
     <dimen name="text_size_header">18sp</dimen>
     <dimen name="agent_image_size">50dp</dimen>
+    <dimen name="emoji_size">30sp</dimen>
     <dimen name="bottom_options_icon_width">30dp</dimen>
 
     <!--Line chart View-->

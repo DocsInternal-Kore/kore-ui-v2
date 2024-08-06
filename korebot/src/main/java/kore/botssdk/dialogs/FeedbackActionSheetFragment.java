@@ -74,7 +74,7 @@ public class FeedbackActionSheetFragment extends BottomSheetDialogFragment imple
         view = inflater.inflate(R.layout.feedback_template_view, container,false);
         this.dp1 = (int) DimensionUtil.dp1;
         multiSelectLayout = view.findViewById(R.id.multiSelectLayout);
-        tvfeedback_template_title = view.findViewById(R.id.tvfeedback_template_title);
+        tvfeedback_template_title = view.findViewById(R.id.tv_feedback_template_title);
         rbFeedback = view.findViewById(R.id.rbFeedback);
         emojis = view.findViewById(R.id.emojis);
         llCloseBottomSheet = view.findViewById(R.id.llCloseBottomSheet);

@@ -27,22 +27,22 @@ public class BotResponse extends BaseBotMessage {
     public static final String COMPONENT_TYPE_LINK = "link";
     public static final String COMPONENT_TYPE_AUDIO = "audio";
     public static final String COMPONENT_TYPE_VIDEO = "video";
-    public static final String  TEMPLATE_TYPE_KORA_CAROUSAL = "kora_carousel";
-    public static final String  TEMPLATE_TYPE_KORA_ANNOUNCEMENT_CAROUSAL = "announcement_carousel";
-    public static final String  TEMPLATE_TYPE_KORA_SEARCH_CAROUSAL = "kora_search_carousel";
-    public static final String  TEMPLATE_TYPE_SLOT_PICKER = "pick_slot_template";
-    public static final String  TEMPLATE_TYPE_MEETING_CONFIRM = "meeting_confirmation";
+    public static final String TEMPLATE_TYPE_KORA_CAROUSAL = "kora_carousel";
+    public static final String TEMPLATE_TYPE_KORA_ANNOUNCEMENT_CAROUSAL = "announcement_carousel";
+    public static final String TEMPLATE_TYPE_KORA_SEARCH_CAROUSAL = "kora_search_carousel";
+    public static final String TEMPLATE_TYPE_SLOT_PICKER = "pick_slot_template";
+    public static final String TEMPLATE_TYPE_MEETING_CONFIRM = "meeting_confirmation";
     public static final String TEMPLATE_TYPE_AUTO_FORMS = "auto_open_forms";
     public static final String TEMPLATE_TYPE_CAL_EVENTS = "calendar_events";
     public static final String TEMPLATE_TYPE_FILES_LOOKUP = "files_search_carousel";
-    public static final String  TEMPLATE_TYPE_ATTENDEE_SLOTS = "attendee_slots_template";
+    public static final String TEMPLATE_TYPE_ATTENDEE_SLOTS = "attendee_slots_template";
     public static final String VIEW_STAR = "star";
     static final String TEMPLATE_TYPE_PICKER = "picker";
     public static final String TEMPLATE_TYPE_SESSION_END = "session_end";
     public static final String TEMPLATE_TYPE_SHOW_PROGRESS = "show_progress";
     public static final String TEMPLATE_TYPE_WELCOME_CAROUSEL = "kora_welcome_carousel";
     public static final String TEMPLATE_TYPE_CANCEL_EVENT = "cancel_calendar_events";
-    public static final String  TEMPLATE_TYPE_TASK_VIEW = "task_list_preview";
+    public static final String TEMPLATE_TYPE_TASK_VIEW = "task_list_preview";
     public static final String TEMPLATE_TYPE_CONVERSATION_END = "conversation_end";
     public static final String TEMPLATE_TASK_FULLVIEW = "task_list_full_preview";
     public static final String KA_SWITCH_SKILL = "ka_switch_skill";
@@ -54,10 +54,16 @@ public class BotResponse extends BaseBotMessage {
     public static final String TEMPLATE_TYPE_MULTI_SELECT = "multi_select";
     public static final String BAR_CHART_DIRECTION_VERTICAL = "vertical";
 
+    public static final String VIEW_NPS = "NPS";
+    public static final String VIEW_CSAT = "CSAT";
+    public static final String VIEW_THUMBS_UP_DOWN = "ThumbsUpDown";
+
+    public static final String SELECTED_FEEDBACK = "selectedFeedback";
+
     //Added new
     public static final String TABLE_VIEW_RESPONSIVE = "responsive";
     public static final String TEMPLATE_TYPE_FORM = "form_template";
-    public static final String TEMPLATE_TYPE_LIST_VIEW  = "listView";
+    public static final String TEMPLATE_TYPE_LIST_VIEW = "listView";
     public static final String TEMPLATE_TYPE_DATE = "dateTemplate";
     public static final String TEMPLATE_TYPE_DATE_RANGE = "daterange";
     public static final String TEMPLATE_TYPE_TABLE_LIST = "tableList";
@@ -83,11 +89,11 @@ public class BotResponse extends BaseBotMessage {
     public static final String TEMPLATE_TYPE_CAL_EVENTS_WIDGET = "calendar_events_widget";
     public static final String TAKE_NOTES = "open_form";
     public static final String MESSAGE_TYPE_OUTGOING = "outgoing";
-    public static final String US_MEETING_NOTES_TYPE="MeetingNotes";
-    public static final String US_EMAIL_TYPE="Email";
-    public static final String US_KNOWLEDGE_TYPE="Article";
-    public static final String US_FILES_TYPE="Files";
-    public static final String US_KNOWLEDGE_COLLECTION_TYPE="KnowledgeCollection";
+    public static final String US_MEETING_NOTES_TYPE = "MeetingNotes";
+    public static final String US_EMAIL_TYPE = "Email";
+    public static final String US_KNOWLEDGE_TYPE = "Article";
+    public static final String US_FILES_TYPE = "Files";
+    public static final String US_KNOWLEDGE_COLLECTION_TYPE = "KnowledgeCollection";
 
     //Theme Properties
     public static final String THEME_NAME = "THEME_NAME";
@@ -141,9 +147,11 @@ public class BotResponse extends BaseBotMessage {
     public String getMessageId() {
         return messageId;
     }
+
     public void setMessageId(String messageId) {
         this.messageId = messageId;
     }
+
     private String messageId;
 
     public String getType() {
@@ -153,6 +161,7 @@ public class BotResponse extends BaseBotMessage {
     public void setType(String type) {
         this.type = type;
     }
+
     public void setBotInfo(BotInfoModel botInfo) {
         this.botInfo = botInfo;
     }
@@ -164,16 +173,18 @@ public class BotResponse extends BaseBotMessage {
     public void setIcon(String icon) {
         this.icon = icon;
     }
+
     public ArrayList<BotResponseMessage> getMessage() {
         return message;
     }
 
     /**
      * returns null if there are no messages
+     *
      * @return
      */
     public BotResponseMessage getTempMessage() {
-        return message!=null && message.size() > 0?message.get(0):null;
+        return message != null && message.size() > 0 ? message.get(0) : null;
     }
 
     public BotInfoModel getBotInfo() {

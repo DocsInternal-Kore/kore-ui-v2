@@ -68,4 +68,6 @@ public class BundleConstants {
     public static final String MESSAGE_READ = "message_read";
     public static final String STOP_TYPING = "stop_typing";
     public static final String TYPING = "typing";
+    public static final String POSITIVE = "positive";
+    public static final String NEGATIVE = "negative";
 }
