@@ -641,7 +641,7 @@ public class ComposeFooterFragment extends Fragment implements ComposeFooterUpda
         }
     }
 
-    private void launchSelectedMode(int position) {
+    void launchSelectedMode(int position) {
         switch (position) {
             case 4:
                 fileBrowsingActivity(BundleConstants.CHOOSE_TYPE_CAMERA, REQ_CAMERA, BundleConstants.MEDIA_TYPE_IMAGE);

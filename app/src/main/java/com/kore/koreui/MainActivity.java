@@ -29,7 +29,7 @@ public class MainActivity extends AppCompatActivity {
         btnBotConnect = findViewById(R.id.btnBotConnect);
 
         //If token is empty sdk token generation will happen. if not empty we will use this token for bot connection.
-        String jwtToken = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE3MjI5Mzc4MDQsImV4cCI6MTcyMzAyNDIwNCwiYXVkIjoiIiwiaXNzIjoiY3MtNGVlMTA2ZjItYzAyZS01Zjk2LTg1YzQtN2VlYjcyZWVlNDJmIiwic3ViIjoiOWIyYzViYzgtOGIxMC00OTY1LTljOWEtYjFlOGRmYjAxZTkwZWQ4YjlhNDgtMjFhYy00MGU5LWJlNTktOTg2MmRlNWYxMTcxIiwiaXNBbm9ueW1vdXMiOmZhbHNlfQ.Z1Ju41gv903VDj9vExVMxUcEC6Zmpb0r52N7lskDxfI";
+        String jwtToken = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE3MjMxMjE4MTcsImV4cCI6MTcyMzIwODIxNywiYXVkIjoiIiwiaXNzIjoiY3MtNGVlMTA2ZjItYzAyZS01Zjk2LTg1YzQtN2VlYjcyZWVlNDJmIiwic3ViIjoiZGFiZTgyZmQtZGM0Ny00NzU3LWI5OTItMGM0YWE0YzFlZDE4MjkzNmFhZTQtYjY5Mi00ZjIxLTk2Y2QtYjc4YjMyMDVlYWNlIiwiaXNBbm9ueW1vdXMiOmZhbHNlfQ.jBNY_uM1_ckGep14vxXJMzFQEo3ijwWHfrtHTHHB_lY";
 
         //Set clientId, If jwtToken is empty this value is mandatory
         String clientId = getConfigValue("clientId");//PLEASE_ENTER_BOT_CLIENT_ID
@@ -85,6 +85,9 @@ public class MainActivity extends AppCompatActivity {
 
         //Flag to show the attachment icon
         SDKConfiguration.BubbleColors.showAttachment = true;
+
+        //Flag to show the quickReplies at Bottom
+        SDKConfiguration.BubbleColors.showQuickRepliesBottom = false;
 
         //Flag to show timestamp of each bot and user messages
         SDKConfiguration.setTimeStampsRequired(true);

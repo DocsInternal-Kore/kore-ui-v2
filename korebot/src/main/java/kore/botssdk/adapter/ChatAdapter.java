@@ -244,7 +244,7 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ViewHolder> {
         if (selectedItem != -1) {
             selectedItem = selectedItem + list.size() - 1;
         }
-        notifyItemRangeInserted(0, list.size() - 1);
+       notifyDataSetChanged();
     }
 
 

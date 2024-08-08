@@ -57,7 +57,7 @@ import kore.botssdk.view.viewUtils.MeasureUtils;
  */
 public class TextMediaLayout extends ViewGroup {
 
-    private TextView botContentTextView;
+    TextView botContentTextView;
     private float restrictedLayoutWidth;
     public int gravity = 0;
     public int widthStyle = 0;
@@ -162,7 +162,7 @@ public class TextMediaLayout extends ViewGroup {
         }
 
         RelativeLayout.LayoutParams txtVwParams = new RelativeLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
-        botContentTextView.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 17);
+        botContentTextView.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 16);
         botContentTextView.setText("");
         botContentTextView.setLayoutParams(txtVwParams);
         botContentTextView.setSingleLine(false);
@@ -458,7 +458,7 @@ public class TextMediaLayout extends ViewGroup {
     public void setGravityAndTypeFace() {
         if (gravity == BubbleConstants.GRAVITY_LEFT) {
             //   botContentTextView.setGravity(Gravity.START);
-            botContentTextView.setTypeface(medium);
+            botContentTextView.setTypeface(regular);
             botContentTextView.setBackground(leftDrawable);
         } else {
             // botContentTextView.setGravity(Gravity.END);

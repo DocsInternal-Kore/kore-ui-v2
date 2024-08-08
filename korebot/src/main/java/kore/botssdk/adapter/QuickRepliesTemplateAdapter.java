@@ -1,7 +1,9 @@
 package kore.botssdk.adapter;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.graphics.Color;
+import android.graphics.drawable.GradientDrawable;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -15,32 +17,55 @@ import java.util.ArrayList;
 import kore.botssdk.R;
 import kore.botssdk.listener.ComposeFooterInterface;
 import kore.botssdk.listener.InvokeGenericWebViewInterface;
+import kore.botssdk.listener.ListClickListner;
+import kore.botssdk.models.BotResponse;
 import kore.botssdk.models.QuickRepliesPayloadModel;
 import kore.botssdk.models.QuickReplyTemplate;
+import kore.botssdk.net.SDKConfiguration;
 import kore.botssdk.utils.BundleConstants;
 import kore.botssdk.view.viewHolder.QuickReplyViewHolder;
+import kore.botssdk.view.viewUtils.DimensionUtil;
 
 public class QuickRepliesTemplateAdapter extends RecyclerView.Adapter<QuickReplyViewHolder> {
 
-    private ArrayList<QuickReplyTemplate> quickReplyTemplateArrayList;
+    ArrayList<QuickReplyTemplate> quickReplyTemplateArrayList;
     final Context context;
-    private final RecyclerView parentRecyclerView;
-    private ComposeFooterInterface composeFooterInterface;
-    private InvokeGenericWebViewInterface invokeGenericWebViewInterface;
-    private final int quickReplyFontColor;
+    final RecyclerView parentRecyclerView;
+    ComposeFooterInterface composeFooterInterface;
+    InvokeGenericWebViewInterface invokeGenericWebViewInterface;
+    boolean isLast;
+    String quickWidgetColor, fillColor, quickReplyFontColor;
+    int dp1;
+    SharedPreferences sharedPreferences;
+    ListClickListner listClickListner;
 
     public QuickRepliesTemplateAdapter(Context context, RecyclerView parentRecyclerView) {
         this.context = context;
         this.parentRecyclerView = parentRecyclerView;
-        quickReplyFontColor = Color.parseColor("#3F51B5");
+        sharedPreferences = context.getSharedPreferences(BotResponse.THEME_NAME, Context.MODE_PRIVATE);
+
+        quickWidgetColor = SDKConfiguration.BubbleColors.quickReplyColor;
+        fillColor = SDKConfiguration.BubbleColors.quickReplyColor;
+        quickReplyFontColor = "#3F51B5";
+
+        fillColor = sharedPreferences.getString(BotResponse.BUTTON_ACTIVE_BG_COLOR, fillColor);
+        quickWidgetColor = sharedPreferences.getString(BotResponse.BUTTON_ACTIVE_TXT_COLOR, quickWidgetColor);
+        quickReplyFontColor = sharedPreferences.getString(BotResponse.BUTTON_INACTIVE_TXT_COLOR, quickReplyFontColor);
+
+        dp1 = (int) DimensionUtil.dp1;
     }
 
     @NonNull
     @Override
     public QuickReplyViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View convertView = View.inflate(context, R.layout.quick_replies_item_cell, null);
+
+        GradientDrawable gradientDrawable = (GradientDrawable) convertView.findViewById(R.id.quick_reply_view).getBackground();
+        gradientDrawable.setStroke(2 * dp1, Color.parseColor(fillColor));
+        gradientDrawable.setColor(Color.parseColor(fillColor));
+
         QuickReplyViewHolder viewHolder = new QuickReplyViewHolder(convertView);
-        viewHolder.getQuickReplyTitle().setTextColor(quickReplyFontColor);
+        viewHolder.getQuickReplyTitle().setTextColor(Color.parseColor(quickReplyFontColor));
         return viewHolder;
     }
 
@@ -61,9 +86,9 @@ public class QuickRepliesTemplateAdapter extends RecyclerView.Adapter<QuickReply
             @Override
             public void onClick(View v) {
                 int position =  parentRecyclerView.getChildAdapterPosition(v);
-                if (composeFooterInterface != null && invokeGenericWebViewInterface != null) {
+                if (composeFooterInterface != null && invokeGenericWebViewInterface != null && isLast)
+                {
                     QuickReplyTemplate quickReplyTemplate = quickReplyTemplateArrayList.get(position);
-
                     String quickReplyPayload;
                     try {
                         quickReplyPayload = (String) quickReplyTemplate.getPayload();
@@ -90,6 +115,8 @@ public class QuickRepliesTemplateAdapter extends RecyclerView.Adapter<QuickReply
                     }else{
                         composeFooterInterface.onSendClick(quickReplyTemplate.getTitle(), quickReplyPayload,false);
                     }
+
+                    listClickListner.listItemClicked(position);
                 }
             }
         });
@@ -120,6 +147,15 @@ public class QuickRepliesTemplateAdapter extends RecyclerView.Adapter<QuickReply
 
     public void setInvokeGenericWebViewInterface(InvokeGenericWebViewInterface invokeGenericWebViewInterface) {
         this.invokeGenericWebViewInterface = invokeGenericWebViewInterface;
+    }
+
+    public void setIsLast(boolean isLast) {
+        this.isLast = isLast;
+    }
+
+    public void setListClickListner(ListClickListner listClickListner)
+    {
+        this.listClickListner = listClickListner;
     }
 }
 

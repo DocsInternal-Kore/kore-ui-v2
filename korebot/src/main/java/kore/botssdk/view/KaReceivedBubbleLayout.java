@@ -404,7 +404,7 @@ public class KaReceivedBubbleLayout extends KaBaseBubbleLayout {
         botTableListTemplateView.setVisibility(View.GONE);
         botTableListTemplateView.populateListTemplateView(null);
         botQuickRepliesTemplateView.setVisibility(View.GONE);
-        botQuickRepliesTemplateView.populateQuickReplyView(null);
+        botQuickRepliesTemplateView.populateQuickReplyView(null, false);
         agentTransferTemplateView.setVisibility(View.GONE);
         agentTransferTemplateView.populateAgentTemplateView(null);
         feedbackTemplateView.setVisibility(View.GONE);
@@ -600,7 +600,7 @@ public class KaReceivedBubbleLayout extends KaBaseBubbleLayout {
                     bubbleTextMediaLayout.populateText(payInner.getText());
                 } else if (BotResponse.TEMPLATE_TYPE_WELCOME_QUICK_REPLIES.equalsIgnoreCase(payInner.getTemplate_type())) {
                     botQuickRepliesTemplateView.setVisibility(View.VISIBLE);
-                    botQuickRepliesTemplateView.populateQuickReplyView(payInner.getQuick_replies());
+                    botQuickRepliesTemplateView.populateQuickReplyView(payInner, isLastItem);
                     bubbleTextMediaLayout.populateText(payInner.getText());
                 } else if (BotResponse.TEMPLATE_TYPE_NOTIFICATIONS.equalsIgnoreCase(payInner.getTemplate_type())) {
                     agentTransferTemplateView.setVisibility(View.VISIBLE);
@@ -1027,7 +1027,7 @@ public class KaReceivedBubbleLayout extends KaBaseBubbleLayout {
         LayoutUtils.layoutChild(bubbleTextMediaLayout, left, top);
         arrayList.add(bubbleTextMediaLayout.getBottom());
 
-        top = (bubbleTextMediaLayout.getMeasuredHeight() != 0 ? bubbleTextMediaLayout.getBottom() + (int) dp15 : minimumTop) + (timeStampsTextView.getMeasuredHeight());
+        top = (bubbleTextMediaLayout.getMeasuredHeight() != 0 ? bubbleTextMediaLayout.getBottom() + (int) dp6 : minimumTop) + (timeStampsTextView.getMeasuredHeight());
         left = bubbleTextMediaLayout.getLeft() - (BubbleUI ? BUBBLE_CONTENT_LEFT_MARGIN : 0);
 
         layoutView(botButtonView, top, left, arrayList);
@@ -1077,7 +1077,7 @@ public class KaReceivedBubbleLayout extends KaBaseBubbleLayout {
         left = bubbleTextMediaLayout.getLeft() - (int) (13 * dp1);
         top = Collections.max(arrayList);
 
-        LayoutUtils.layoutChild(cpvSenderImage, left - (int) (15 * dp1), SDKConfiguration.BubbleColors.showIconTop ? (top - (top - (int) (10 * dp1))) + timeStampsTextView.getMeasuredHeight(): (top - (int) (25 * dp1)));
+        LayoutUtils.layoutChild(cpvSenderImage, left - (int) (15 * dp1), SDKConfiguration.BubbleColors.showIconTop ? (top - (top - (int) (10 * dp1))) + timeStampsTextView.getMeasuredHeight(): isTemplatePresent() ? top - (int)(25 * dp1) : (botContentTextView.getMeasuredHeight() - (int) (1 * dp1)));
         LayoutUtils.layoutChild(timeLineView, 0, top);
 
         botCarouselView.bringToFront();

@@ -643,7 +643,12 @@ public class BotChatActivity extends BotAppCompactActivity implements ComposeFoo
                 BotSocketConnectionManager.getInstance().startDelayMsgTimer();
             }
             botContentFragment.showTypingStatus(botResponse);
+
             if (payloadInner != null) {
+                if (payloadInner.getTemplate_type().equalsIgnoreCase(BotResponse.TEMPLATE_TYPE_QUICK_REPLIES) && !SDKConfiguration.BubbleColors.showQuickRepliesBottom) {
+                    payloadInner.setTemplate_type(BotResponse.TEMPLATE_TYPE_WELCOME_QUICK_REPLIES);
+                }
+
                 payloadInner.convertElementToAppropriate();
             }
 

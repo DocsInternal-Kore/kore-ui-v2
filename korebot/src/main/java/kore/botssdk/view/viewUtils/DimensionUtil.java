@@ -12,7 +12,7 @@ import kore.botssdk.utils.Utility;
 public class DimensionUtil {
 
     final Context context;
-    public static float dp1;
+    public static int dp1;
     public float screenHeight = 0;
     public float screenWidth = 0;
     public float density;
@@ -23,7 +23,7 @@ public class DimensionUtil {
     }
 
     private void init() {
-        dp1 = Utility.convertDpToPixel(context, 1);
+        dp1 = (int) Utility.convertDpToPixel(context, 1);
         screenHeight = Resources.getSystem().getDisplayMetrics().heightPixels;
         screenWidth = Resources.getSystem().getDisplayMetrics().widthPixels;
         density = Resources.getSystem().getDisplayMetrics().density;

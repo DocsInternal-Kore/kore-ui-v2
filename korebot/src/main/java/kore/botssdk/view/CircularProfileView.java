@@ -29,7 +29,6 @@ import kore.botssdk.utils.StringConstants;
 import kore.botssdk.view.viewUtils.DimensionUtil;
 
 /**
- * Created by tapasya on 01/10/15.
  * Copyright (c) 2014 Kore Inc. All rights reserved.
  */
 public class CircularProfileView extends RoundedImageView {
@@ -84,8 +83,8 @@ public class CircularProfileView extends RoundedImageView {
         if (!isInEditMode()) {
             dp1 = (int) DimensionUtil.dp1;
             SDK = android.os.Build.VERSION.SDK_INT;
-            DEFAULT_HEIGHT = dp1 * 52;
-            DEFAULT_WIDTH = dp1 * 52;
+            DEFAULT_HEIGHT = dp1 * 21;
+            DEFAULT_WIDTH = dp1 * 21;
             PADDING = dp1 * 4;
             borderPaint = new Paint();
         }
@@ -285,7 +284,7 @@ public class CircularProfileView extends RoundedImageView {
         }
     }
 
-    private void updateWithPic(Bitmap bitmap) {
+    void updateWithPic(Bitmap bitmap) {
         if (bitmap != null) {
             setImageBitmap(bitmap);
         }

@@ -27,7 +27,6 @@ public class BotApplication extends Application {
         FCMWrapper.getInstance().init();
         IntentFilter filter = new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);
         registerReceiver(new NetworkStateReceiver(), filter);
-        startService(new Intent(getApplicationContext(), ClosingService.class));
     }
 
     public static boolean isActivityVisible() {

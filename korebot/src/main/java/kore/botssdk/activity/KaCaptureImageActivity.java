@@ -12,6 +12,7 @@ import android.app.AlertDialog;
 import android.content.ActivityNotFoundException;
 import android.content.ContentUris;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
@@ -35,6 +36,7 @@ import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.RequiresApi;
+import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
 import androidx.exifinterface.media.ExifInterface;
 
@@ -162,7 +164,7 @@ public class KaCaptureImageActivity extends KaAppCompatActivity implements KoreM
 
     @RequiresApi(api = Build.VERSION_CODES.R)
     void showEnableAllFilesAccess() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.MyDialogTheme);
         builder.setTitle("Please allow 'Manage all files access' to continue");
         builder.setCancelable(false);
         builder.setPositiveButton("Ok", (dialog, which) -> {
@@ -170,13 +172,21 @@ public class KaCaptureImageActivity extends KaAppCompatActivity implements KoreM
             Uri uri = Uri.parse("package:" + getPackageName());
             Intent intent = new Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION, uri);
             settingsLauncher.launch(intent);
-//            startActivityForResult(intent, BundleConstants.REQ_MANAGE_APP_ALL_FILES_ACCESS);
         });
         builder.setNegativeButton("Cancel", (dialog, which) -> {
             finish();
             dialog.dismiss();
         });
-        builder.create().show();
+
+        AlertDialog alertDialog1 = builder.create();
+        alertDialog1.setOnShowListener(new DialogInterface.OnShowListener() {
+            @Override
+            public void onShow(DialogInterface dialog) {
+                alertDialog1.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(ContextCompat.getColor(KaCaptureImageActivity.this, R.color.txtFontBlack));
+                alertDialog1.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(ContextCompat.getColor(KaCaptureImageActivity.this, R.color.txtFontBlack));
+            }
+        });
+        alertDialog1.show();
     }
 
     final ActivityResultLauncher<Intent> settingsLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), new ActivityResultCallback<ActivityResult>() {

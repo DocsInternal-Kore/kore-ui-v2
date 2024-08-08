@@ -201,6 +201,7 @@ public class SDKConfiguration {
         public static boolean showAttachment = true;
         public static boolean showASRMicroPhone = true;
         public static boolean showTextToSpeech = true;
+        public static boolean showQuickRepliesBottom = true;
 
         public static int getIcon() {
             return icon;

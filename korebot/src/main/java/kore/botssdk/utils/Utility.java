@@ -93,8 +93,7 @@ public class Utility {
         if (metrics.densityDpi <= DisplayMetrics.DENSITY_HIGH) {
             dp = 1.4f;
         }
-        float px = dp * (metrics.densityDpi / 160f);
-        return px;
+        return dp * (metrics.densityDpi / 160f);
     }
 
     public static void showVirtualKeyboard(Activity activity, View view) {
