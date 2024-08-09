@@ -29,7 +29,7 @@ public class MainActivity extends AppCompatActivity {
         btnBotConnect = findViewById(R.id.btnBotConnect);
 
         //If token is empty sdk token generation will happen. if not empty we will use this token for bot connection.
-        String jwtToken = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE3MjMxMjE4MTcsImV4cCI6MTcyMzIwODIxNywiYXVkIjoiIiwiaXNzIjoiY3MtNGVlMTA2ZjItYzAyZS01Zjk2LTg1YzQtN2VlYjcyZWVlNDJmIiwic3ViIjoiZGFiZTgyZmQtZGM0Ny00NzU3LWI5OTItMGM0YWE0YzFlZDE4MjkzNmFhZTQtYjY5Mi00ZjIxLTk2Y2QtYjc4YjMyMDVlYWNlIiwiaXNBbm9ueW1vdXMiOmZhbHNlfQ.jBNY_uM1_ckGep14vxXJMzFQEo3ijwWHfrtHTHHB_lY";
+        String jwtToken = getConfigValue("jwtToken");
 
         //Set clientId, If jwtToken is empty this value is mandatory
         String clientId = getConfigValue("clientId");//PLEASE_ENTER_BOT_CLIENT_ID

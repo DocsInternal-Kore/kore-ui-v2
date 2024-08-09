@@ -625,11 +625,14 @@ public class ComposeFooterFragment extends Fragment implements ComposeFooterUpda
             WindowManager.LayoutParams wlp = listViewActionSheet.getWindow().getAttributes();
             wlp.gravity = Gravity.BOTTOM;
             // attachmentOptions.getWindow().getAttributes().windowAnimations = R.style.DialogAnimation;
-            listViewActionSheet.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+            listViewActionSheet.getWindow().setBackgroundDrawable(new ColorDrawable(Color.WHITE));
         }
         listViewActionSheet.show();
         if (adapter == null) {
             ArrayList<String> options = new ArrayList<>(Arrays.asList(getResources().getStringArray(R.array.attachments_strings)));
+            if(!SDKConfiguration.BubbleColors.showVideoOption)
+                options.remove("Upload Video");
+
             adapter = new AttachmentOptionsAdapter(requireActivity(), options);
             listViewActionSheet.setAdapter(adapter);
             listViewActionSheet.getOptionsListView().setOnItemClickListener(new AdapterView.OnItemClickListener() {

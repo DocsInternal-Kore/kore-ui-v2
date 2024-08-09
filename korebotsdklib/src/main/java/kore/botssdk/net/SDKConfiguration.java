@@ -144,6 +144,7 @@ public class SDKConfiguration {
 
     public static class BubbleColors {
         public static  String rightBubbleSelected = APP_REQ_COLOR;
+        public static boolean showVideoOption = false;
 
         public static void setRightBubbleSelected(String rightBubbleSelected) {
             BubbleColors.rightBubbleSelected = rightBubbleSelected;
