@@ -298,8 +298,8 @@ public class ComposeFooterFragment extends Fragment implements ComposeFooterUpda
     }
 
     public void changeThemeBackGround(String widgetFooterColor, String widgetFooterHintColor) {
-        rlFooter.setBackgroundColor(Color.parseColor(widgetFooterColor));
-        editTextMessage.setHintTextColor(Color.parseColor(widgetFooterHintColor));
+        if (widgetFooterColor != null) rlFooter.setBackgroundColor(Color.parseColor(widgetFooterColor));
+        if (widgetFooterHintColor != null) editTextMessage.setHintTextColor(Color.parseColor(widgetFooterHintColor));
     }
 
     void toggleTTSButton() {
@@ -630,7 +630,7 @@ public class ComposeFooterFragment extends Fragment implements ComposeFooterUpda
         listViewActionSheet.show();
         if (adapter == null) {
             ArrayList<String> options = new ArrayList<>(Arrays.asList(getResources().getStringArray(R.array.attachments_strings)));
-            if(!SDKConfiguration.BubbleColors.showVideoOption)
+            if (!SDKConfiguration.BubbleColors.showVideoOption)
                 options.remove("Upload Video");
 
             adapter = new AttachmentOptionsAdapter(requireActivity(), options);

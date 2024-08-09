@@ -435,7 +435,7 @@ public class BotContentFragment extends Fragment implements BotContentFragmentUp
         botsBubblesListView.post(new Runnable() {
             @Override
             public void run() {
-                botsBubblesListView.smoothScrollToPosition(count - 1);
+                if (count > 0) botsBubblesListView.smoothScrollToPosition(count - 1);
             }
         });
     }

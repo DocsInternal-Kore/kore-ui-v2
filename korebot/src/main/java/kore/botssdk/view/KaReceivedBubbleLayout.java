@@ -834,7 +834,7 @@ public class KaReceivedBubbleLayout extends KaBaseBubbleLayout {
         /*
          * For Sender icon [CPV]
          */
-        float cpvSenderImageDimen = dp1 * 21;
+        float cpvSenderImageDimen = dp1 * 24;
         childWidthSpec = MeasureSpec.makeMeasureSpec((int) cpvSenderImageDimen, MeasureSpec.EXACTLY);
         childHeightSpec = MeasureSpec.makeMeasureSpec((int) cpvSenderImageDimen, MeasureSpec.EXACTLY);
         cpvSenderImage.setDimens(cpvSenderImageDimen, cpvSenderImageDimen);
