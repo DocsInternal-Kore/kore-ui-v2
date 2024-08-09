@@ -8,11 +8,9 @@ import static kore.botssdk.utils.BundleConstants.CAPTURE_IMAGE_CHOOSE_FILES_RECO
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.content.ActivityNotFoundException;
 import android.content.ContentUris;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
@@ -26,7 +24,6 @@ import android.os.Environment;
 import android.provider.DocumentsContract;
 import android.provider.MediaStore;
 import android.provider.OpenableColumns;
-import android.provider.Settings;
 import android.view.OrientationEventListener;
 import android.widget.Toast;
 
@@ -35,8 +32,6 @@ import androidx.activity.result.ActivityResult;
 import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
-import androidx.annotation.RequiresApi;
-import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
 import androidx.exifinterface.media.ExifInterface;
 
@@ -76,21 +71,20 @@ public class KaCaptureImageActivity extends KaAppCompatActivity implements KoreM
     public static final String THUMBNAIL_FILE_PATH = "filePathThumbnail";
     private static Uri cameraImgUri;
     private String imagePickType = null;
-    String fileContext = null;
-    static boolean NORMAL_PORTRAIT;
+    private String fileContext = null;
+    private static boolean NORMAL_PORTRAIT;
     private final int compressQualityInt = 100;
     private String MEDIA_TYPE = MEDIA_TYPE_IMAGE;
-    String MEDIA_FILENAME;
-    String MEDIA_FILE_PATH;
-    String MEDIA_EXTENSION;
-    String thumbnailFilePath;
-    Intent resultIntent = null;
+    private String MEDIA_FILENAME;
+    private String MEDIA_FILE_PATH;
+    private String MEDIA_EXTENSION;
+    private String thumbnailFilePath;
+    private Intent resultIntent = null;
     String mCurrentPhotoPath = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Objects.requireNonNull(getSupportActionBar()).hide();
         setContentView(R.layout.ka_capture_image);
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
@@ -111,39 +105,33 @@ public class KaCaptureImageActivity extends KaAppCompatActivity implements KoreM
         });
     }
 
-    void checkForPermissionAccessAndRequest() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R && !Environment.isExternalStorageManager()) {
-            showEnableAllFilesAccess();
-            return;
-        }
+    private void checkForPermissionAccessAndRequest() {
         if (CHOOSE_TYPE_CAPTURE_IMAGE.equalsIgnoreCase(imagePickType)) {
-            if (KaPermissionsHelper.hasPermission(this, Manifest.permission.READ_MEDIA_IMAGES, Manifest.permission.CAMERA)) {
+
+            if (KaPermissionsHelper.hasPermission(this, Manifest.permission.READ_MEDIA_IMAGES)) {
                 openImageIntent(imagePickType);
             } else {
                 if (Build.VERSION.SDK_INT >= TIRAMISU) {
-                    KaPermissionsHelper.requestForPermission(this, CAPTURE_IMAGE_BUNDLED_PREMISSION_REQUEST, Manifest.permission.READ_MEDIA_IMAGES, Manifest.permission.CAMERA);
+                    KaPermissionsHelper.requestForPermission(this, CAPTURE_IMAGE_BUNDLED_PREMISSION_REQUEST,
+                            Manifest.permission.READ_MEDIA_IMAGES);
                 } else {
-                    KaPermissionsHelper.requestForPermission(this, CAPTURE_IMAGE_BUNDLED_PREMISSION_REQUEST, Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.CAMERA);
+                    KaPermissionsHelper.requestForPermission(this, CAPTURE_IMAGE_BUNDLED_PREMISSION_REQUEST,
+                            Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE);
                 }
             }
-        } else if (CHOOSE_TYPE_CAPTURE_VIDEO.equalsIgnoreCase(imagePickType)) {
-            if (KaPermissionsHelper.hasPermission(this, Manifest.permission.READ_MEDIA_VIDEO, Manifest.permission.RECORD_AUDIO, Manifest.permission.CAMERA)) {
+        } else if (CHOOSE_TYPE_IMAGE_VIDEO.equalsIgnoreCase(imagePickType) ||
+                CHOOSE_TYPE_IMAGE_PICK.equalsIgnoreCase(imagePickType) ||
+                CHOOSE_TYPE_VIDEO_PICK.equalsIgnoreCase((imagePickType))) {
+            if (Build.VERSION.SDK_INT >= TIRAMISU ? KaPermissionsHelper.hasPermission(this, Manifest.permission.READ_MEDIA_IMAGES, Manifest.permission.READ_MEDIA_VIDEO) :
+                    KaPermissionsHelper.hasPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
                 openImageIntent(imagePickType);
             } else {
                 if (Build.VERSION.SDK_INT >= TIRAMISU) {
-                    KaPermissionsHelper.requestForPermission(this, CAPTURE_IMAGE_BUNDLED_PREMISSION_REQUEST, Manifest.permission.READ_MEDIA_VIDEO, Manifest.permission.RECORD_AUDIO, Manifest.permission.CAMERA);
+                    KaPermissionsHelper.requestForPermission(this, CAPTURE_IMAGE_CHOOSE_FILES_BUNDLED_PREMISSION_REQUEST,
+                            Manifest.permission.READ_MEDIA_IMAGES, Manifest.permission.READ_MEDIA_VIDEO);
                 } else {
-                    KaPermissionsHelper.requestForPermission(this, CAPTURE_IMAGE_BUNDLED_PREMISSION_REQUEST, Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.RECORD_AUDIO, Manifest.permission.CAMERA);
-                }
-            }
-        } else if (CHOOSE_TYPE_IMAGE_VIDEO.equalsIgnoreCase(imagePickType) || CHOOSE_TYPE_IMAGE_PICK.equalsIgnoreCase(imagePickType) || CHOOSE_TYPE_VIDEO_PICK.equalsIgnoreCase((imagePickType))) {
-            if ((Build.VERSION.SDK_INT >= TIRAMISU) ? KaPermissionsHelper.hasPermission(this, Manifest.permission.READ_MEDIA_IMAGES, Manifest.permission.READ_MEDIA_VIDEO) : KaPermissionsHelper.hasPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)) {
-                openImageIntent(imagePickType);
-            } else {
-                if (Build.VERSION.SDK_INT >= TIRAMISU) {
-                    KaPermissionsHelper.requestForPermission(this, CAPTURE_IMAGE_CHOOSE_FILES_BUNDLED_PREMISSION_REQUEST, Manifest.permission.READ_MEDIA_IMAGES, Manifest.permission.READ_MEDIA_VIDEO);
-                } else {
-                    KaPermissionsHelper.requestForPermission(this, CAPTURE_IMAGE_CHOOSE_FILES_BUNDLED_PREMISSION_REQUEST, Manifest.permission.READ_EXTERNAL_STORAGE);
+                    KaPermissionsHelper.requestForPermission(this, CAPTURE_IMAGE_CHOOSE_FILES_BUNDLED_PREMISSION_REQUEST,
+                            Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE);
                 }
             }
         } else if (CHOOSE_TYPE_DOCUMENT_PICK.equalsIgnoreCase(imagePickType)) {
@@ -151,9 +139,11 @@ public class KaCaptureImageActivity extends KaAppCompatActivity implements KoreM
                 openImageIntent(imagePickType);
             } else {
                 if (Build.VERSION.SDK_INT >= TIRAMISU) {
-                    KaPermissionsHelper.requestForPermission(this, CAPTURE_IMAGE_CHOOSE_FILES_BUNDLED_PREMISSION_REQUEST, Manifest.permission.READ_MEDIA_IMAGES);
+                    KaPermissionsHelper.requestForPermission(this, CAPTURE_IMAGE_CHOOSE_FILES_BUNDLED_PREMISSION_REQUEST,
+                            Manifest.permission.READ_MEDIA_IMAGES);
                 } else {
-                    KaPermissionsHelper.requestForPermission(this, CAPTURE_IMAGE_CHOOSE_FILES_BUNDLED_PREMISSION_REQUEST, Manifest.permission.READ_EXTERNAL_STORAGE);
+                    KaPermissionsHelper.requestForPermission(this, CAPTURE_IMAGE_CHOOSE_FILES_BUNDLED_PREMISSION_REQUEST,
+                            Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE);
                 }
             }
         } else {
@@ -162,44 +152,6 @@ public class KaCaptureImageActivity extends KaAppCompatActivity implements KoreM
 
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.R)
-    void showEnableAllFilesAccess() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.MyDialogTheme);
-        builder.setTitle("Please allow 'Manage all files access' to continue");
-        builder.setCancelable(false);
-        builder.setPositiveButton("Ok", (dialog, which) -> {
-            dialog.dismiss();
-            Uri uri = Uri.parse("package:" + getPackageName());
-            Intent intent = new Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION, uri);
-            settingsLauncher.launch(intent);
-        });
-        builder.setNegativeButton("Cancel", (dialog, which) -> {
-            finish();
-            dialog.dismiss();
-        });
-
-        AlertDialog alertDialog1 = builder.create();
-        alertDialog1.setOnShowListener(new DialogInterface.OnShowListener() {
-            @Override
-            public void onShow(DialogInterface dialog) {
-                alertDialog1.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(ContextCompat.getColor(KaCaptureImageActivity.this, R.color.txtFontBlack));
-                alertDialog1.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(ContextCompat.getColor(KaCaptureImageActivity.this, R.color.txtFontBlack));
-            }
-        });
-        alertDialog1.show();
-    }
-
-    final ActivityResultLauncher<Intent> settingsLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), new ActivityResultCallback<ActivityResult>() {
-        @Override
-        public void onActivityResult(ActivityResult result) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R && !Environment.isExternalStorageManager()) {
-                showEnableAllFilesAccess();
-            } else {
-                checkForPermissionAccessAndRequest();
-            }
-        }
-    });
-
     @Override
     public void onRequestPermissionsResult(int requestCode, @androidx.annotation.NonNull String[] permissions, @androidx.annotation.NonNull int[] grantResults) {
         if (requestCode == CAPTURE_IMAGE_BUNDLED_PREMISSION_REQUEST) {
@@ -207,13 +159,13 @@ public class KaCaptureImageActivity extends KaAppCompatActivity implements KoreM
                 openImageIntent(imagePickType);
             }
         } else if (requestCode == CAPTURE_IMAGE_CHOOSE_FILES_BUNDLED_PREMISSION_REQUEST) {
-            if (Build.VERSION.SDK_INT >= 33 ? KaPermissionsHelper.hasPermission(this, Manifest.permission.READ_MEDIA_IMAGES) :
-                    KaPermissionsHelper.hasPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)) {
+            if (Build.VERSION.SDK_INT >= TIRAMISU ? KaPermissionsHelper.hasPermission(this, Manifest.permission.READ_MEDIA_IMAGES) :
+                    KaPermissionsHelper.hasPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
                 openImageIntent(imagePickType);
             }
         } else if (requestCode == CAPTURE_IMAGE_CHOOSE_FILES_RECORD_BUNDLED_PREMISSION_REQUEST) {
-            if (Build.VERSION.SDK_INT >= 33 ? KaPermissionsHelper.hasPermission(this, Manifest.permission.READ_MEDIA_IMAGES) :
-                    KaPermissionsHelper.hasPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)) {
+            if (Build.VERSION.SDK_INT >= TIRAMISU ? KaPermissionsHelper.hasPermission(this, Manifest.permission.READ_MEDIA_IMAGES) :
+                    KaPermissionsHelper.hasPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
                 openImageIntent(imagePickType);
             }
         }
@@ -409,24 +361,17 @@ public class KaCaptureImageActivity extends KaAppCompatActivity implements KoreM
             });
     final ActivityResultLauncher<Intent> photoPickerActivityResultLauncher = registerForActivityResult(
             new ActivityResultContracts.StartActivityForResult(),
-            new ActivityResultCallback<ActivityResult>() {
-                @Override
-                public void onActivityResult(ActivityResult result) {
-                    if (result.getResultCode() == Activity.RESULT_OK) {
-                        if (result.getData() != null) {
-                            Uri selectedImage = result.getData().getData();
-                            if ((fileContext.equalsIgnoreCase(FOR_MESSAGE) || fileContext.equalsIgnoreCase(FOR_PROFILE)) && selectedImage != null) {
-                                // keep track of choose image intent
-                                int CHOOSE_IMAGE = 3;
-                                getImageForGalleryFooter(selectedImage, CHOOSE_IMAGE);
-                            } else if (selectedImage == null) {
-                                finishAndCancelOperation();
-                            }
-                        } else {
-                            finish();
+            result -> {
+                if (result.getResultCode() == Activity.RESULT_OK) {
+                    if (result.getData() != null) {
+                        Uri selectedImage = result.getData().getData();
+                        if ((fileContext.equalsIgnoreCase(FOR_MESSAGE) || fileContext.equalsIgnoreCase(FOR_PROFILE)) && selectedImage != null) {
+                            // keep track of choose image intent
+                            int CHOOSE_IMAGE = 3;
+                            getImageForGalleryFooter(selectedImage, CHOOSE_IMAGE);
+                        } else if (selectedImage == null) {
+                            finishAndCancelOperation();
                         }
-                    } else {
-                        finish();
                     }
                 }
             });
@@ -485,7 +430,7 @@ public class KaCaptureImageActivity extends KaAppCompatActivity implements KoreM
         return image;
     }
 
-    String getFileNameByUri(Context context, Uri uri) {
+    private String getFileNameByUri(Context context, Uri uri) {
         String filepath = "";
         File file;
         if (Objects.requireNonNull(uri.getScheme()).compareTo("content") == 0) {
@@ -528,6 +473,7 @@ public class KaCaptureImageActivity extends KaAppCompatActivity implements KoreM
     }
 
     void finishOperation(Uri uri, String fileExtn) {
+
         resultIntent = new Intent();
         resultIntent.putExtra("action", CHOOSE_TYPE_DOCUMENT_PICK);
         resultIntent.putExtra("fileName", MEDIA_FILENAME);
@@ -585,7 +531,7 @@ public class KaCaptureImageActivity extends KaAppCompatActivity implements KoreM
         this.finish();
     }
 
-    void getImageForGalleryFooter(Uri imageUri, int resultCode) {
+    private void getImageForGalleryFooter(Uri imageUri, int resultCode) {
         OutputStream fOut = null;
 
         try {
@@ -642,7 +588,7 @@ public class KaCaptureImageActivity extends KaAppCompatActivity implements KoreM
     }
 
 
-    void getFullImage() {
+    private void getFullImage() {
 
         String path = null;
         path = mCurrentPhotoPath;
@@ -718,8 +664,8 @@ public class KaCaptureImageActivity extends KaAppCompatActivity implements KoreM
         int degrees = 0;
         int original_H = finalMap.getHeight();
         int original_W = finalMap.getWidth();
-        int target_W;
-        int target_H;
+        int target_W = 0;
+        int target_H = 0;
         LogUtils.d(LOG_TAG, "createImageThumbnail() :: original height" + original_H);
         LogUtils.d(LOG_TAG, "createImageThumbnail() :: original width" + original_W);
 
@@ -903,7 +849,7 @@ public class KaCaptureImageActivity extends KaAppCompatActivity implements KoreM
      * @author paulburke
      */
     @SuppressLint("NewApi")
-    String getPath(final Context context, final Uri uri) {
+    private String getPath(final Context context, final Uri uri) {
         if (DocumentsContract.isDocumentUri(context, uri)) {
             if (isExternalStorageDocument(uri)) {
                 final String docId = DocumentsContract.getDocumentId(uri);
@@ -1064,4 +1010,3 @@ public class KaCaptureImageActivity extends KaAppCompatActivity implements KoreM
     }
     //===============================Gallery fetch code ends=====================================//
 }
-

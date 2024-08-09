@@ -67,7 +67,6 @@ import androidx.core.content.FileProvider;
 import androidx.core.content.PermissionChecker;
 import androidx.documentfile.provider.DocumentFile;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -647,19 +646,19 @@ public class ComposeFooterFragment extends Fragment implements ComposeFooterUpda
     void launchSelectedMode(int position) {
         switch (position) {
             case 4:
-                fileBrowsingActivity(BundleConstants.CHOOSE_TYPE_CAMERA, REQ_CAMERA, BundleConstants.MEDIA_TYPE_IMAGE);
+                fileBrowsingActivity(KoreMedia.CHOOSE_TYPE_CAPTURE_IMAGE, REQ_CAMERA, BundleConstants.MEDIA_TYPE_IMAGE);
                 break;
             case 0:
-                fileBrowsingActivity(BundleConstants.CHOOSE_TYPE_GALLERY, REQ_IMAGE, BundleConstants.MEDIA_TYPE_IMAGE);
+                fileBrowsingActivity(KoreMedia.CHOOSE_TYPE_IMAGE_PICK, REQ_IMAGE, BundleConstants.MEDIA_TYPE_IMAGE);
                 break;
             case 3:
-                launchVideoRecorder();
-                break;
-            case 1:
-                fileBrowsingActivity(BundleConstants.CHOOSE_TYPE_VIDEO_GALLERY, REQ_VIDEO, BundleConstants.MEDIA_TYPE_VIDEO);
+                fileBrowsingActivity(KoreMedia.CHOOSE_TYPE_IMAGE_VIDEO, REQ_VIDEO_CAPTURE, BundleConstants.MEDIA_TYPE_VIDEO);
                 break;
             case 2:
-                fileBrowsingActivity(BundleConstants.CHOOSE_TYPE_FILE, REQ_FILE, BundleConstants.MEDIA_TYPE_DOCUMENT);
+                fileBrowsingActivity(KoreMedia.CHOOSE_TYPE_VIDEO_PICK, REQ_VIDEO, BundleConstants.MEDIA_TYPE_VIDEO);
+                break;
+            case 1:
+                fileBrowsingActivity(KoreMedia.CHOOSE_TYPE_DOCUMENT_PICK, REQ_FILE, BundleConstants.MEDIA_TYPE_DOCUMENT);
                 break;
 
 
