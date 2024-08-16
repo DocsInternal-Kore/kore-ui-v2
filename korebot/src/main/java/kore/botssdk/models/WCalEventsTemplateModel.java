@@ -1,5 +1,7 @@
 package kore.botssdk.models;
 
+import androidx.annotation.NonNull;
+
 import java.io.Serializable;
 import java.util.List;
 
@@ -19,6 +21,7 @@ public class WCalEventsTemplateModel extends BaseCalenderTemplateModel implement
     public String getTitle() {
         return title;
     }
+
     boolean isActive;
     String meetingId;
 
@@ -160,13 +163,13 @@ public class WCalEventsTemplateModel extends BaseCalenderTemplateModel implement
         }
     }
 
+    @NonNull
     @Override
     public WCalEventsTemplateModel clone() throws CloneNotSupportedException {
-            WCalEventsTemplateModel obj = (WCalEventsTemplateModel)super.clone();
-            CalenderEventData calEv = obj.getData().clone();
-            calEv.setDuration(calEv.getDuration().clone());
-            obj.setData(calEv);
-
-            return obj;
+        WCalEventsTemplateModel obj = (WCalEventsTemplateModel) super.clone();
+        CalenderEventData calEv = obj.data.clone();
+        calEv.setDuration(calEv.getDuration().clone());
+        obj.data = calEv;
+        return obj;
     }
 }

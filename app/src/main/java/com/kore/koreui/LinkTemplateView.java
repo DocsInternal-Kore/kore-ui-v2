@@ -42,11 +42,11 @@ public class LinkTemplateView extends CustomTemplateView {
     @Override
     public void populateTemplate(@NonNull String botResponse, boolean isLast) {
 
-        Type botResp = new TypeToken<ResponsePayload>() {}.getType();
+        Type botResp = new TypeToken<ResponsePayload>() {
+        }.getType();
         ResponsePayload responsePayload = gson.fromJson(botResponse, botResp);
 
-        if(responsePayload != null)
-        {
+        if (responsePayload != null) {
             tvPdfName.setText(responsePayload.getFileName());
             ivPdfDownload.setOnClickListener(v -> {
                 File fileLocation = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS) + File.separator + responsePayload.getFileName());
@@ -96,10 +96,10 @@ public class LinkTemplateView extends CustomTemplateView {
     }
 
     private boolean writeBase64ToDisk(String fileData, File fileLocation) {
+        FileOutputStream os = null;
         try {
             fileData = fileData.substring(fileData.indexOf(",") + 1);
             byte[] pdfAsBytes = Base64.decode(String.valueOf(fileData), 0);
-            FileOutputStream os;
             os = new FileOutputStream(fileLocation, false);
             os.write(pdfAsBytes);
             os.flush();
@@ -109,6 +109,13 @@ public class LinkTemplateView extends CustomTemplateView {
             e.printStackTrace();
             ivPdfDownload.setVisibility(VISIBLE);
             pbDownload.setVisibility(GONE);
+            if (os != null) {
+                try {
+                    os.close();
+                } catch (IOException ex) {
+                    ex.printStackTrace();
+                }
+            }
             return false;
         }
     }

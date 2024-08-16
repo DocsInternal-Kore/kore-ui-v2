@@ -25,7 +25,7 @@ public class CombinedChartRenderer extends DataRenderer {
     public CombinedChartRenderer(CombinedChart chart, ChartAnimator animator, ViewPortHandler viewPortHandler) {
         super(animator, viewPortHandler);
         this.mChart = new WeakReference(chart);
-        this.createRenderers();
+        createRenderers();
     }
 
     public void createRenderers() {

@@ -165,7 +165,7 @@ public class CalEventsTemplateModel extends BaseCalenderTemplateModel implements
         this.reqTextToDisplayForDetails = reqTextToDisplayForDetails;
     }
 
-    public static class Duration  implements Serializable,Cloneable{
+    public static class Duration implements Serializable, Cloneable {
 
         private double start;
         private double end;
@@ -188,11 +188,11 @@ public class CalEventsTemplateModel extends BaseCalenderTemplateModel implements
 
         @Override
         protected Duration clone() throws CloneNotSupportedException {
-            return (Duration)super.clone();
+            return (Duration) super.clone();
         }
     }
 
-    public static class Attendee implements Serializable{
+    public static class Attendee implements Serializable {
 
         private boolean optional;
         private boolean resource;
@@ -268,8 +268,9 @@ public class CalEventsTemplateModel extends BaseCalenderTemplateModel implements
         }
 
         boolean checkState;
+
         public String getEmail() {
-            return email!=null?email:emailId;
+            return email != null ? email : emailId;
         }
 
         public void setEmail(String email) {
@@ -287,7 +288,7 @@ public class CalEventsTemplateModel extends BaseCalenderTemplateModel implements
         @NonNull
         @Override
         public String toString() {
-            return name!=null&& !TextUtils.isEmpty(name)?name:email;
+            return name != null && !TextUtils.isEmpty(name) ? name : email;
         }
 
 
@@ -331,10 +332,11 @@ public class CalEventsTemplateModel extends BaseCalenderTemplateModel implements
         }
     }
 
+    @NonNull
     @Override
     public CalEventsTemplateModel clone() throws CloneNotSupportedException {
-        CalEventsTemplateModel obj = (CalEventsTemplateModel)super.clone();
-        obj.setDuration(obj.getDuration().clone());
+        CalEventsTemplateModel obj = (CalEventsTemplateModel) super.clone();
+        obj.duration = obj.duration.clone();
         return obj;
     }
 }

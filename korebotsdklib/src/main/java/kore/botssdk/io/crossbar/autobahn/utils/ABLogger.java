@@ -3,7 +3,8 @@ package kore.botssdk.io.crossbar.autobahn.utils;
 public class ABLogger {
 
     private static boolean isAndroid() {
-        return System.getProperty("java.vendor").equals("The Android Project");
+        String vendor = System.getProperty("java.vendor");
+        return vendor != null && vendor.equals("The Android Project");
     }
 
     public static IABLogger getLogger(String tag) {

@@ -15,7 +15,7 @@ import java.util.HashMap;
  */
 @SuppressLint("UnknownNullness")
 public class SDKConfiguration {
-
+    private static final String DEFAULT_JWT_TOKEN_STRING = "PLEASE_ENTER_JWT_TOKEN";
     public static final String APP_REQ_COLOR = "#3942f6"; // KORA COLOR "#3942f6" // BMC COLOR 2f91e5
     /**
      * bot init text  and related settings
@@ -54,14 +54,14 @@ public class SDKConfiguration {
             JWT_SERVER_URL = jwtServerUrl;
         }
 
-        static String jwt_token = "";
+        static String jwt_token = DEFAULT_JWT_TOKEN_STRING;
 
         public static void setJwt_token(String jwt_token) {
             JWTServer.jwt_token = jwt_token;
         }
 
         public static String getJwt_token() {
-            return jwt_token;
+            return !jwt_token.equals(DEFAULT_JWT_TOKEN_STRING) ? jwt_token : "";
         }
     }
 

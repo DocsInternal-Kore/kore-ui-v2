@@ -11,16 +11,14 @@ public class IndexAxisValueFormatter extends ValueFormatter {
 
     public IndexAxisValueFormatter(String[] values) {
         if (values != null) {
-            this.setValues(values);
+            setValues(values);
         }
-
     }
 
     public IndexAxisValueFormatter(Collection<String> values) {
         if (values != null) {
-            this.setValues(values.toArray(new String[values.size()]));
+            setValues(values.toArray(new String[values.size()]));
         }
-
     }
 
     public String getFormattedValue(float value) {

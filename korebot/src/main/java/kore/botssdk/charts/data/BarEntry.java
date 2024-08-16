@@ -38,22 +38,22 @@ public class BarEntry extends Entry {
     public BarEntry(float x, float[] vals, Object data) {
         super(x, calcSum(vals), data);
         this.mYVals = vals;
-        this.calcPosNegSum();
-        this.calcRanges();
+        calcPosNegSum();
+        calcRanges();
     }
 
     public BarEntry(float x, float[] vals, Drawable icon) {
         super(x, calcSum(vals), icon);
         this.mYVals = vals;
-        this.calcPosNegSum();
-        this.calcRanges();
+        calcPosNegSum();
+        calcRanges();
     }
 
     public BarEntry(float x, float[] vals, Drawable icon, Object data) {
         super(x, calcSum(vals), icon, data);
         this.mYVals = vals;
-        this.calcPosNegSum();
-        this.calcRanges();
+        calcPosNegSum();
+        calcRanges();
     }
 
     public kore.botssdk.charts.data.BarEntry copy() {

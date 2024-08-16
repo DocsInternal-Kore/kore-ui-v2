@@ -98,7 +98,7 @@ final FileUploadInfo uploadInfo = new FileUploadInfo();
 	private final boolean isAnonymousUser;
 	private final boolean isWebHook;
 	private final String botId;
-	
+
 	public UploadBulkFile(String fileName,String outFilePath, String accessToken, String userId, String fileContext,
 						String fileExtn,int BUFFER_SIZE, Messenger messenger,
 							String thumbnailFilePath, String messageId,Context context,String componentType,
@@ -122,7 +122,7 @@ final FileUploadInfo uploadInfo = new FileUploadInfo();
 		this.isWebHook = isWebHook;
 		this.botId = botId;
 		userOrTeamId = userId;
-		
+
 		helper = BotDBManager.getInstance();
 	}
 
@@ -517,6 +517,10 @@ final FileUploadInfo uploadInfo = new FileUploadInfo();
 				sendUploadFailedNotice(true);
 			}
 
+			e.printStackTrace();
+			LogUtils.e(LOG_TAG, "Failed to send the merge initiation message " + e);
+		}
+		finally {
 			try {
 				if(outputStream != null)
 					outputStream.close();
@@ -546,62 +550,6 @@ final FileUploadInfo uploadInfo = new FileUploadInfo();
 			} catch (Exception ex) {
 				ex.printStackTrace();
 			}
-
-			e.printStackTrace();
-			LogUtils.e(LOG_TAG, "Failed to send the merge initiation message " + e);
-		}
-		finally {
-			try {
-				if(outputStream != null)
-					outputStream.close();
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-			try {
-				if(inputStream != null)
-					inputStream.close();
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-			try {
-				if(dataOutputStream != null)
-					dataOutputStream.close();
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-			try {
-				if(inputStreamReader != null)
-					inputStreamReader.close();
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-			try {
-				if(fis != null)
-					fis.close();
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-			try {
-				if(thumbBaos != null)
-					thumbBaos.close();
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-			try {
-				if(input != null)
-					input.close();
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-			try {
-				if(httpsURLConnection != null)
-					httpsURLConnection.disconnect();
-
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-
-			helper.getFileUploadInfoMap().put(fileToken,uploadInfo);
 		}
 	}
 	private  String getFileSizeMegaBytes(File file) {

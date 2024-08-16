@@ -263,7 +263,11 @@ public class KaCaptureImageActivity extends KaAppCompatActivity implements KoreM
                             int CAMERA_CAPTURE = 1;
                             setResult(RESULT_OK, resultIntent);
                             finish();
+                        } else {
+                            finish();
                         }
+                    } else {
+                        finish();
                     }
                 }
             });
@@ -337,26 +341,23 @@ public class KaCaptureImageActivity extends KaAppCompatActivity implements KoreM
 
     final ActivityResultLauncher<Intent> chooseImageActivityResultLauncher = registerForActivityResult(
             new ActivityResultContracts.StartActivityForResult(),
-            new ActivityResultCallback<ActivityResult>() {
-                @Override
-                public void onActivityResult(ActivityResult result) {
-                    if (result.getResultCode() == Activity.RESULT_OK) {
-                        if (result.getData() != null) {
-                            Uri selectedImage = result.getData().getData();
-                            if (fileContext.equalsIgnoreCase(KoreContact.PROFILE) && selectedImage != null) {
-                                new FetchImageDataAndCrop(selectedImage);
-                            } else if (fileContext.equalsIgnoreCase(FOR_MESSAGE) && selectedImage != null) {
-                                int CHOOSE_IMAGE_VIDEO = 6;
-                                getImageForGalleryFooter(selectedImage, CHOOSE_IMAGE_VIDEO);
-                            } else if (selectedImage == null) {
-                                finishAndCancelOperation();
-                            }
-                        } else {
-                            finish();
+            result -> {
+                if (result.getResultCode() == Activity.RESULT_OK) {
+                    if (result.getData() != null) {
+                        Uri selectedImage = result.getData().getData();
+                        if (fileContext.equalsIgnoreCase(KoreContact.PROFILE) && selectedImage != null) {
+                            new FetchImageDataAndCrop(selectedImage);
+                        } else if (fileContext.equalsIgnoreCase(FOR_MESSAGE) && selectedImage != null) {
+                            int CHOOSE_IMAGE_VIDEO = 6;
+                            getImageForGalleryFooter(selectedImage, CHOOSE_IMAGE_VIDEO);
+                        } else if (selectedImage == null) {
+                            finishAndCancelOperation();
                         }
                     } else {
                         finish();
                     }
+                } else {
+                    finish();
                 }
             });
     final ActivityResultLauncher<Intent> photoPickerActivityResultLauncher = registerForActivityResult(
@@ -372,7 +373,11 @@ public class KaCaptureImageActivity extends KaAppCompatActivity implements KoreM
                         } else if (selectedImage == null) {
                             finishAndCancelOperation();
                         }
+                    } else {
+                        finish();
                     }
+                } else {
+                    finish();
                 }
             });
     final ActivityResultLauncher<Intent> videoActivityResultLauncher = registerForActivityResult(

@@ -65,10 +65,9 @@ public class LinkTemplateView extends LinearLayout {
     }
 
     public void populatePdfView(PayloadInner payloadInner) {
-        if (payloadInner != null)
-        {
+        if (payloadInner != null) {
 
-            if(!StringUtils.isNullOrEmpty(payloadInner.getFileName()))
+            if (!StringUtils.isNullOrEmpty(payloadInner.getFileName()))
                 tvTitle.setText(payloadInner.getFileName());
 
             ivPdfDownload.setOnClickListener(v -> {
@@ -76,15 +75,13 @@ public class LinkTemplateView extends LinearLayout {
                     ivPdfDownload.setVisibility(GONE);
                     pbDownload.setVisibility(VISIBLE);
 
-                    if(writeBase64ToDisk(payloadInner.getUrl(), payloadInner.getFileName()))
-                    {
+                    if (writeBase64ToDisk(payloadInner.getUrl(), payloadInner.getFileName())) {
                         ivPdfDownload.setVisibility(VISIBLE);
                         pbDownload.setVisibility(GONE);
 
                         Toast.makeText(context, "Statement downloaded successfully under documents", Toast.LENGTH_SHORT).show();
                     }
-                } else
-                {
+                } else {
                     ivPdfDownload.setVisibility(VISIBLE);
                     pbDownload.setVisibility(GONE);
                     Toast.makeText(context, "Statement download unsuccessful", Toast.LENGTH_SHORT).show();
@@ -155,11 +152,11 @@ public class LinkTemplateView extends LinearLayout {
     }
 
     private boolean writeBase64ToDisk(String fileData, String fileName) {
-        FileOutputStream os = null;
+        InputStream isActual = null;
         try {
             fileData = fileData.substring(fileData.indexOf(",") + 1);
             byte[] pdfAsBytes = Base64.decode(fileData, 0);
-            InputStream isActual = new ByteArrayInputStream(pdfAsBytes);
+            isActual = new ByteArrayInputStream(pdfAsBytes);
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                 savePDFFile(context, isActual, fileName);
             }
@@ -167,6 +164,14 @@ public class LinkTemplateView extends LinearLayout {
         } catch (IOException e) {
             e.printStackTrace();
             return false;
+        } finally {
+            if (isActual != null) {
+                try {
+                    isActual.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
         }
     }
 }
