@@ -69,6 +69,9 @@ SDKConfiguration.BubbleColors.showTextToSpeech = true;
 //Flag to show the attachment icon
 SDKConfiguration.BubbleColors.showAttachment = true;
 
+//Flag to show the quickReplies at Bottom
+SDKConfiguration.BubbleColors.showQuickRepliesBottom = false;
+
 //Flag to show timestamp of each bot and user messages
 SDKConfiguration.setTimeStampsRequired(true);
 
