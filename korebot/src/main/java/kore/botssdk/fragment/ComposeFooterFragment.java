@@ -7,7 +7,6 @@ import static androidx.core.content.PermissionChecker.checkSelfPermission;
 import static kore.botssdk.activity.KaCaptureImageActivity.THUMBNAIL_FILE_PATH;
 import static kore.botssdk.utils.BitmapUtils.getBufferSize;
 import static kore.botssdk.utils.BitmapUtils.rotateIfNecessary;
-import static kore.botssdk.utils.BundleConstants.CAPTURE_IMAGE_BUNDLED_PREMISSION_REQUEST;
 import static kore.botssdk.view.viewUtils.FileUtils.EXT_JPG;
 import static kore.botssdk.view.viewUtils.FileUtils.EXT_PNG;
 import static kore.botssdk.view.viewUtils.FileUtils.EXT_VIDEO;
@@ -29,9 +28,7 @@ import android.graphics.Matrix;
 import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.AsyncTask;
-import android.os.Build;
 import android.os.Bundle;
-import android.os.Environment;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
@@ -63,7 +60,6 @@ import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
-import androidx.core.content.FileProvider;
 import androidx.core.content.PermissionChecker;
 import androidx.documentfile.provider.DocumentFile;
 import androidx.fragment.app.Fragment;
@@ -84,10 +80,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.lang.ref.WeakReference;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -119,7 +113,6 @@ import kore.botssdk.utils.AppPermissionsHelper;
 import kore.botssdk.utils.BitmapUtils;
 import kore.botssdk.utils.BundleConstants;
 import kore.botssdk.utils.KaMediaUtils;
-import kore.botssdk.utils.KaPermissionsHelper;
 import kore.botssdk.utils.LogUtils;
 import kore.botssdk.utils.SharedPreferenceUtils;
 import kore.botssdk.utils.ToastUtils;
@@ -666,72 +659,9 @@ public class ComposeFooterFragment extends Fragment implements ComposeFooterUpda
         listViewActionSheet.dismiss();
     }
 
-    private void launchVideoRecorder() {
-        if (KaPermissionsHelper.hasPermission(requireActivity(), Manifest.permission.CAMERA, Manifest.permission.MANAGE_EXTERNAL_STORAGE)) {
-            Intent profilePicEditIntent = new Intent(MediaStore.ACTION_VIDEO_CAPTURE);
-            profilePicEditIntent.putExtra(MediaStore.EXTRA_VIDEO_QUALITY, 1);
-
-            try {
-                Uri photoURI = FileProvider.getUriForFile(requireActivity(), requireActivity().getPackageName() + ".provider", Objects.requireNonNull(createVideoFile()));
-                profilePicEditIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-
-            //profilePicEditIntent.putExtra(MediaStore.EXTRA_OUTPUT, getImageUri());
-            profilePicEditIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-            profilePicEditIntent.addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
-
-            startActivityForResult(profilePicEditIntent, REQ_VIDEO_CAPTURE);
-        } else {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                KaPermissionsHelper.requestForPermission(requireActivity(), CAPTURE_IMAGE_BUNDLED_PREMISSION_REQUEST, Manifest.permission.CAMERA, Manifest.permission.MANAGE_EXTERNAL_STORAGE);
-            } else {
-                KaPermissionsHelper.requestForPermission(requireActivity(), CAPTURE_IMAGE_BUNDLED_PREMISSION_REQUEST, Manifest.permission.CAMERA, Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE);
-            }
-        }
-    }
-
-    private Uri getImageUri() {
-        // Store image in Kore folder
-        KaMediaUtils.updateExternalStorageState();
-//        KaMediaUtils.setupAppDir(BundleConstants.MEDIA_TYPE_VIDEO, userData.getId());
-
-        cameraVideoUri1 = null;
-        try {
-            File actualImageFile = KaMediaUtils.getOutputMediaFile(BundleConstants.MEDIA_TYPE_VIDEO, null);
-            Uri uri;
-            cameraVideoUri1 = FileProvider.getUriForFile(requireActivity(), requireActivity().getPackageName() + ".provider", actualImageFile);
-
-            LogUtils.d(LOG_TAG, "actual file image path" + actualImageFile);
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
-        return cameraVideoUri1;
-    }
-
-    private File createVideoFile() throws IOException {
-        // Create an image file name
-        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
-        String videoFileName = "VIDEO_" + timeStamp;
-        File mediaStorageDir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES), "Camera");
-
-        if (!mediaStorageDir.exists()) {
-            if (!mediaStorageDir.mkdirs()) {
-                LogUtils.e("Camera", "Oops! Failed create " + "Camera" + " directory");
-                return null;
-            }
-        }
-        File mediaFile = new File(mediaStorageDir.getPath() + File.separator + videoFileName + "." + "mp4");
-
-        // Save a file: path for use with ACTION_VIEW intents
-        mCurrentPhotoPath = mediaFile.getAbsolutePath();
-        return mediaFile;
-    }
-
-    public void fileBrowsingActivity(String choosetype, int reqCode, String mediaType) {
+    public void fileBrowsingActivity(String chooseType, int reqCode, String mediaType) {
         Intent photoPickerIntent = new Intent(requireActivity(), KaCaptureImageActivity.class);
-        photoPickerIntent.putExtra("pickType", choosetype);
+        photoPickerIntent.putExtra("pickType", chooseType);
         photoPickerIntent.putExtra("fileContext", BundleConstants.FOR_MESSAGE);
         photoPickerIntent.putExtra("mediaType", mediaType);
 
