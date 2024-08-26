@@ -2,16 +2,11 @@ package kore.botssdk.activity;
 
 import static android.view.View.VISIBLE;
 import static kore.botssdk.activity.KaCaptureImageActivity.rotateIfNecessary;
-import static kore.botssdk.fcm.FCMWrapper.GROUP_KEY_NOTIFICATIONS;
 import static kore.botssdk.net.SDKConfiguration.Client.enable_ack_delivery;
 import static kore.botssdk.utils.BundleConstants.CAPTURE_IMAGE_CHOOSE_FILES_BUNDLED_PREMISSION_REQUEST;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
-import android.app.Notification;
-import android.app.NotificationChannel;
-import android.app.NotificationManager;
-import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -19,12 +14,9 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
-import android.graphics.Color;
-import android.media.RingtoneManager;
 import android.net.ConnectivityManager;
 import android.net.Network;
 import android.net.NetworkCapabilities;
-import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -40,7 +32,6 @@ import android.widget.Toast;
 
 import androidx.activity.OnBackPressedCallback;
 import androidx.appcompat.app.AlertDialog;
-import androidx.core.app.NotificationCompat;
 import androidx.fragment.app.FragmentTransaction;
 
 import com.google.gson.Gson;
@@ -111,7 +102,6 @@ import kore.botssdk.net.RestBuilder;
 import kore.botssdk.net.RestResponse;
 import kore.botssdk.net.SDKConfiguration;
 import kore.botssdk.net.WebHookRestBuilder;
-import kore.botssdk.pushnotification.PushNotificationRegister;
 import kore.botssdk.utils.AsyncTaskExecutor;
 import kore.botssdk.utils.BitmapUtils;
 import kore.botssdk.utils.BundleConstants;
@@ -195,7 +185,7 @@ public class BotChatActivity extends BotAppCompactActivity implements ComposeFoo
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             registerReceiver(onDestroyReceiver, new IntentFilter(BundleConstants.DESTROY_EVENT), RECEIVER_NOT_EXPORTED);
-        }else {
+        } else {
             registerReceiver(onDestroyReceiver, new IntentFilter(BundleConstants.DESTROY_EVENT));
         }
 
@@ -272,7 +262,6 @@ public class BotChatActivity extends BotAppCompactActivity implements ComposeFoo
                 }
             }
 
-            new PushNotificationRegister().registerPushNotification(BotChatActivity.this, botClient.getUserId(), botClient.getAccessToken(), sharedPreferences.getString("FCMToken", getUniqueDeviceId(BotChatActivity.this)));
             updateTitleBar(state);
         }
 
@@ -289,40 +278,6 @@ public class BotChatActivity extends BotAppCompactActivity implements ComposeFoo
             }
         }
     };
-
-    public void postNotification(String title, String pushMessage) {
-        Uri alarmSound = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
-        NotificationManager mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-        NotificationCompat.Builder nBuilder;
-        if (Build.VERSION.SDK_INT >= 26) {
-            int importance = NotificationManager.IMPORTANCE_DEFAULT;
-            NotificationChannel notificationChannel = new NotificationChannel("Kore_Push_Service", "Kore_Android", importance);
-            mNotificationManager.createNotificationChannel(notificationChannel);
-            nBuilder = new NotificationCompat.Builder(this, notificationChannel.getId());
-        } else {
-            nBuilder = new NotificationCompat.Builder(this);
-        }
-
-        nBuilder.setContentTitle(title).setSmallIcon(R.drawable.ic_launcher).setColor(Color.parseColor("#009dab")).setContentText(pushMessage).setGroup(GROUP_KEY_NOTIFICATIONS).setGroupSummary(true).setAutoCancel(true).setPriority(NotificationCompat.PRIORITY_HIGH);
-        if (alarmSound != null) {
-            nBuilder.setSound(alarmSound);
-        }
-
-        Intent intent = new Intent(getApplicationContext(), BotChatActivity.class);
-        Bundle bundle = new Bundle();
-        //This should not be null
-        bundle.putBoolean(BundleUtils.SHOW_PROFILE_PIC, false);
-        bundle.putString(BundleUtils.PICK_TYPE, "Notification");
-        bundle.putString(BundleUtils.BOT_NAME_INITIALS, String.valueOf(SDKConfiguration.Client.bot_name.charAt(0)));
-        intent.putExtras(bundle);
-        PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(), 0, intent, PendingIntent.FLAG_MUTABLE);
-        nBuilder.setContentIntent(pendingIntent);
-
-        Notification notification = nBuilder.build();
-        notification.ledARGB = 0xff0000FF;
-
-        mNotificationManager.notify("YUIYUYIU", 237891, notification);
-    }
 
     @Override
     protected void onDestroy() {
@@ -357,8 +312,7 @@ public class BotChatActivity extends BotAppCompactActivity implements ComposeFoo
         try {
             // You need to add the below code:
             Picasso.setSingletonInstance(new Picasso.Builder(this).build());
-        } catch (Exception e)
-        {
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
@@ -453,12 +407,10 @@ public class BotChatActivity extends BotAppCompactActivity implements ComposeFoo
     }
 
     public void updateActionbar(boolean isSelected, String type, ArrayList<BotButtonModel> buttonModels) {
-
     }
 
     @Override
     public void lauchMeetingNotesAction(Context context, String mid, String eid) {
-
     }
 
     @Override
@@ -652,21 +604,14 @@ public class BotChatActivity extends BotAppCompactActivity implements ComposeFoo
                 payloadInner.convertElementToAppropriate();
             }
 
-            if (!BotApplication.isActivityVisible()) {
-                postNotification("Kore Message", "Received new message.");
-            }
+            handler.postDelayed(() -> {
 
-            handler.postDelayed(new Runnable() {
-                @Override
-                public void run() {
+                if (botResponse.getMessageId() != null) lastMsgId = botResponse.getMessageId();
 
-                    if (botResponse.getMessageId() != null) lastMsgId = botResponse.getMessageId();
-
-                    botContentFragment.addMessageToBotChatAdapter(botResponse);
-                    textToSpeech(botResponse);
-                    botContentFragment.setQuickRepliesIntoFooter(botResponse);
-                    botContentFragment.showCalendarIntoFooter(botResponse);
-                }
+                botContentFragment.addMessageToBotChatAdapter(botResponse);
+                textToSpeech(botResponse);
+                botContentFragment.setQuickRepliesIntoFooter(botResponse);
+                botContentFragment.showCalendarIntoFooter(botResponse);
             }, BundleConstants.TYPING_STATUS_TIME);
         } catch (Exception e) {
             e.printStackTrace();
