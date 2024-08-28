@@ -793,6 +793,12 @@ public class KaReceivedBubbleLayout extends KaBaseBubbleLayout {
             } else if (BotResponse.COMPONENT_TYPE_LINK.equalsIgnoreCase(payOuter.getType()) && payInner != null) {
                 linkTemplateView.setVisibility(View.VISIBLE);
                 linkTemplateView.populatePdfView(payInner);
+            } else if (payOuter.getType() != null && payOuter.getType().equals(BotResponse.COMPONENT_TYPE_TEXT)) {
+                if (payInner != null && payInner.getText() != null) {
+                    bubbleTextMediaLayout.populateText(payInner.getText());
+                } else if (payOuter.getText() != null) {
+                    bubbleTextMediaLayout.populateText(payOuter.getText());
+                }
             } else {
                 bubbleTextMediaLayout.populateText(payOuter.getText());
             }
@@ -1077,7 +1083,7 @@ public class KaReceivedBubbleLayout extends KaBaseBubbleLayout {
         left = bubbleTextMediaLayout.getLeft() - (int) (13 * dp1);
         top = Collections.max(arrayList);
 
-        LayoutUtils.layoutChild(cpvSenderImage, left - (int) (15 * dp1), SDKConfiguration.BubbleColors.showIconTop ? (top - (top - (int) (10 * dp1))) + timeStampsTextView.getMeasuredHeight(): isTemplatePresent() ? top - (int)(25 * dp1) : (botContentTextView.getMeasuredHeight() - (int) (1 * dp1)));
+        LayoutUtils.layoutChild(cpvSenderImage, left - (int) (15 * dp1), SDKConfiguration.BubbleColors.showIconTop ? (top - (top - (int) (10 * dp1))) + timeStampsTextView.getMeasuredHeight() : isTemplatePresent() ? top - (int) (25 * dp1) : (botContentTextView.getMeasuredHeight() - (int) (1 * dp1)));
         LayoutUtils.layoutChild(timeLineView, 0, top);
 
         botCarouselView.bringToFront();
