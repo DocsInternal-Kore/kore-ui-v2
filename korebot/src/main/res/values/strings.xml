@@ -178,15 +178,16 @@
     <string name="bot_not_connected">Unable to connect to the bot. Please try again later</string>
     <string name="what_can_be_improved">What can be Improved ?</string>
     <string name="not_super">Not Super</string>
+    <string name="attachment_upload_photo">Upload Photo</string>
+    <string name="attachment_upload_video">Upload Video</string>
+    <string name="attachment_upload_media">Upload Media</string>
+    <string name="attachment_upload_document">Upload Document</string>
+    <string name="attachment_capture_photo">Capture photo</string>
+    <string name="attachment_capture_video">Capture Video</string>
 
     <string-array name="attachments_strings">
-       <!-- <item>Take Photo</item>-->
-        <item>Upload Photo</item>
-        <!--<item>Take Video</item>-->
-        <item>Upload Video</item>
-        <item>Upload Document</item>
+        <item>@string/attachment_upload_photo</item>
+        <item>@string/attachment_upload_video</item>
+        <item>@string/attachment_upload_document</item>
     </string-array>
-
-
-
 </resources>

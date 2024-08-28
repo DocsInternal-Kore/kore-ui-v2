@@ -45,7 +45,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
-import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -623,39 +622,30 @@ public class ComposeFooterFragment extends Fragment implements ComposeFooterUpda
         if (adapter == null) {
             ArrayList<String> options = new ArrayList<>(Arrays.asList(getResources().getStringArray(R.array.attachments_strings)));
             if (!SDKConfiguration.BubbleColors.showVideoOption)
-                options.remove("Upload Video");
+                options.remove(getString(R.string.attachment_upload_video));
 
             adapter = new AttachmentOptionsAdapter(requireActivity(), options);
             listViewActionSheet.setAdapter(adapter);
-            listViewActionSheet.getOptionsListView().setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                @Override
-                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                    launchSelectedMode(position);
-                }
-            });
+            listViewActionSheet.getOptionsListView().setOnItemClickListener((parent, view, position, id) -> launchSelectedMode(options.get(position)));
         }
     }
 
-    void launchSelectedMode(int position) {
-        switch (position) {
-            case 4:
-                fileBrowsingActivity(KoreMedia.CHOOSE_TYPE_CAPTURE_IMAGE, REQ_CAMERA, BundleConstants.MEDIA_TYPE_IMAGE);
-                break;
-            case 0:
-                fileBrowsingActivity(KoreMedia.CHOOSE_TYPE_IMAGE_PICK, REQ_IMAGE, BundleConstants.MEDIA_TYPE_IMAGE);
-                break;
-            case 3:
-                fileBrowsingActivity(KoreMedia.CHOOSE_TYPE_IMAGE_VIDEO, REQ_VIDEO_CAPTURE, BundleConstants.MEDIA_TYPE_VIDEO);
-                break;
-            case 2:
-                fileBrowsingActivity(KoreMedia.CHOOSE_TYPE_VIDEO_PICK, REQ_VIDEO, BundleConstants.MEDIA_TYPE_VIDEO);
-                break;
-            case 1:
-                fileBrowsingActivity(KoreMedia.CHOOSE_TYPE_DOCUMENT_PICK, REQ_FILE, BundleConstants.MEDIA_TYPE_DOCUMENT);
-                break;
-
-
-        }
+    void launchSelectedMode(String option) {
+        final String capturePhoto = getString(R.string.attachment_capture_photo);
+        final String uploadPhoto = getString(R.string.attachment_upload_photo);
+        final String uploadVideo = getString(R.string.attachment_upload_video);
+        final String uploadDocument = getString(R.string.attachment_upload_document);
+        final String uploadMedia = getString(R.string.attachment_upload_media);
+        if (option.equals(capturePhoto))
+            fileBrowsingActivity(KoreMedia.CHOOSE_TYPE_CAPTURE_IMAGE, REQ_CAMERA, BundleConstants.MEDIA_TYPE_IMAGE);
+        else if (option.equals(uploadPhoto))
+            fileBrowsingActivity(KoreMedia.CHOOSE_TYPE_IMAGE_PICK, REQ_IMAGE, BundleConstants.MEDIA_TYPE_IMAGE);
+        else if (option.equals(uploadMedia))
+            fileBrowsingActivity(KoreMedia.CHOOSE_TYPE_IMAGE_VIDEO, REQ_VIDEO_CAPTURE, BundleConstants.MEDIA_TYPE_VIDEO);
+        else if (option.equals(uploadVideo))
+            fileBrowsingActivity(KoreMedia.CHOOSE_TYPE_VIDEO_PICK, REQ_VIDEO, BundleConstants.MEDIA_TYPE_VIDEO);
+        else if (option.equals(uploadDocument))
+            fileBrowsingActivity(KoreMedia.CHOOSE_TYPE_DOCUMENT_PICK, REQ_FILE, BundleConstants.MEDIA_TYPE_DOCUMENT);
         listViewActionSheet.dismiss();
     }
 
@@ -917,7 +907,7 @@ public class ComposeFooterFragment extends Fragment implements ComposeFooterUpda
                 }
 
                 if (type != null && type.contains("video")) {
-                    KaMediaUtils.setupAppDir(BundleConstants.MEDIA_TYPE_VIDEO, "");
+                    KaMediaUtils.setupAppDir(requireContext(), BundleConstants.MEDIA_TYPE_VIDEO);
                     String filePath = KaMediaUtils.getAppDir() + File.separator + name;
                     new SaveVideoTask(filePath, name, selectedImage, requireActivity()).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
                 }
