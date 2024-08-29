@@ -1019,21 +1019,18 @@ public class BotChatActivity extends BotAppCompactActivity implements ComposeFoo
                         File _file = new File(filePath);
 
                         LogUtils.d(LOG_TAG, " file.exists() ---------------------------------------- " + _file.exists());
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                            fOut = Files.newOutputStream(_file.toPath());
-                        } else fOut = new FileOutputStream(_file);
+                        fOut = new FileOutputStream(_file);
 
                         thePic.compress(Bitmap.CompressFormat.JPEG, compressQualityInt, fOut);
                         thePic = rotateIfNecessary(filePath, thePic);
                         orientation = thePic.getWidth() > thePic.getHeight() ? BitmapUtils.ORIENTATION_LS : BitmapUtils.ORIENTATION_PT;
                         fOut.flush();
-                        fOut.close();
                     } catch (Exception e) {
                         LogUtils.e(LOG_TAG, e.toString());
                     } finally {
                         try {
-                            assert fOut != null;
-                            fOut.close();
+                            if(fOut != null)
+                                fOut.close();
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
