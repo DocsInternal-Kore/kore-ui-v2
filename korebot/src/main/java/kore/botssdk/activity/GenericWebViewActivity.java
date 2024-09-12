@@ -1,6 +1,7 @@
 package kore.botssdk.activity;
 
 import android.annotation.SuppressLint;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.view.MenuItem;
@@ -22,9 +23,8 @@ import kore.botssdk.utils.StringUtils;
 
 @SuppressLint({"SetJavaScriptEnabled", "UnKnownNullness"})
 public class GenericWebViewActivity extends BotAppCompactActivity {
-
-    String actionbarTitle;
-    String url;
+    private String actionbarTitle;
+    private String url;
     WebView webview;
     ProgressBar mProgressBar;
 
@@ -33,8 +33,7 @@ public class GenericWebViewActivity extends BotAppCompactActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.generic_webview_layout);
         Bundle receivedBundle = getIntent().getExtras();
-        if(receivedBundle != null)
-        {
+        if (receivedBundle != null) {
             url = receivedBundle.getString("url");
             actionbarTitle = receivedBundle.getString("header");
         }
@@ -56,11 +55,8 @@ public class GenericWebViewActivity extends BotAppCompactActivity {
         });
     }
 
-
-    protected void loadUrl()
-    {
-        if(!StringUtils.isNullOrEmpty(url))
-        {
+    protected void loadUrl() {
+        if (!StringUtils.isNullOrEmpty(url)) {
             webview.getSettings().setJavaScriptEnabled(true);
             webview.getSettings().setUseWideViewPort(true);
 //            webview.getSettings().setUserAgentString("Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2228.0 Safari/537.36");
@@ -76,7 +72,24 @@ public class GenericWebViewActivity extends BotAppCompactActivity {
 
                 @Override
                 public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
-                    return super.shouldOverrideUrlLoading(view, request);
+                    String url = request.getUrl().toString();
+                    if (url.startsWith("http://") || url.startsWith("https://")) {
+                        return false;
+                    } else if (url.startsWith("intent://")) {
+                        try {
+                            Intent intent = Intent.parseUri(url, Intent.URI_INTENT_SCHEME);
+                            if (intent != null) {
+                                startActivity(intent);
+                                finish();
+                                return true;
+                            }
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    } else {
+                        return true;
+                    }
+                    return false;
                 }
 
                 @Override
@@ -116,9 +129,8 @@ public class GenericWebViewActivity extends BotAppCompactActivity {
         setSupportActionBar(toolbar);
         ActionBar actionBar = getSupportActionBar();
 
-        if(actionBar != null)
-        {
-            actionBar.setDisplayHomeAsUpEnabled (true);
+        if (actionBar != null) {
+            actionBar.setDisplayHomeAsUpEnabled(true);
             actionBar.setHomeAsUpIndicator(ResourcesCompat.getDrawable(getResources(), R.drawable.ic_arrow_back_black_24dp, getTheme()));
             actionBar.setTitle(actionbarTitle);
         }
