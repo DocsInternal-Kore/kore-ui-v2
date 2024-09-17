@@ -227,13 +227,13 @@ public class BotClient {
         SocketWrapper.getInstance(mContext).sendMessage(jsonPayload);
     }
 
-    public void sendAgentCloseMessage(String msg, String botName, String botId) {
+    public void sendAgentCloseMessage(String event, String botName, String botId) {
         RestResponse.BotPayLoad botPayLoad = new RestResponse.BotPayLoad();
-        RestResponse.BotMessage botMessage = new RestResponse.BotMessage(msg);
+        RestResponse.BotMessage botMessage = new RestResponse.BotMessage("");
         customData.put("botToken",getAccessToken());
         botMessage.setCustomData(customData);
         botPayLoad.setMessage(botMessage);
-        botPayLoad.setEvent("close_agent_chat");
+        botPayLoad.setEvent(event);
         botInfoModel = new BotInfoModel(botName,botId,customData);
         botPayLoad.setBotInfo(botInfoModel);
         botPayLoad.setResourceid("/bot.message");

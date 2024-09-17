@@ -160,9 +160,12 @@ public class BotChatActivity extends BotAppCompactActivity implements ComposeFoo
     BroadcastReceiver onDestroyReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            if (isAgentTransfer && botClient != null) {
-                botClient.sendAgentCloseMessage("", SDKConfiguration.Client.bot_name, SDKConfiguration.Client.bot_id);
-            }
+            String event = "";
+            if (botClient != null && isAgentTransfer)
+                event = getString(kore.korebotsdklib.R.string.agent_bot_close_event);
+            else
+                event = getString(kore.korebotsdklib.R.string.bot_close_event);
+            botClient.sendAgentCloseMessage(event, SDKConfiguration.Client.bot_name, SDKConfiguration.Client.bot_id);
 
             SharedPreferences.Editor editor = sharedPreferences.edit();
             editor.putBoolean(BundleConstants.IS_RECONNECT, false);
@@ -281,8 +284,6 @@ public class BotChatActivity extends BotAppCompactActivity implements ComposeFoo
 
     @Override
     protected void onDestroy() {
-        if (isAgentTransfer && botClient != null)
-            botClient.sendAgentCloseMessage("", SDKConfiguration.Client.bot_name, SDKConfiguration.Client.bot_id);
         if (botClient != null) botClient.disconnect();
         KoreEventCenter.unregister(this);
         super.onDestroy();
@@ -674,6 +675,8 @@ public class BotChatActivity extends BotAppCompactActivity implements ComposeFoo
                 switch (which) {
                     case DialogInterface.BUTTON_POSITIVE:
                         if (sharedPreferences != null) {
+                            String event = getString(kore.korebotsdklib.R.string.bot_minimize_event);
+                            botClient.sendAgentCloseMessage(event, SDKConfiguration.Client.bot_name, SDKConfiguration.Client.bot_id);
                             SharedPreferences.Editor editor = sharedPreferences.edit();
                             editor.putBoolean(BundleConstants.IS_RECONNECT, true);
                             editor.putInt(BotResponse.HISTORY_COUNT, botContentFragment.getAdapterCount());
@@ -682,8 +685,12 @@ public class BotChatActivity extends BotAppCompactActivity implements ComposeFoo
                         break;
                     case DialogInterface.BUTTON_NEGATIVE:
                         if (sharedPreferences != null) {
+                            String event = "";
                             if (botClient != null && isAgentTransfer)
-                                botClient.sendAgentCloseMessage("", SDKConfiguration.Client.bot_name, SDKConfiguration.Client.bot_id);
+                                event = getString(kore.korebotsdklib.R.string.agent_bot_close_event);
+                            else
+                                event = getString(kore.korebotsdklib.R.string.bot_close_event);
+                            botClient.sendAgentCloseMessage(event, SDKConfiguration.Client.bot_name, SDKConfiguration.Client.bot_id);
 
                             SharedPreferences.Editor editor = sharedPreferences.edit();
                             editor.putBoolean(BundleConstants.IS_RECONNECT, false);
@@ -1029,7 +1036,7 @@ public class BotChatActivity extends BotAppCompactActivity implements ComposeFoo
                         LogUtils.e(LOG_TAG, e.toString());
                     } finally {
                         try {
-                            if(fOut != null)
+                            if (fOut != null)
                                 fOut.close();
                         } catch (Exception e) {
                             e.printStackTrace();
@@ -1431,8 +1438,13 @@ public class BotChatActivity extends BotAppCompactActivity implements ComposeFoo
                 if (which == DialogInterface.BUTTON_POSITIVE) {
 
                     if (sharedPreferences != null) {
+                        String event = "";
                         if (botClient != null && isAgentTransfer)
-                            botClient.sendAgentCloseMessage("", SDKConfiguration.Client.bot_name, SDKConfiguration.Client.bot_id);
+                            event = getString(kore.korebotsdklib.R.string.agent_bot_close_event);
+                        else
+                            event = getString(kore.korebotsdklib.R.string.bot_close_event);
+
+                        botClient.sendAgentCloseMessage(event, SDKConfiguration.Client.bot_name, SDKConfiguration.Client.bot_id);
 
                         SharedPreferences.Editor editor = sharedPreferences.edit();
                         editor.putBoolean(BundleConstants.IS_RECONNECT, false);
