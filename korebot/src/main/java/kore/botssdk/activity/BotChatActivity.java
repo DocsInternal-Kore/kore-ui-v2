@@ -598,6 +598,7 @@ public class BotChatActivity extends BotAppCompactActivity implements ComposeFoo
             botContentFragment.showTypingStatus(botResponse);
 
             if (payloadInner != null) {
+                if (!isAgentTransfer) isAgentTransfer = payloadInner.isAgent();
                 if (payloadInner.getTemplate_type() != null && payloadInner.getTemplate_type().equalsIgnoreCase(BotResponse.TEMPLATE_TYPE_QUICK_REPLIES) && !SDKConfiguration.BubbleColors.showQuickRepliesBottom) {
                     payloadInner.setTemplate_type(BotResponse.TEMPLATE_TYPE_WELCOME_QUICK_REPLIES);
                 }
@@ -606,7 +607,6 @@ public class BotChatActivity extends BotAppCompactActivity implements ComposeFoo
             }
 
             handler.postDelayed(() -> {
-
                 if (botResponse.getMessageId() != null) lastMsgId = botResponse.getMessageId();
 
                 botContentFragment.addMessageToBotChatAdapter(botResponse);
