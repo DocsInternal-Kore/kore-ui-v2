@@ -24,6 +24,7 @@ import android.os.Looper;
 import android.os.Message;
 import android.os.Messenger;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
@@ -46,7 +47,6 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.Reader;
 import java.lang.reflect.Type;
-import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -125,6 +125,7 @@ import retrofit2.Response;
 @SuppressLint("UnknownNullness")
 public class BotChatActivity extends BotAppCompactActivity implements ComposeFooterInterface, QuickReplyFragment.QuickReplyInterface, TTSUpdate, InvokeGenericWebViewInterface, ThemeChangeListener {
     final String LOG_TAG = BotChatActivity.class.getSimpleName();
+    public static final String EXTRA_RESULT = "result";
     FrameLayout chatLayoutFooterContainer;
     FrameLayout chatLayoutContentContainer;
     FrameLayout chatLayoutPanelContainer;
@@ -573,17 +574,6 @@ public class BotChatActivity extends BotAppCompactActivity implements ComposeFoo
             LogUtils.d(LOG_TAG, payload);
             isAgentTransfer = botResponse.isFromAgent();
 
-            if (composeFooterFragment != null) composeFooterFragment.setIsAgentConnected(isAgentTransfer);
-
-            if (botClient != null && isAgentTransfer) {
-                botClient.sendReceipts(BundleConstants.MESSAGE_DELIVERED, botResponse.getMessageId());
-                if (BotApplication.isActivityVisible()) {
-                    botClient.sendReceipts(BundleConstants.MESSAGE_READ, botResponse.getMessageId());
-                } else {
-                    arrMessageList.add(botResponse.getMessageId());
-                }
-            }
-
             PayloadOuter payOuter = null;
             if (!botResponse.getMessage().isEmpty()) {
                 ComponentModel compModel = botResponse.getMessage().get(0).getComponent();
@@ -595,10 +585,20 @@ public class BotChatActivity extends BotAppCompactActivity implements ComposeFoo
             if (payloadInner != null && payloadInner.getTemplate_type() != null && "start_timer".equalsIgnoreCase(payloadInner.getTemplate_type())) {
                 BotSocketConnectionManager.getInstance().startDelayMsgTimer();
             }
+            if (!isAgentTransfer) isAgentTransfer = payloadInner != null && payloadInner.isAgent();
+            if (composeFooterFragment != null) composeFooterFragment.setIsAgentConnected(isAgentTransfer);
+
+            if (botClient != null && isAgentTransfer) {
+                botClient.sendReceipts(BundleConstants.MESSAGE_DELIVERED, botResponse.getMessageId());
+                if (BotApplication.isActivityVisible()) {
+                    botClient.sendReceipts(BundleConstants.MESSAGE_READ, botResponse.getMessageId());
+                } else {
+                    arrMessageList.add(botResponse.getMessageId());
+                }
+            }
             botContentFragment.showTypingStatus(botResponse);
 
             if (payloadInner != null) {
-                if (!isAgentTransfer) isAgentTransfer = payloadInner.isAgent();
                 if (payloadInner.getTemplate_type() != null && payloadInner.getTemplate_type().equalsIgnoreCase(BotResponse.TEMPLATE_TYPE_QUICK_REPLIES) && !SDKConfiguration.BubbleColors.showQuickRepliesBottom) {
                     payloadInner.setTemplate_type(BotResponse.TEMPLATE_TYPE_WELCOME_QUICK_REPLIES);
                 }
@@ -669,40 +669,47 @@ public class BotChatActivity extends BotAppCompactActivity implements ComposeFoo
     }
 
     void showCloseAlert() {
-        DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                switch (which) {
-                    case DialogInterface.BUTTON_POSITIVE:
-                        if (sharedPreferences != null) {
-                            String event = getString(kore.korebotsdklib.R.string.bot_minimize_event);
-                            botClient.sendAgentCloseMessage(event, SDKConfiguration.Client.bot_name, SDKConfiguration.Client.bot_id);
-                            SharedPreferences.Editor editor = sharedPreferences.edit();
-                            editor.putBoolean(BundleConstants.IS_RECONNECT, true);
-                            editor.putInt(BotResponse.HISTORY_COUNT, botContentFragment.getAdapterCount());
-                            editor.apply();
-                        }
-                        break;
-                    case DialogInterface.BUTTON_NEGATIVE:
-                        if (sharedPreferences != null) {
-                            String event = "";
-                            if (botClient != null && isAgentTransfer)
-                                event = getString(kore.korebotsdklib.R.string.agent_bot_close_event);
-                            else
-                                event = getString(kore.korebotsdklib.R.string.bot_close_event);
-                            botClient.sendAgentCloseMessage(event, SDKConfiguration.Client.bot_name, SDKConfiguration.Client.bot_id);
+        DialogInterface.OnClickListener dialogClickListener = (dialog, which) -> {
+            Intent intent = new Intent();
+            HashMap<String, String> result = new HashMap<>();
 
-                            SharedPreferences.Editor editor = sharedPreferences.edit();
-                            editor.putBoolean(BundleConstants.IS_RECONNECT, false);
-                            editor.putInt(BotResponse.HISTORY_COUNT, 0);
-                            editor.apply();
-                        }
-                        break;
-                }
+            switch (which) {
+                case DialogInterface.BUTTON_POSITIVE:
+                    if (sharedPreferences != null) {
+                        String event = getString(kore.korebotsdklib.R.string.bot_minimize_event);
+                        botClient.sendAgentCloseMessage(event, SDKConfiguration.Client.bot_name, SDKConfiguration.Client.bot_id);
+                        SharedPreferences.Editor editor = sharedPreferences.edit();
+                        editor.putBoolean(BundleConstants.IS_RECONNECT, true);
+                        editor.putInt(BotResponse.HISTORY_COUNT, botContentFragment.getAdapterCount());
+                        editor.apply();
+                        result.put("event_code", "BotMinimized");
+                        result.put("event_message", "Bot Minimized by the user");
+                        intent.putExtra(EXTRA_RESULT, new Gson().toJson(result));
+                    }
+                    break;
+                case DialogInterface.BUTTON_NEGATIVE:
+                    if (sharedPreferences != null) {
+                        String event = "";
+                        if (botClient != null && isAgentTransfer)
+                            event = getString(kore.korebotsdklib.R.string.agent_bot_close_event);
+                        else
+                            event = getString(kore.korebotsdklib.R.string.bot_close_event);
+                        botClient.sendAgentCloseMessage(event, SDKConfiguration.Client.bot_name, SDKConfiguration.Client.bot_id);
 
-                BotSocketConnectionManager.killInstance();
-                finish();
+                        SharedPreferences.Editor editor = sharedPreferences.edit();
+                        editor.putBoolean(BundleConstants.IS_RECONNECT, false);
+                        editor.putInt(BotResponse.HISTORY_COUNT, 0);
+                        editor.apply();
+                        result.put("event_code", "BotClosed");
+                        result.put("event_message", "Bot closed by the user");
+                        intent.putExtra(EXTRA_RESULT, new Gson().toJson(result));
+                    }
+                    break;
             }
+
+            BotSocketConnectionManager.killInstance();
+            setResult(RESULT_OK, intent);
+            finish();
         };
 
         AlertDialog.Builder builder = new AlertDialog.Builder(BotChatActivity.this);
