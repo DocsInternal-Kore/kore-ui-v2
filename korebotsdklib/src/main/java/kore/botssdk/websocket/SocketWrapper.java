@@ -227,6 +227,7 @@ public final class SocketWrapper {
         this.JWTToken = sJwtGrant;
         this.botInfoModel = botInfoModel;
         this.options = options;
+        mReconnectionCount = 1;
 
         getRtmUrlForConnectAnonymous(sJwtGrant, botInfoModel).subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe(new Observer<RestResponse.RTMUrl>() {
             @Override

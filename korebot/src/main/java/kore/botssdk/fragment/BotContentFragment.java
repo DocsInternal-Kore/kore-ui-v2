@@ -830,7 +830,21 @@ public class BotContentFragment extends Fragment implements BotContentFragmentUp
                     offset = _offset + re.getOriginalSize();
                 }
 
-                if (list != null && list.size() > 0) {
+                if (list != null && !list.isEmpty()) {
+                    if (botsChatAdapter.getItemCount() == 0) {
+                        BaseBotMessage lastItem = list.get(list.size() - 1);
+                        if (lastItem instanceof BotResponse) {
+                            BotResponse response = (BotResponse) lastItem;
+                            PayloadOuter outer = response.getMessage().get(0).getComponent().getPayload();
+                            if (outer != null) {
+                                PayloadInner inner = outer.getPayload();
+                                if (inner.getTemplate_type() != null && inner.getTemplate_type().equalsIgnoreCase(BotResponse.TEMPLATE_TYPE_QUICK_REPLIES)
+                                        && !SDKConfiguration.BubbleColors.showQuickRepliesBottom) {
+                                    response.getMessage().get(0).getComponent().getPayload().getPayload().setTemplate_type(BotResponse.TEMPLATE_TYPE_WELCOME_QUICK_REPLIES);
+                                }
+                            }
+                        }
+                    }
                     addMessagesToBotChatAdapter(list, _offset == 0);
                 }
 
@@ -888,7 +902,7 @@ public class BotContentFragment extends Fragment implements BotContentFragmentUp
                     offset = _offset + re.getOriginalSize();
                 }
 
-                if (list != null && list.size() > 0) {
+                if (list != null && !list.isEmpty()) {
                     int pos = 0;
                     ArrayList<BaseBotMessage> botResp = new ArrayList<>();
                     ArrayList<BaseBotMessage> currentList = botsChatAdapter.getBaseBotMessageArrayList();

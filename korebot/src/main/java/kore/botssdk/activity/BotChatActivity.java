@@ -24,7 +24,6 @@ import android.os.Looper;
 import android.os.Message;
 import android.os.Messenger;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
@@ -126,6 +125,7 @@ import retrofit2.Response;
 public class BotChatActivity extends BotAppCompactActivity implements ComposeFooterInterface, QuickReplyFragment.QuickReplyInterface, TTSUpdate, InvokeGenericWebViewInterface, ThemeChangeListener {
     final String LOG_TAG = BotChatActivity.class.getSimpleName();
     public static final String EXTRA_RESULT = "result";
+    public static boolean isMinimized = false;
     FrameLayout chatLayoutFooterContainer;
     FrameLayout chatLayoutContentContainer;
     FrameLayout chatLayoutPanelContainer;
@@ -169,7 +169,7 @@ public class BotChatActivity extends BotAppCompactActivity implements ComposeFoo
             botClient.sendAgentCloseMessage(event, SDKConfiguration.Client.bot_name, SDKConfiguration.Client.bot_id);
 
             SharedPreferences.Editor editor = sharedPreferences.edit();
-            editor.putBoolean(BundleConstants.IS_RECONNECT, false);
+            isMinimized = false;
             editor.putInt(BotResponse.HISTORY_COUNT, 0);
             editor.apply();
         }
@@ -229,7 +229,7 @@ public class BotChatActivity extends BotAppCompactActivity implements ComposeFoo
             BotSocketConnectionManager.getInstance().setChatListener(sListener);
         }
 
-        BotSocketConnectionManager.getInstance().startAndInitiateConnectionWithReconnect(getApplicationContext(), SDKConfiguration.Server.customData, sharedPreferences.getBoolean(BundleConstants.IS_RECONNECT, false));
+        BotSocketConnectionManager.getInstance().startAndInitiateConnectionWithReconnect(getApplicationContext(), SDKConfiguration.Server.customData, isMinimized);
 
         getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
             @Override
@@ -254,10 +254,13 @@ public class BotChatActivity extends BotAppCompactActivity implements ComposeFoo
                 getBrandingDetails();
 
                 if (botContentFragment != null && isReconnection) {
-                    if (sharedPreferences.getInt(BotResponse.HISTORY_COUNT, 0) > 19) botContentFragment.loadChatHistory(0, 20);
-                    else if (sharedPreferences.getInt(BotResponse.HISTORY_COUNT, 0) > 0)
+                    if (sharedPreferences.getInt(BotResponse.HISTORY_COUNT, 0) > 19) {
+                        botContentFragment.loadChatHistory(0, 20);
+                    } else if (sharedPreferences.getInt(BotResponse.HISTORY_COUNT, 0) > 0) {
                         botContentFragment.loadChatHistory(0, sharedPreferences.getInt(BotResponse.HISTORY_COUNT, 1));
-                    else botContentFragment.loadReconnectionChatHistory(0, 10);
+                    } else {
+                        botContentFragment.loadReconnectionChatHistory(0, 10);
+                    }
                 }
             } else if (state == BaseSocketConnectionManager.CONNECTION_STATE.RECONNECTION_STOPPED) {
                 if (!isReconnectionStopped) {
@@ -679,7 +682,7 @@ public class BotChatActivity extends BotAppCompactActivity implements ComposeFoo
                         String event = getString(kore.korebotsdklib.R.string.bot_minimize_event);
                         botClient.sendAgentCloseMessage(event, SDKConfiguration.Client.bot_name, SDKConfiguration.Client.bot_id);
                         SharedPreferences.Editor editor = sharedPreferences.edit();
-                        editor.putBoolean(BundleConstants.IS_RECONNECT, true);
+                        isMinimized = true;
                         editor.putInt(BotResponse.HISTORY_COUNT, botContentFragment.getAdapterCount());
                         editor.apply();
                         result.put("event_code", "BotMinimized");
@@ -697,7 +700,7 @@ public class BotChatActivity extends BotAppCompactActivity implements ComposeFoo
                         botClient.sendAgentCloseMessage(event, SDKConfiguration.Client.bot_name, SDKConfiguration.Client.bot_id);
 
                         SharedPreferences.Editor editor = sharedPreferences.edit();
-                        editor.putBoolean(BundleConstants.IS_RECONNECT, false);
+                        isMinimized = false;
                         editor.putInt(BotResponse.HISTORY_COUNT, 0);
                         editor.apply();
                         result.put("event_code", "BotClosed");
@@ -1454,7 +1457,7 @@ public class BotChatActivity extends BotAppCompactActivity implements ComposeFoo
                         botClient.sendAgentCloseMessage(event, SDKConfiguration.Client.bot_name, SDKConfiguration.Client.bot_id);
 
                         SharedPreferences.Editor editor = sharedPreferences.edit();
-                        editor.putBoolean(BundleConstants.IS_RECONNECT, false);
+                        isMinimized = false;
                         editor.putInt(BotResponse.HISTORY_COUNT, 0);
                         editor.apply();
                     }
