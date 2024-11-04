@@ -838,7 +838,7 @@ public class BotContentFragment extends Fragment implements BotContentFragmentUp
                             PayloadOuter outer = response.getMessage().get(0).getComponent().getPayload();
                             if (outer != null) {
                                 PayloadInner inner = outer.getPayload();
-                                if (inner.getTemplate_type() != null && inner.getTemplate_type().equalsIgnoreCase(BotResponse.TEMPLATE_TYPE_QUICK_REPLIES)
+                                if (inner != null && inner.getTemplate_type() != null && inner.getTemplate_type().equalsIgnoreCase(BotResponse.TEMPLATE_TYPE_QUICK_REPLIES)
                                         && !SDKConfiguration.BubbleColors.showQuickRepliesBottom) {
                                     response.getMessage().get(0).getComponent().getPayload().getPayload().setTemplate_type(BotResponse.TEMPLATE_TYPE_WELCOME_QUICK_REPLIES);
                                 }
