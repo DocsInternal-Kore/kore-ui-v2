@@ -75,6 +75,11 @@ SDKConfiguration.BubbleColors.showQuickRepliesBottom = false;
 //Flag to show timestamp of each bot and user messages
 SDKConfiguration.setTimeStampsRequired(true);
 
+// To add the custom data
+RestResponse.BotCustomData customData = new RestResponse.BotCustomData()
+customData.put("key", "value");
+SDKConfiguration.Server.setCustomData(customData)
+
 ```
 4. You can navigate to the bot chat window through Intent as below snippet
 ```
