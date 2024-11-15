@@ -928,6 +928,8 @@ public class BotContentFragment extends Fragment implements BotContentFragmentUp
                                 ((BotResponse) botResp.get(i)).setFromAgent(true);
                             requiredList.add(botResp.get(i));
                         }
+                    } else {
+                        requiredList.addAll(botResp);
                     }
 
                     botTypingStatusRl.setVisibility(View.GONE);

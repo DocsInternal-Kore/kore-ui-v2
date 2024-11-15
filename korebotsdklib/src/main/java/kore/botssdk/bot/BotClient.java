@@ -66,7 +66,6 @@ public class BotClient {
      * Connection for anonymous user
      */
     public void connectAsAnonymousUser(String jwtToken, String chatBotName, String taskBotId, SocketConnectionListener socketConnectionListener, boolean isReconnect) {
-
         botInfoModel = new BotInfoModel(chatBotName, taskBotId, customData);
         SocketWrapper.getInstance(mContext).connectAnonymous(jwtToken, botInfoModel, socketConnectionListener, null, isReconnect);
     }
@@ -201,19 +200,18 @@ public class BotClient {
      * pass 'msg' as NULL on reconnection of the socket to empty the pool
      * by sending messages from the pool.
      */
-    public void sendReceipts(String eventName, String msgId)
-    {
+    public void sendReceipts(String eventName, String msgId) {
         RestResponse.BotPayLoad botPayLoad = new RestResponse.BotPayLoad();
         RestResponse.BotMessage botMessage = new RestResponse.BotMessage("", "");
-        customData.put("botToken",getAccessToken());
+        customData.put("botToken", getAccessToken());
         botMessage.setCustomData(customData);
         botPayLoad.setMessage(botMessage);
         botPayLoad.setEvent(eventName);
 
-        if(!StringUtils.isNullOrEmpty(msgId))
+        if (!StringUtils.isNullOrEmpty(msgId))
             botPayLoad.setMsgId(msgId);
 
-        botInfoModel = new BotInfoModel(SDKConfiguration.Client.bot_name,SDKConfiguration.Client.bot_id,customData);
+        botInfoModel = new BotInfoModel(SDKConfiguration.Client.bot_name, SDKConfiguration.Client.bot_id, customData);
         botPayLoad.setBotInfo(botInfoModel);
         botPayLoad.setResourceid("/bot.message");
 
@@ -245,11 +243,12 @@ public class BotClient {
         String jsonPayload = gson.toJson(botPayLoad);
 
         LogUtils.d("BotClient", "Payload : " + jsonPayload);
-        SocketWrapper.getInstance(mContext).sendMessage(jsonPayload);
+        if (SocketWrapper.getInstance(mContext).isConnected()) {
+            SocketWrapper.getInstance(mContext).sendMessage(jsonPayload);
+        }
     }
 
     public void sendFormData(String payLoad, String message) {
-
         if (payLoad != null && !payLoad.isEmpty()) {
             RestResponse.BotPayLoad botPayLoad = new RestResponse.BotPayLoad();
             RestResponse.BotMessage botMessage = new RestResponse.BotMessage(payLoad);

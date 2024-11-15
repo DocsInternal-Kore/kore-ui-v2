@@ -251,12 +251,15 @@ public class BotChatActivity extends BotAppCompactActivity implements ComposeFoo
         public void onConnectionStateChanged(BaseSocketConnectionManager.CONNECTION_STATE state, boolean isReconnection) {
             if (state == BaseSocketConnectionManager.CONNECTION_STATE.CONNECTED) {
                 isReconnectionStopped = false;
+                isMinimized = false;
                 getBrandingDetails();
 
+                int prevHistoryCount = sharedPreferences.getInt(BotResponse.HISTORY_COUNT, 0);
+
                 if (botContentFragment != null && isReconnection) {
-                    if (sharedPreferences.getInt(BotResponse.HISTORY_COUNT, 0) > 19) {
+                    if (prevHistoryCount > 19) {
                         botContentFragment.loadChatHistory(0, 20);
-                    } else if (sharedPreferences.getInt(BotResponse.HISTORY_COUNT, 0) > 0) {
+                    } else if (prevHistoryCount > 0) {
                         botContentFragment.loadChatHistory(0, sharedPreferences.getInt(BotResponse.HISTORY_COUNT, 1));
                     } else {
                         botContentFragment.loadReconnectionChatHistory(0, 10);
@@ -288,7 +291,21 @@ public class BotChatActivity extends BotAppCompactActivity implements ComposeFoo
 
     @Override
     protected void onDestroy() {
-        if (botClient != null) botClient.disconnect();
+        if (botClient != null) {
+            String event = "";
+            if (!isMinimized) {
+                if (isAgentTransfer)
+                    event = getString(kore.korebotsdklib.R.string.agent_bot_close_event);
+                else
+                    event = getString(kore.korebotsdklib.R.string.bot_close_event);
+                botClient.sendAgentCloseMessage(event, SDKConfiguration.Client.bot_name, SDKConfiguration.Client.bot_id);
+
+                SharedPreferences.Editor editor = sharedPreferences.edit();
+                editor.putInt(BotResponse.HISTORY_COUNT, 0);
+                editor.apply();
+            }
+            botClient.disconnect();
+        }
         KoreEventCenter.unregister(this);
         super.onDestroy();
     }
