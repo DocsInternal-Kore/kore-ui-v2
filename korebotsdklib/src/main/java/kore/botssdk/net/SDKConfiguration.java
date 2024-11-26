@@ -25,7 +25,7 @@ public class SDKConfiguration {
     private static boolean TIME_STAMPS_REQUIRED = true;
     private static final boolean APPLY_FONT_STYLE = true;
     protected static HashMap<String, View> hsh = new HashMap<>();
-//    private static boolean isZendeskEvent = false;
+    private static boolean isZendeskEvent = false;
 
     public static boolean isTriggerInitMessage() {
         return TRIGGER_INIT_MESSAGE;
@@ -47,13 +47,13 @@ public class SDKConfiguration {
         return APPLY_FONT_STYLE;
     }
 
-//    public static boolean isZendeskEvent() {
-//        return isZendeskEvent;
-//    }
+    public static boolean isZendeskEvent() {
+        return isZendeskEvent;
+    }
 
-//    public static void setIsZendeskEvent(boolean isZendesk) {
-//        isZendeskEvent = isZendesk;
-//    }
+    public static void setIsZendeskEvent(boolean isZendesk) {
+        isZendeskEvent = isZendesk;
+    }
 
     //JWTServer related configurations
     public static class JWTServer {

@@ -89,7 +89,7 @@ public class MainActivity extends AppCompatActivity {
         //Flag to show the quickReplies at Bottom
         SDKConfiguration.BubbleColors.showQuickRepliesBottom = false;
 
-//        SDKConfiguration.setIsZendeskEvent(true);
+        SDKConfiguration.setIsZendeskEvent(true);
 
         //Flag to show timestamp of each bot and user messages
         SDKConfiguration.setTimeStampsRequired(true);

@@ -227,14 +227,14 @@ public class BotClient {
 
     public void sendAgentCloseMessage(String event, String botName, String botId) {
         RestResponse.BotPayLoad botPayLoad = new RestResponse.BotPayLoad();
-        RestResponse.BotMessage botMessage = new RestResponse.BotMessage("");
-        customData.put("botToken",getAccessToken());
+        RestResponse.BotMessage botMessage = new RestResponse.BotMessage(SDKConfiguration.isZendeskEvent() ? event : "");
+        customData.put("botToken", getAccessToken());
         botMessage.setCustomData(customData);
         botPayLoad.setMessage(botMessage);
         botPayLoad.setEvent(event);
-        botInfoModel = new BotInfoModel(botName,botId,customData);
+        botInfoModel = new BotInfoModel(botName, botId, customData);
         botPayLoad.setBotInfo(botInfoModel);
-        botPayLoad.setResourceid("/bot.message");
+        botPayLoad.setResourceid(SDKConfiguration.isZendeskEvent() ? "/bot.clientEvent" : "/bot.message");
 
         RestResponse.Meta meta = new RestResponse.Meta(TimeZone.getDefault().getID(), Locale.getDefault().getISO3Language());
         botPayLoad.setMeta(meta);
