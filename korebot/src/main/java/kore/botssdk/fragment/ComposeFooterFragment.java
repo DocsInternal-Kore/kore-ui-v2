@@ -893,7 +893,7 @@ public class ComposeFooterFragment extends Fragment implements ComposeFooterUpda
             Bitmap hover = BitmapFactory.decodeResource(getResources(), R.drawable.btn_video_play_irc);
             thumbnail = overlay(thumbnail, hover);
             orientation = thumbnail.getWidth() > thumbnail.getHeight() ? BitmapUtils.ORIENTATION_LS : BitmapUtils.ORIENTATION_PT;
-            String bmpPath = BitmapUtils.createImageThumbnailForBulk(thumbnail, realPath, compressQualityInt);
+            String bmpPath = BitmapUtils.createImageThumbnailForBulk(requireContext(), thumbnail, realPath, compressQualityInt);
             processFileUpload(fileName, realPath, extn, BitmapUtils.obtainMediaTypeOfExtn(extn), bmpPath, orientation);
         } else {
             try {
@@ -999,7 +999,7 @@ public class ComposeFooterFragment extends Fragment implements ComposeFooterUpda
                 }
                 thumbnail = overlay(thumbnail, hover);
                 String orientation = thumbnail.getWidth() > thumbnail.getHeight() ? BitmapUtils.ORIENTATION_LS : BitmapUtils.ORIENTATION_PT;
-                String bmpPath = BitmapUtils.createImageThumbnailForBulk(thumbnail, realPath, compressQualityInt);
+                String bmpPath = BitmapUtils.createImageThumbnailForBulk(requireContext(), thumbnail, realPath, compressQualityInt);
                 processFileUpload(fileName, realPath, extn, BitmapUtils.obtainMediaTypeOfExtn(extn), bmpPath, orientation);
             }
         }

@@ -11,7 +11,6 @@ import android.graphics.Matrix;
 import android.media.ExifInterface;
 import android.net.Uri;
 import android.provider.MediaStore;
-import android.util.Log;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -29,6 +28,8 @@ import kore.botssdk.models.KoreMedia;
 
 public class BitmapUtils {
 
+    public static final String MEDIA_APP_FOLDER = "Kore";
+    public static final String DOWNLOADED_IMAGE_FOLDER = "Kore Image";
     public static final String ORIENTATION_LS = "landscape";
     public static final String ORIENTATION_PT = "portrait";
     public static final String EXT_DOTX = "dotx";
@@ -205,29 +206,30 @@ public class BitmapUtils {
     public static final int TYPE_OTHER_ATTACHMENT = 109;
     public static final int TYPE_TEXT = 113;
 
-    private static Bitmap decodeBitmap(File file, BitmapFactory.Options options, float rotationAngle){
+    private static Bitmap decodeBitmap(File file, BitmapFactory.Options options, float rotationAngle) {
         Bitmap bitmap = null, bm = null;
         FileInputStream fis = null;
         try {
             fis = new FileInputStream(file);
             options.inJustDecodeBounds = false;
-            bm = BitmapFactory.decodeStream(fis,null, options);
+            bm = BitmapFactory.decodeStream(fis, null, options);
             Matrix matrix = new Matrix();
-            if(bm != null){
+            if (bm != null) {
                 matrix.setRotate(rotationAngle, (float) bm.getWidth() / 2, (float) bm.getHeight() / 2);
                 bitmap = Bitmap.createBitmap(bm, 0, 0, options.outWidth, options.outHeight, matrix, true);
             }
-        } catch (OutOfMemoryError | FileNotFoundException oom){
-            if(bm != null) bm.recycle();
+        } catch (OutOfMemoryError | FileNotFoundException oom) {
+            if (bm != null) bm.recycle();
             options.inSampleSize *= 2;
             bitmap = decodeBitmap(file, options, rotationAngle);
         } finally {
-            if(bm != null && !bm.equals(bitmap)) bm.recycle();
-            if(fis != null)
-            {
+            if (bm != null && !bm.equals(bitmap)) bm.recycle();
+            if (fis != null) {
                 try {
                     fis.close();
-                }catch (Exception e){e.printStackTrace();}
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
         }
 
@@ -364,10 +366,8 @@ public class BitmapUtils {
     }
 
 
-
-
     public static int categorisedAttachmentType(String extn) {
-        switch(extn.toLowerCase()) {
+        switch (extn.toLowerCase()) {
             case EXT_PDF:
                 return TYPE_PDF_ATTACHMENT;
 
@@ -450,13 +450,12 @@ public class BitmapUtils {
         }
     }
 
-    public static String createImageThumbnailForBulk(Bitmap thumbnail, String thumbPath, int compressQualityInt) {
-        int index = thumbPath.lastIndexOf(".");
-        /*if(AppSandboxUtils.shouldEncryptLocalFiles){
-            thumbPath = thumbPath.substring(0, index) + "_th"+AppSandboxUtils.ENCRYPTED_FILE_SUFFIX+".png";
-        }else {*/
-        thumbPath = thumbPath.substring(0, index) + "_th.png";
-//        }
+    public static String createImageThumbnailForBulk(Context context, Bitmap thumbnail, String thumbPath, int compressQualityInt) {
+        String fileName = thumbPath.substring(thumbPath.lastIndexOf("/"), thumbPath.lastIndexOf("."));
+        String path = context.getFilesDir() + File.separator + MEDIA_APP_FOLDER;
+        String mediaStorageDir = new File(path, DOWNLOADED_IMAGE_FOLDER).getAbsolutePath();
+
+        thumbPath = mediaStorageDir + fileName + "_th.png";
 
         LogUtils.d("BitmapUtils", "createImageThumbnailForBulk() - thumbnail path = " + thumbPath);
 
@@ -475,11 +474,12 @@ public class BitmapUtils {
             if (thumbnail != null) {
                 thumbnail.recycle();
             }
-            if( fos != null)
-            {
+            if (fos != null) {
                 try {
                     fos.close();
-                }catch (Exception e){e.printStackTrace();}
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
         }
 
@@ -511,7 +511,7 @@ public class BitmapUtils {
             case EXT_M4A:
                 return "images/attachment_m4a.png";
             case EXT_MID:
-                return"images/attachment_mid.png";
+                return "images/attachment_mid.png";
             case EXT_MP3:
                 return "images/attachment_mp3.png";
             case EXT_MPA:
@@ -706,7 +706,7 @@ public class BitmapUtils {
     // determines extn media type. If type !image && !video && !audio then return extn
     // Method generally used with creating dir
     public static String obtainMediaTypeOfExtn(String extn) {
-        switch(categorisedAttachmentType(extn)) {
+        switch (categorisedAttachmentType(extn)) {
             case TYPE_IMAGE_ATTACHMENT:
                 return KoreMedia.MEDIA_TYPE_IMAGE;
             case TYPE_VIDEO_ATTACHMENT:
@@ -719,7 +719,7 @@ public class BitmapUtils {
     }
 
     public static String getAttachmentType(String extn) {
-        switch(categorisedAttachmentType(extn)) {
+        switch (categorisedAttachmentType(extn)) {
             case TYPE_IMAGE_ATTACHMENT:
                 return KoreMedia.MEDIA_TYPE_IMAGE;
             case TYPE_VIDEO_ATTACHMENT:
@@ -731,32 +731,30 @@ public class BitmapUtils {
         }
     }
 
-    public static Bitmap getScaledBitmap(Bitmap image){
+    public static Bitmap getScaledBitmap(Bitmap image) {
         float actualHeight = image.getHeight();
         float actualWidth = image.getWidth();
         float maxHeight = 600f;
         float maxWidth = 800f;
-        float imgRatio = actualWidth/actualHeight;
-        float maxRatio = maxWidth/maxHeight;
-        if (actualHeight > maxHeight || actualWidth > maxWidth){
-            if(imgRatio < maxRatio){
+        float imgRatio = actualWidth / actualHeight;
+        float maxRatio = maxWidth / maxHeight;
+        if (actualHeight > maxHeight || actualWidth > maxWidth) {
+            if (imgRatio < maxRatio) {
                 //adjust width according to maxHeight
                 imgRatio = maxHeight / actualHeight;
                 actualWidth = imgRatio * actualWidth;
                 actualHeight = maxHeight;
-            }
-            else if(imgRatio > maxRatio){
+            } else if (imgRatio > maxRatio) {
                 //adjust height according to maxWidth
                 imgRatio = maxWidth / actualWidth;
                 actualHeight = imgRatio * actualHeight;
                 actualWidth = maxWidth;
-            }
-            else{
+            } else {
                 actualHeight = maxHeight;
                 actualWidth = maxWidth;
             }
         }
-        return Bitmap.createScaledBitmap(image, (int)actualWidth, (int)actualHeight, true);//.compress(Bitmap.CompressFormat.JPEG, compressionQuality, stream);
+        return Bitmap.createScaledBitmap(image, (int) actualWidth, (int) actualHeight, true);//.compress(Bitmap.CompressFormat.JPEG, compressionQuality, stream);
     }
 
     public static int getVideoIdFromFilePath(Context context, Uri uri) {
@@ -769,14 +767,13 @@ public class BitmapUtils {
         if (cursor == null)
             cursor = context.getContentResolver().query(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, columns, null, null, orderBy);
 
-        if(cursor != null)
-        {
+        if (cursor != null) {
             cursor.moveToLast();
 
             if (cursor.getCount() > 0) {
                 int image_column_index = cursor
                         .getColumnIndex(MediaStore.Video.Media._ID);
-                if(image_column_index != - 1) {
+                if (image_column_index != -1) {
                     photoId = cursor.getInt(image_column_index);
                 }
             }
@@ -785,6 +782,7 @@ public class BitmapUtils {
 
         return photoId;
     }
+
     public static int getBufferSize(String mediaType) {
         switch (mediaType) {
             case KoreMedia.MEDIA_TYPE_IMAGE:
