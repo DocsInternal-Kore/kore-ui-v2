@@ -2,14 +2,14 @@ apply plugin: 'com.android.library'
 //apply plugin: 'com.google.gms.google-services'
 
 android {
-    compileSdk 34
+    compileSdk 35
 
     dataBinding{
         enabled = true
     }
     defaultConfig {
         minSdkVersion 23
-        targetSdkVersion 34
+        targetSdkVersion 35
         versionCode 1
         versionName "1.0"
         multiDexEnabled true
