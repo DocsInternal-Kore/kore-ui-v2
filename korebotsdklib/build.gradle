@@ -51,4 +51,9 @@ android {
         api 'com.google.android.gms:play-services-auth:21.2.0'
     }
     namespace 'kore.korebotsdklib'
+    publishing {
+        singleVariant("release") {
+            withSourcesJar()
+        }
+    }
 }

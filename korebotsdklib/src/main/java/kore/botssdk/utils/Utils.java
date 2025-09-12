@@ -322,30 +322,30 @@ public class Utils {
 
         return buffer.toString();
     }
-    public static void showHideVirtualKeyboard(Activity activity, View view, boolean show) {
-        if (activity == null) {
-            return;
-        }
-
-        InputMethodManager imm = (InputMethodManager) activity.getSystemService(Context.INPUT_METHOD_SERVICE);
-
-        if (show) { //show keyboard
-            if (view == null) {
-                return;
-            }
-
-            imm.showSoftInput(view, InputMethodManager.RESULT_UNCHANGED_SHOWN);
-
-        } else {  // hide keyboard
-
-            View focusView = activity.getCurrentFocus();
-            if (focusView == null) {
-                return;
-            }
-
-            imm.hideSoftInputFromWindow(focusView.getWindowToken(), InputMethodManager.RESULT_UNCHANGED_SHOWN);
-        }
-    }
+//    public static void showHideVirtualKeyboard(Activity activity, View view, boolean show) {
+//        if (activity == null) {
+//            return;
+//        }
+//
+//        InputMethodManager imm = (InputMethodManager) activity.getSystemService(Context.INPUT_METHOD_SERVICE);
+//
+//        if (show) { //show keyboard
+//            if (view == null) {
+//                return;
+//            }
+//
+//            imm.showSoftInput(view, InputMethodManager.RESULT_UNCHANGED_SHOWN);
+//
+//        } else {  // hide keyboard
+//
+//            View focusView = activity.getCurrentFocus();
+//            if (focusView == null) {
+//                return;
+//            }
+//
+//            imm.hideSoftInputFromWindow(focusView.getWindowToken(), InputMethodManager.RESULT_UNCHANGED_SHOWN);
+//        }
+//    }
 
 
     public static void toggleVirtualKeyboard(Activity activity, int showFlags, int hideFlags) {

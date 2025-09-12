@@ -41,6 +41,12 @@ android {
         targetCompatibility JavaVersion.VERSION_1_8
     }
     namespace 'kore.botssdk'
+
+    publishing {
+        singleVariant("release") {
+            withSourcesJar()
+        }
+    }
 }
 
 dependencies {

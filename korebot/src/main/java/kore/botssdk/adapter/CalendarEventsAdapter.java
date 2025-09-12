@@ -30,6 +30,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.google.gson.Gson;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
@@ -477,7 +478,7 @@ public class CalendarEventsAdapter extends RecyclerView.Adapter implements Recyc
 
         ArrayList<CalEventsTemplateModel> newSortedData = new ArrayList<>();
         LinkedHashMap<String, ArrayList<CalEventsTemplateModel>> list = new LinkedHashMap<>();
-        eventList.sort(new Comparator<CalEventsTemplateModel>() {
+        Collections.sort(eventList, new Comparator<CalEventsTemplateModel>() {
             public int compare(CalEventsTemplateModel o1, CalEventsTemplateModel o2) {
                 try {
                     return Double.compare(o1.getDuration().getStart(), o2.getDuration().getStart());

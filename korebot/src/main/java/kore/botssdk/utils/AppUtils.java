@@ -49,17 +49,20 @@ public class AppUtils {
         return result;
     }
     public static void showHideVirtualKeyboard(Activity activity, View view, boolean show) {
-        if (activity == null) {
-            return;
-        }
+        if (activity == null) return;
 
         InputMethodManager imm = (InputMethodManager) activity.getSystemService(Context.INPUT_METHOD_SERVICE);
-        View focusView = view == null ? activity.getCurrentFocus() : view;
-        if (focusView == null) {
-            return;
-        }
+        if (imm == null) return;
 
-        imm.hideSoftInputFromWindow(focusView.getWindowToken(), InputMethodManager.RESULT_UNCHANGED_SHOWN);
+        View focusView = (view != null) ? view : activity.getCurrentFocus();
+        if (focusView == null) focusView = new View(activity);
+
+        if (show) {
+            focusView.requestFocus();
+            imm.showSoftInput(focusView, InputMethodManager.SHOW_IMPLICIT);
+        } else {
+            imm.hideSoftInputFromWindow(focusView.getWindowToken(), 0);
+        }
     }
 
     public static void toggleVirtualKeyboard(Activity activity, int showFlags, int hideFlags) {

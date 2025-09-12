@@ -20,6 +20,7 @@ public class ClosingService extends Service {
 
         // Handle application closing
         Intent intent = new Intent(BundleConstants.DESTROY_EVENT);
+        intent.setPackage(this.getPackageName());
         sendBroadcast(intent);
 
         LogUtils.e("Application", "Closed called called");
