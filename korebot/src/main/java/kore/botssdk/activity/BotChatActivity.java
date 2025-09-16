@@ -32,6 +32,9 @@ import android.widget.Toast;
 
 import androidx.activity.OnBackPressedCallback;
 import androidx.appcompat.app.AlertDialog;
+import androidx.core.graphics.Insets;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
 import androidx.fragment.app.FragmentTransaction;
 
 import com.google.gson.Gson;
@@ -68,6 +71,7 @@ import kore.botssdk.listener.BotSocketConnectionManager;
 import kore.botssdk.listener.ComposeFooterInterface;
 import kore.botssdk.listener.ComposeFooterUpdate;
 import kore.botssdk.listener.InvokeGenericWebViewInterface;
+import kore.botssdk.listener.NetworkStateReceiver;
 import kore.botssdk.listener.SocketChatListener;
 import kore.botssdk.listener.TTSUpdate;
 import kore.botssdk.listener.ThemeChangeListener;
@@ -157,6 +161,7 @@ public class BotChatActivity extends BotAppCompactActivity implements ComposeFoo
     boolean isAgentTransfer = false;
     ArrayList<String> arrMessageList = new ArrayList<>();
     boolean isReconnectionStopped = false;
+    private final NetworkStateReceiver networkStateReceiver = new NetworkStateReceiver();
     String resp = "{\"type\":\"bot_response\",\"from\":\"bot\",\"message\":[{\"type\":\"text\",\"component\":{\"type\":\"text\",\"payload\":{\"text\":\"Adım adım ClubSmart plaka değişikliği:\\r\\n*1.* Shell Motorist Mobil Uygulamamız ya da [Shell ClubSmart web sitesine] (https://www.shellsmart.com/smart/index.html?site=tr-tr) giriş yapın.\\r\\n*2.* &quot;Shell Club Smart’ım&quot; sekmesine tıklayın.\\r\\n*3.* &quot;Lütfen Kişisel Bilgilerinizi Güncelleyiniz&quot; bölümünde bulunan &quot;Plaka&quot; kısmından plakanızı güncelleyin.\\r\\n*4.* &quot;Güncelle&quot; butonuna tıklayın.    \\r\\n\\r\\nPlaka güncelleme işleminiz *48 saat* içinde gerçekleşecektir.\\r\\n\\r\\nDaha fazla ayrıntı için makalenin tamamına [buradan](https://support.shell.com.tr/hc/tr/articles/4406208995473-Kay%C4%B1tl%C4%B1-plaka-bilgimi-nas%C4%B1l-g%C3%Bcncelleyebilirim) ulaşabilirsiniz.\"}},\"cInfo\":{\"body\":\"Adım adım ClubSmart plaka değişikliği:\\r\\n*1.* Shell Motorist Mobil Uygulamamız ya da [Shell ClubSmart web sitesine](https://www.shellsmart.com/smart/index.html?site=tr-tr) giriş yapın.\\r\\n*2.* &quot;Shell Club Smart’ım&quot; sekmesine tıklayın.\\r\\n*3.* &quot;Lütfen Kişisel Bilgilerinizi Güncelleyiniz&quot; bölümünde bulunan &quot;Plaka&quot; kısmından plakanızı güncelleyin.\\r\\n*4.* &quot;Güncelle&quot; butonuna tıklayın.    \\r\\n\\r\\nPlaka güncelleme işleminiz *48 saat* içinde gerçekleşecektir.\\r\\n\\r\\nDaha fazla ayrıntı için makalenin tamamına [buradan](https://support.shell.com.tr/hc/tr/articles/4406208995473-Kay%C4%B1tl%C4%B1-plaka-bilgimi-nas%C4%B1l-g%C3%Bcncelleyebilirim) ulaşabilirsiniz.\"}}],\"messageId\":\"ms-e7691f40-5abd-590f-8517-c3602d3173e6\",\"sessionId\":\"66b5a9ebbf593a12ea1bc139\",\"botInfo\":{\"channelClient\":\"Android\",\"chatBot\":\"Kore.ai Bot\",\"customData\":{\"botToken\":\"LbiErQVy4VWk3OnE4Sh9bBRfIGbNv4CI-vKs2SgyV3Ln9i4aK0sKzlK8iZmCMWjz\"},\"taskBotId\":\"st-19361478-b16f-5aa6-ac4e-52f4120f2f31\",\"userId\":\"u-3d82e51b-718e-5660-ae9b-bc0b04ba9c65\"},\"createdOn\":\"2024-08-09T05:32:51.262Z\",\"xTraceId\":\"76bd0a74-624f-47fa-8f38-1dacb91440d5\",\"icon\":\"https://de-bots.kore.ai/api/getMediaStream/market/f-3f632fe8-7962-5f5a-9f10-e705b0002ef6.png?n=9069322889&s=ImlKSHBDQkpteHZvYWEzY1RHWkxob0t5Q3lsMTJSVCtoclJwTlRtSlMzbTg9Ig$$\",\"timestamp\":1723181571327}";
     BroadcastReceiver onDestroyReceiver = new BroadcastReceiver() {
         @Override
@@ -180,6 +185,11 @@ public class BotChatActivity extends BotAppCompactActivity implements ComposeFoo
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.bot_chat_layout);
+        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main_container), (view, windowInsets) -> {
+            Insets insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars());
+            view.setPadding(insets.left, insets.top, insets.right, insets.bottom);
+            return WindowInsetsCompat.CONSUMED;
+        });
 
         findViews();
         getBundleInfo();
@@ -239,6 +249,8 @@ public class BotChatActivity extends BotAppCompactActivity implements ComposeFoo
                 }
             }
         });
+        IntentFilter filter = new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);
+        registerReceiver(networkStateReceiver, filter);
     }
 
     final SocketChatListener sListener = new SocketChatListener() {
@@ -307,6 +319,7 @@ public class BotChatActivity extends BotAppCompactActivity implements ComposeFoo
             botClient.disconnect();
         }
         KoreEventCenter.unregister(this);
+        unregisterReceiver(networkStateReceiver);
         super.onDestroy();
     }
 

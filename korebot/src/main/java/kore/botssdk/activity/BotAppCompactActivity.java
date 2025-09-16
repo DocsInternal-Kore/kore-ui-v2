@@ -7,6 +7,8 @@ import android.text.TextUtils;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.view.WindowCompat;
+import androidx.core.view.WindowInsetsControllerCompat;
 
 import kore.botssdk.R;
 import kore.botssdk.utils.ToastUtils;
@@ -27,6 +29,10 @@ public class BotAppCompactActivity extends AppCompatActivity {
 
     protected void onCreate(Bundle data) {
         super.onCreate(data);
+        WindowCompat.setDecorFitsSystemWindows(getWindow(), false);
+        WindowInsetsControllerCompat insetsController = new WindowInsetsControllerCompat(getWindow(), getWindow().getDecorView());
+        insetsController.setAppearanceLightStatusBars(true);
+        insetsController.setAppearanceLightNavigationBars(true);
     }
 
     protected void showProgress(String msg, boolean isCancelable) {

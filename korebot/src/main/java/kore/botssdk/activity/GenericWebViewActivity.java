@@ -17,6 +17,9 @@ import androidx.activity.OnBackPressedCallback;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.res.ResourcesCompat;
+import androidx.core.graphics.Insets;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
 
 import kore.botssdk.R;
 import kore.botssdk.utils.StringUtils;
@@ -32,6 +35,11 @@ public class GenericWebViewActivity extends BotAppCompactActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.generic_webview_layout);
+        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main_container), (view, windowInsets) -> {
+            Insets insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars());
+            view.setPadding(insets.left, insets.top, insets.right, insets.bottom);
+            return WindowInsetsCompat.CONSUMED;
+        });
         Bundle receivedBundle = getIntent().getExtras();
         if (receivedBundle != null) {
             url = receivedBundle.getString("url");

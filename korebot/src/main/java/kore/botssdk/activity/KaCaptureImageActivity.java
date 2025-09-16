@@ -2,6 +2,7 @@ package kore.botssdk.activity;
 
 import static android.content.Intent.ACTION_OPEN_DOCUMENT;
 import static android.os.Build.VERSION_CODES.TIRAMISU;
+import static androidx.core.view.WindowCompat.*;
 import static kore.botssdk.utils.BundleConstants.CAPTURE_IMAGE_BUNDLED_PREMISSION_REQUEST;
 import static kore.botssdk.utils.BundleConstants.CAPTURE_IMAGE_CHOOSE_FILES_BUNDLED_PREMISSION_REQUEST;
 import static kore.botssdk.utils.BundleConstants.CAPTURE_IMAGE_CHOOSE_FILES_RECORD_BUNDLED_PREMISSION_REQUEST;
@@ -35,6 +36,11 @@ import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.core.content.FileProvider;
+import androidx.core.graphics.Insets;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowCompat;
+import androidx.core.view.WindowInsetsCompat;
+import androidx.core.view.WindowInsetsControllerCompat;
 import androidx.exifinterface.media.ExifInterface;
 
 import java.io.ByteArrayOutputStream;
@@ -87,7 +93,16 @@ public class KaCaptureImageActivity extends KaAppCompatActivity implements KoreM
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setDecorFitsSystemWindows(getWindow(), false);
+        WindowInsetsControllerCompat insetsController = new WindowInsetsControllerCompat(getWindow(), getWindow().getDecorView());
+        insetsController.setAppearanceLightStatusBars(true);
+        insetsController.setAppearanceLightNavigationBars(true);
         setContentView(R.layout.ka_capture_image);
+        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main_container), (view, windowInsets) -> {
+            Insets insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars());
+            view.setPadding(insets.left, insets.top, insets.right, insets.bottom);
+            return WindowInsetsCompat.CONSUMED;
+        });
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
             imagePickType = extras.getString(BundleConstants.PICK_TYPE);

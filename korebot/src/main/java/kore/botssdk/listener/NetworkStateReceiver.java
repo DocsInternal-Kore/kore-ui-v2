@@ -9,8 +9,9 @@ import kore.botssdk.utils.NetworkUtility;
 public class NetworkStateReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
-        if(NetworkUtility.isNetworkConnectionAvailable(context)){
-            BotSocketConnectionManager.getInstance().checkConnectionAndRetry(context,false);
+        if (NetworkUtility.isNetworkConnectionAvailable(context)) {
+            if (BotSocketConnectionManager.getInstance().connection_state == BaseSocketConnectionManager.CONNECTION_STATE.DISCONNECTED)
+                BotSocketConnectionManager.getInstance().checkConnectionAndRetry(context, false);
         }
 
     }
