@@ -58,31 +58,31 @@ public class MainActivity extends AppCompatActivity {
 //        SDKConfig.addCustomFooterFragment(new CustomFooterFragment());
 
         //If token is empty sdk token generation will happen. if not empty we will use this token for bot connection.
-        String jwtToken = "";
+        String jwtToken = "PLEASE_ENTER_JWT_TOKEN";//getConfigValue("jwtToken");
 
         //Set clientId, If jwtToken is empty this value is mandatory
-        String clientId = "cs-0acaeec5-8ecc-5591-952a-227953214315";
+        String clientId = "PLEASE_ENTER_CLIENT_ID";//getConfigValue("clientId");//PLEASE_ENTER_BOT_CLIENT_ID
 
         //Set clientSecret, If jwtToken is empty this value is mandatory
-        String clientSecret = "UN9fKzBrxiP7sQzmDuB3JAiHaG2B8dyOur+SDIQI2s0=";
+        String clientSecret = "PLEASE_ENTER_CLIENT_SECRET";//getConfigValue("clientSecret");//PLEASE_ENTER_BOT_CLIENT_SECRET
 
         //Set botId, This value is mandatory
-        String botId = "st-f1dfebe5-d93b-593a-a078-eaae3cd7e982";
+        String botId = "PLEASE_ENTER_BOT_ID";//getConfigValue("botId");//PLEASE_ENTER_BOT_ID
 
         //Set identity, This value is mandatory
-        String identity = "PLEASE_ENTER_IDENTITY";
+        String identity = "PLEASE_ENTER_IDENTITY";//getConfigValue("identity");//PLEASE_ENTER_IDENTITY
 
         //Set botName, This value is mandatory
-        String botName = "Kore.ai Bot";
+        String botName = "PLEASE_ENTER_BOT_NAME";//getConfigValue("botName");//PLEASE_ENTER_BOT_NAME
 
         //Set serverUrl, This value is mandatory
-        String serverUrl = "https://platform.kore.ai";
+        String serverUrl = "PLEASE_ENTER_SERVER_URL";//getConfigValue("serverUrl");//PLEASE_ENTER_SERVER_URL
 
         //Set brandingUrl, This value is mandatory
-        String brandingUrl = "https://platform.kore.ai";
+        String brandingUrl = "PLEASE_ENTER_BRANDING_URL";//getConfigValue("brandingUrl");//PLEASE_ENTER_BRANDING_SERVER_URL
 
-        //Set jwtServerUrl, This value is mandatory
-        String jwtServerUrl = "https://mk2r2rmj21.execute-api.us-east-1.amazonaws.com/dev/";
+        //Set JwtServerUrl, This value is mandatory
+        String jwtServerUrl = "PLEASE_ENTER_JWT_URL";//getConfigValue("jwtServerUrl");//PLEASE_ENTER_JWT_SERVER_URL
 
         //Set isWebHook
         SDKConfig.isWebHook(false);
