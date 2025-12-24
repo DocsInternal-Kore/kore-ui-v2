@@ -20,7 +20,7 @@ import java.util.HashMap;
 import kore.botssdk.R;
 import kore.botssdk.listener.AttachmentListner;
 import kore.botssdk.utils.StringUtils;
-import kore.botssdk.view.viewUtils.FileUtils;
+import kore.botssdk.viewUtils.FileUtils;
 
 public class ComposebarAttachmentAdapter extends RecyclerView.Adapter<ComposebarAttachmentAdapter.ImageAttachView> {
 
@@ -42,8 +42,7 @@ public class ComposebarAttachmentAdapter extends RecyclerView.Adapter<Composebar
     @Override
     public void onBindViewHolder(@NonNull ImageAttachView holder, int position) {
         String fileExtension = dataList.get(position).get("fileExtn");
-
-        if (FileUtils.ImageTypes().contains(fileExtension) || FileUtils.VideoTypes().contains(fileExtension)) {
+        if (FileUtils.ImageTypes().contains(fileExtension)) {
             Glide.with(context).load(dataList.get(position).get("localFilePath")).apply(new RequestOptions().diskCacheStrategy(DiskCacheStrategy.NONE)).into(new DrawableImageViewTarget(holder.attach_view));
         } else {
             holder.attach_view.setImageResource(FileUtils.getDrawableByExt(!StringUtils.isNullOrEmptyWithTrim(fileExtension) ? fileExtension.toLowerCase() : ""));
@@ -51,8 +50,8 @@ public class ComposebarAttachmentAdapter extends RecyclerView.Adapter<Composebar
         holder.close_icon.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                dataList = new ArrayList<>();
-                notifyDataSetChanged();
+                dataList.remove(holder.getBindingAdapterPosition());
+                notifyItemRangeInserted(0, dataList.size() - 1);
                 attachmentListner.onRemoveAttachment();
             }
         });
@@ -63,11 +62,11 @@ public class ComposebarAttachmentAdapter extends RecyclerView.Adapter<Composebar
         return dataList.size();
     }
 
-    ArrayList<HashMap<String, String>> dataList = new ArrayList<>();
+    final ArrayList<HashMap<String, String>> dataList = new ArrayList<>();
 
     public void addAttachment(@NonNull HashMap<String, String> attachmentKey) {
         dataList.add(attachmentKey);
-        notifyItemRangeInserted(0, dataList.size() - 1);
+        notifyDataSetChanged();
     }
 
     public void clearAll() {
@@ -81,7 +80,7 @@ public class ComposebarAttachmentAdapter extends RecyclerView.Adapter<Composebar
     }
 
 
-    static class ImageAttachView extends RecyclerView.ViewHolder {
+    public static class ImageAttachView extends RecyclerView.ViewHolder {
         final View close_icon;
         final ImageView attach_view;
 

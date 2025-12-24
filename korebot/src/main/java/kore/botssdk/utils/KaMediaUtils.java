@@ -6,6 +6,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Environment;
 import android.provider.DocumentsContract;
 import android.provider.MediaStore;
@@ -21,8 +22,10 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URL;
 import java.net.URLConnection;
+import java.nio.file.Files;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Locale;
 
 import kore.botssdk.exceptions.NoExternalStorageException;
 import kore.botssdk.exceptions.NoWriteAccessException;
@@ -32,7 +35,6 @@ import kore.botssdk.models.KoreMedia;
  * Created by Shiva Krishna on 4/3/2018.
  */
 
-
 public class KaMediaUtils {
     public static final String MEDIA_APP_FOLDER = "Kore";
     public static final String DOWNLOADED_IMAGE_FOLDER = "Kore Image";
@@ -40,21 +42,8 @@ public class KaMediaUtils {
     public static final String DOWNLOADED_VIDEO_FOLDER = "Kore Video";
     public static final String DOWNLOADED_DOCUMENT_FOLDER = "Kore Document";
     public static final String DOWNLOAD_ARCHIVE_FOLDER = "Kore Archieve";
-    public static final String TEMP_FOLDER = "Kore Temp";
-    String DIR_TYPE_TEMP = "temp";
     private static final String LOG_TAG = "MediaUtil";
-    static boolean mExternalStorageAvailable = false;
-    static boolean mExternalStorageWriteable = false;
     static File mediaStorageDir = null;
-    static File mediaStorageDownloadsDir = null;
-
-    public static class KaEnvironment {
-        public static File getExternalStorageDirectory() {
-            File f;
-            f = Environment.getExternalStorageDirectory();
-            return f;
-        }
-    }
 
     public static void setupAppDir(Context context, String type) {
         try {
@@ -80,43 +69,6 @@ public class KaMediaUtils {
         }
     }
 
-    public static File setupDownloadsDir(Context context, String type, String userId) {
-        try {
-            String path = context.getFilesDir() + File.separator + MEDIA_APP_FOLDER;
-            if (type.equalsIgnoreCase(KoreMedia.MEDIA_TYPE_AUDIO))
-                mediaStorageDownloadsDir = new File(path, DOWNLOADED_AUDIO_FOLDER);
-            else if (type.equalsIgnoreCase(KoreMedia.MEDIA_TYPE_VIDEO))
-                mediaStorageDownloadsDir = new File(path, DOWNLOADED_VIDEO_FOLDER);
-            else if (type.equalsIgnoreCase(KoreMedia.MEDIA_TYPE_IMAGE))
-                mediaStorageDownloadsDir = new File(path, DOWNLOADED_IMAGE_FOLDER);
-            else if (type.equalsIgnoreCase(KoreMedia.MEDIA_TYPE_ARCHIVE)) {
-                mediaStorageDownloadsDir = new File(path, DOWNLOAD_ARCHIVE_FOLDER);
-            } else if (type.equalsIgnoreCase(KoreMedia.MEDIA_TYPE_DOCUMENT)) {
-                mediaStorageDownloadsDir = new File(path, DOWNLOADED_DOCUMENT_FOLDER);
-            }
-            // Create the storage directory if it does not exist
-            if (!mediaStorageDownloadsDir.exists()) {
-                mediaStorageDownloadsDir.mkdirs();
-            }
-        } catch (Exception e) {
-            LogUtils.e(LOG_TAG, e.getMessage());
-        }
-        return mediaStorageDownloadsDir;
-    }
-
-    public static void updateExternalStorageState() {
-        String state = Environment.getExternalStorageState();
-        if (Environment.MEDIA_MOUNTED.equals(state)) {
-            mExternalStorageAvailable = mExternalStorageWriteable = true;
-//            KoreLogger.debugLog(LOG_TAG, "updateExternalStorageState() -- SDcard Mounted !!!");
-        } else if (Environment.MEDIA_MOUNTED_READ_ONLY.equals(state)) {
-            mExternalStorageAvailable = true;
-            mExternalStorageWriteable = false;
-        } else {
-            mExternalStorageAvailable = mExternalStorageWriteable = false;
-        }
-    }
-
     /**
      * Create a File for saving an image or video
      */
@@ -124,7 +76,7 @@ public class KaMediaUtils {
         // Create a media file name
         if (fileName != null && fileName.indexOf(".") > 0)
             fileName = fileName.substring(0, fileName.lastIndexOf("."));
-        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmssSSS").format(new Date()),
+        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmssSSS", Locale.getDefault()).format(new Date()),
                 appDirPath = getAppDir();
         File mediaFile = null;
         int attemptCount = 0;
@@ -150,19 +102,7 @@ public class KaMediaUtils {
         return mediaFile;
     }
 
-    public static String getLocalPath(String fileName) throws NoExternalStorageException, NoWriteAccessException {
-        return getAppDir() + File.separator + fileName;
-    }
-
-    public static String getAppDir() throws NoExternalStorageException, NoWriteAccessException {
-//        if (!mExternalStorageWriteable) {
-//            throw new NoWriteAccessException();
-//        }
-//
-//        if (!mExternalStorageAvailable) {
-//            throw new NoExternalStorageException();
-//        }
-
+    public static String getAppDir() {
         return mediaStorageDir.getPath();
     }
 
@@ -173,7 +113,9 @@ public class KaMediaUtils {
             ContentResolver contentResolver = mContext.getContentResolver();
             File file = KaMediaUtils.getOutputMediaFile(BitmapUtils.obtainMediaTypeOfExtn(extn), fileName);
             inputStream = contentResolver.openInputStream(uri);
-            out = new FileOutputStream(file);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                out = Files.newOutputStream(file.toPath());
+            } else out = new FileOutputStream(file);
 
             int read = 0;
             byte[] bytes = new byte[1024];
@@ -274,7 +216,7 @@ public class KaMediaUtils {
                 final String type = split[0];
 
                 if ("primary".equalsIgnoreCase(type)) {
-                    return KaEnvironment.getExternalStorageDirectory() + "/" + split[1];
+                    return Environment.getExternalStorageDirectory() + "/" + split[1];
                 }
             } else if (isDownloadsDocument(uri)) {
 
@@ -420,41 +362,6 @@ public class KaMediaUtils {
         return "com.android.contacts".equals(uri.getAuthority());
     }
 
-    public static boolean fileAvailable(Context context, String fileName, String type, String userId) {
-        boolean isAvailable;
-        StringBuilder builder = new StringBuilder();
-
-        updateExternalStorageState();
-        File downloadPath = setupDownloadsDir(context, type, userId);
-
-        builder.append(downloadPath);
-        builder.append(File.separator);
-        if (fileName.contains(".")) {
-            builder.append(fileName);
-        } else {
-            builder.append(fileName);
-            builder.append(getMediaExtension(type, false));
-        }
-
-        File downloadedFile = new File(builder.toString());
-        isAvailable = (downloadedFile.exists() && downloadedFile.length() > 0);
-//        KoreLogger.debugLog(LOG_TAG, "File name : " + fileName + " Type : " + type + " isAvailable :" + isAvailable);
-
-        return isAvailable;
-    }
-
-    public static boolean createFolderIfNotExist(String dirPath) {
-        boolean flag = true;
-        File dir = new File(KaEnvironment.getExternalStorageDirectory(), dirPath);
-        if (!dir.exists()) {
-            if (!dir.mkdirs()) {
-                flag = false;
-            }
-        }
-
-        return flag;
-    }
-
     /**
      * Background Async Task to download file
      */
@@ -496,7 +403,10 @@ public class KaMediaUtils {
                 input = new BufferedInputStream(url.openStream(), 8192);
 
                 // Output stream to write file
-                output = new FileOutputStream(KaMediaUtils.getAppDir() + File.separator + StringUtils.getFileNameFromUrl(url.toString()));
+                String filePath = KaMediaUtils.getAppDir() + File.separator + StringUtils.getFileNameFromUrl(url.toString());
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    output = Files.newOutputStream(new File(filePath).toPath());
+                } else output = new FileOutputStream(filePath);
                 byte[] data = new byte[1024];
 
                 long total = 0;

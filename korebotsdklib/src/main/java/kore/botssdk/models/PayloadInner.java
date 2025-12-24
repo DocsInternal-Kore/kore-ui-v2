@@ -11,9 +11,7 @@ import java.util.List;
 
 import kore.botssdk.models.CalEventsTemplateModel.Duration;
 
-/**
- * Created by Ramachandra Pradeep on 12/15/2016.
- */
+@SuppressWarnings("UnKnownNullness")
 public class PayloadInner {
 
     public void setTemplate_type(String template_type) {
@@ -22,8 +20,6 @@ public class PayloadInner {
 
     private String template_type;
     private String featureId;
-    private List<FeedbackRatingModel> numbersArrays;
-    private List<FeedbackThumbsArrayModel> thumpsUpDownArrays;
 
     public String getFeatureId() {
         return featureId;
@@ -37,12 +33,21 @@ public class PayloadInner {
         this.text = text;
     }
 
+    public String getLabel() {
+        return label;
+    }
+
+    private String label;
     private String text;
     private String pie_type;
     private String Auto_adjust_X_axis;
     private List<String> X_axis;
     private String direction;
     private boolean stacked;
+    private List<FeedbackRatingModel> numbersArrays;
+    private List<FeedbackThumbsModel> thumpsUpDownArrays;
+
+    private String carousel_type;
     private String layout;
     private Skill skill;
     private String composeText;
@@ -50,6 +55,7 @@ public class PayloadInner {
     private String heading;
     private String title;
     private String endDate;
+    private String startDate;
     private String format;
     private String boxShadow;
     private String seeMore;
@@ -78,10 +84,20 @@ public class PayloadInner {
     private String fileName;
     private boolean url_present;
     private boolean isSortEnabled;
-    private boolean isAgent;
+    private boolean isSearchEnabled;
 
-    public boolean isAgent(){
-        return isAgent;
+    private List<RadioOptionModel> radioOptions;
+
+    public List<FeedbackRatingModel> getNumbersArrays() {
+        return numbersArrays;
+    }
+
+    public List<FeedbackThumbsModel> getThumpsUpDownArrays() {
+        return thumpsUpDownArrays;
+    }
+
+    public List<RadioOptionModel> getRadioOptions() {
+        return radioOptions;
     }
 
     public boolean isSortEnabled() {
@@ -90,6 +106,14 @@ public class PayloadInner {
 
     public void setSortEnabled(boolean sortEnabled) {
         isSortEnabled = sortEnabled;
+    }
+
+    public boolean isSearchEnabled() {
+        return isSearchEnabled;
+    }
+
+    public void setSearchEnabled(boolean searchEnabled) {
+        isSearchEnabled = searchEnabled;
     }
 
     public boolean isUrl_present() {
@@ -188,14 +212,6 @@ public class PayloadInner {
 
     public boolean isStacked() {
         return stacked;
-    }
-
-    public List<FeedbackRatingModel> getNumbersArrays() {
-        return numbersArrays;
-    }
-
-    public List<FeedbackThumbsArrayModel> getThumbsArrays() {
-        return thumpsUpDownArrays;
     }
 
     public void setStacked(boolean stacked) {
@@ -318,6 +334,10 @@ public class PayloadInner {
         return endDate;
     }
 
+    public String getStartDate() {
+        return startDate;
+    }
+
     public void setFormat(String endDate) {
         this.format = format;
     }
@@ -361,12 +381,12 @@ public class PayloadInner {
         this.action_type = action_type;
     }
 
-    public String getPlaceholder_text() {
-        return placeholder_text;
+    public String getPlaceholder() {
+        return placeholder;
     }
 
-    public void setPlaceholder_text(String placeholder_text) {
-        this.placeholder_text = placeholder_text;
+    public void setPlaceholder(String placeholder) {
+        this.placeholder = placeholder;
     }
 
     public ArrayList<FormActionTemplate> getForm_actions() {
@@ -377,7 +397,7 @@ public class PayloadInner {
         this.form_actions = form_actions;
     }
 
-    private String placeholder_text;
+    private String placeholder;
 
     private List<List<String>> columns = null;
     private ArrayList<BotTableDataModel> tableDataModel = null;
@@ -393,6 +413,19 @@ public class PayloadInner {
     private ArrayList<BotFormTemplateModel> formFields;
     private ArrayList<FeedbackSmileyModel> smileyArrays;
     private ArrayList<FeedbackStarModel> starArrays;
+
+    private ArrayList<AdvancedMultiSelectModel> advancedMultiSelectModels;
+
+    public ArrayList<AdvancedMultiSelectModel> getAdvancedMultiSelectModels() {
+        return advancedMultiSelectModels;
+    }
+
+    private int limit;
+
+    public int getLimit() {
+        return limit;
+    }
+
     private Object cards;
     private ArrayList<AdvancedListModel> listItems;
     private ArrayList<BotBeneficiaryModel> botBeneficiaryModels;
@@ -488,6 +521,7 @@ public class PayloadInner {
 
     private ArrayList<BotListWidgetModel> listWidgetModels;
     private ArrayList<BotCarouselModel> carouselElements;
+    private ArrayList<BotCarouselStackModel> carouselStackElements;
     private ArrayList<ContactTemplateModel> contactTemplateModels;
     private ArrayList<CardTemplateModel> cardTemplateModels;
     private ArrayList<BotListModel> listElements;
@@ -695,6 +729,10 @@ public class PayloadInner {
         return template_type;
     }
 
+    public String getCarousel_type() {
+        return carousel_type;
+    }
+
     public String getText() {
         return text;
     }
@@ -721,6 +759,10 @@ public class PayloadInner {
 
     public ArrayList<BotCarouselModel> getCarouselElements() {
         return carouselElements;
+    }
+
+    public ArrayList<BotCarouselStackModel> getCarouselStackElements() {
+        return carouselStackElements;
     }
 
     public ArrayList<BotListModel> getListElements() {
@@ -788,9 +830,15 @@ public class PayloadInner {
                 elementsAsString = gson.toJson(elements);
                 if (!BotResponse.TEMPLATE_TYPE_UNIVERSAL_SEARCH.equals(template_type)) {
                     if (BotResponse.TEMPLATE_TYPE_CAROUSEL.equalsIgnoreCase(template_type) || BotResponse.TEMPLATE_TYPE_WELCOME_CAROUSEL.equalsIgnoreCase(template_type)) {
-                        Type carouselType = new TypeToken<ArrayList<BotCarouselModel>>() {
-                        }.getType();
-                        carouselElements = gson.fromJson(elementsAsString, carouselType);
+                        if (carousel_type != null && carousel_type.equals(BotResponse.STACKED)) {
+                            Type carouselType = new TypeToken<ArrayList<BotCarouselStackModel>>() {
+                            }.getType();
+                            carouselStackElements = gson.fromJson(elementsAsString, carouselType);
+                        } else {
+                            Type carouselType = new TypeToken<ArrayList<BotCarouselModel>>() {
+                            }.getType();
+                            carouselElements = gson.fromJson(elementsAsString, carouselType);
+                        }
                     } else if (BotResponse.TEMPLATE_TYPE_CAROUSEL_ADV.equalsIgnoreCase(template_type)) {
                         Type carouselType = new TypeToken<ArrayList<BotCarouselModel>>() {
                         }.getType();
@@ -896,22 +944,49 @@ public class PayloadInner {
                         }.getType();
                         formFields = gson.fromJson(elementsAsString, listType);
                     } else if (BotResponse.TEMPLATE_TYPE_FEEDBACK.equals(template_type)) {
-                        Type listType = new TypeToken<ArrayList<NewFeedbackModel>>() {
-                        }.getType();
-                        formFields = gson.fromJson(elementsAsString, listType);
-                    } else if (BotResponse.TEMPLATE_TYPE_LIST_WIDGET.equals(template_type)) {
+                        switch (view) {
+                            case BotResponse.VIEW_NPS:
+                                Type listType1 = new TypeToken<ArrayList<FeedbackRatingModel>>() {
+                                }.getType();
+                                numbersArrays = gson.fromJson(elementsAsString, listType1);
+                                break;
+                            case BotResponse.VIEW_STAR:
+                                Type listType2 = new TypeToken<ArrayList<FeedbackStarModel>>() {
+                                }.getType();
+                                starArrays = gson.fromJson(elementsAsString, listType2);
+                                break;
+                            case BotResponse.VIEW_THUMBS_UP_DOWN:
+                                Type listType3 = new TypeToken<ArrayList<FeedbackThumbsModel>>() {
+                                }.getType();
+                                thumpsUpDownArrays = gson.fromJson(elementsAsString, listType3);
+                                break;
+                            case BotResponse.VIEW_CSAT:
+                                Type listType4 = new TypeToken<ArrayList<FeedbackSmileyModel>>() {
+                                }.getType();
+                                smileyArrays = gson.fromJson(elementsAsString, listType4);
+                                break;
+                            default:
+                                Type listType5 = new TypeToken<ArrayList<BotFormTemplateModel>>() {
+                                }.getType();
+                                formFields = gson.fromJson(elementsAsString, listType5);
+
+                        }
+                    } else if (BotResponse.TEMPLATE_TYPE_LIST_WIDGET_2.equals(template_type) || BotResponse.TEMPLATE_TYPE_LIST_WIDGET.equalsIgnoreCase(template_type)) {
                         Type listType = new TypeToken<ArrayList<WidgetListElementModel>>() {
                         }.getType();
                         widgetlistElements = gson.fromJson(elementsAsString, listType);
-                    } else if (BotResponse.TEMPLATE_TYPE_LIST_WIDGET_2.equalsIgnoreCase(template_type)) {
-                        listWidgetModels = new ArrayList<>();
-                        Type listType = new TypeToken<ArrayList<BotListWidgetModel>>() {
-                        }.getType();
-                        listWidgetModels = gson.fromJson(elementsAsString, listType);
                     } else if (BotResponse.TEMPLATE_DROPDOWN.equals(template_type)) {
                         Type listType = new TypeToken<ArrayList<DropDownElementsModel>>() {
                         }.getType();
                         dropDownElementsModels = gson.fromJson(elementsAsString, listType);
+                        DropDownElementsModel model = new DropDownElementsModel();
+                        model.setTitle(placeholder);
+                        model.setValue(placeholder);
+                        dropDownElementsModels.add(0, model);
+                    } else if (BotResponse.ADVANCED_MULTI_SELECT_TEMPLATE.equals(template_type)) {
+                        Type listType = new TypeToken<ArrayList<AdvancedMultiSelectModel>>() {
+                        }.getType();
+                        advancedMultiSelectModels = gson.fromJson(elementsAsString, listType);
                     }
                 } else {
                     //Special case where we are getting multiple types of template responses in a single template(knowledge retrieval or universal search)

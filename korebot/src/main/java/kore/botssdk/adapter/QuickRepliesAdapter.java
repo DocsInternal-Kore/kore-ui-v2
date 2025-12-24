@@ -20,11 +20,10 @@ import kore.botssdk.models.QuickRepliesPayloadModel;
 import kore.botssdk.models.QuickReplyTemplate;
 import kore.botssdk.net.SDKConfiguration;
 import kore.botssdk.utils.BundleConstants;
-import kore.botssdk.view.viewHolder.QuickReplyViewHolder;
-import kore.botssdk.view.viewUtils.DimensionUtil;
+import kore.botssdk.viewholders.QuickReplyViewHolder;
+import kore.botssdk.viewUtils.DimensionUtil;
 
 /**
- * Created by Pradeep Mahato on 28/7/17.
  * Copyright (c) 2014 Kore Inc. All rights reserved.
  */
 public class QuickRepliesAdapter extends RecyclerView.Adapter<QuickReplyViewHolder> {
@@ -52,7 +51,7 @@ public class QuickRepliesAdapter extends RecyclerView.Adapter<QuickReplyViewHold
     @Override
     public QuickReplyViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View convertView = View.inflate(context, R.layout.quick_reply_item_layout, null);
-        GradientDrawable gradientDrawable = (GradientDrawable)convertView.findViewById(R.id.quick_reply_view).getBackground();
+        GradientDrawable gradientDrawable = (GradientDrawable)convertView.findViewById(R.id.quick_reply_view).getBackground().mutate();
         gradientDrawable.setStroke(dp1, quickWidgetColor);
         gradientDrawable.setColor(fillColor);
         QuickReplyViewHolder viewHolder = new QuickReplyViewHolder(convertView);

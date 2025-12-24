@@ -2,8 +2,6 @@ package kore.botssdk.models;
 
 import static kore.botssdk.utils.DateUtils.getCorrectedTimeZone;
 
-import androidx.annotation.NonNull;
-
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
@@ -52,7 +50,6 @@ public class KaUserProfileModel implements Serializable, Cloneable {
     public void setUsageLimits(List<UsageLimit> usageLimits) {
         this.usageLimits = usageLimits;
     }
-
     @SerializedName("account")
     @Expose
     private LimitAccount limitAccount;
@@ -64,6 +61,8 @@ public class KaUserProfileModel implements Serializable, Cloneable {
     public void setLimitAccount(LimitAccount limitAccount) {
         this.limitAccount = limitAccount;
     }
+
+
 
 
     public String getEmpId() {
@@ -123,7 +122,6 @@ public class KaUserProfileModel implements Serializable, Cloneable {
     @SerializedName("onboarding")
     @Expose
     private Onboarding onboarding;
-
     public String getIcon() {
         return icon;
     }
@@ -323,20 +321,22 @@ public class KaUserProfileModel implements Serializable, Cloneable {
     private boolean isTeachInitiated;
     private ArrayList<WorkHoursModel> workHours;
 
-    @NonNull
+
     @Override
     public KaUserProfileModel clone() throws CloneNotSupportedException {
         KaUserProfileModel kaUserProfileModel = (KaUserProfileModel) super.clone();
         try {
-            kaUserProfileModel.nPrefs = kaUserProfileModel.nPrefs.clone();
+            kaUserProfileModel.setNPrefs(kaUserProfileModel.getNPrefs().clone());
         } catch (Exception e) {
-            e.printStackTrace();
+          e.printStackTrace();
         }
         return kaUserProfileModel;
     }
 
 
-    public static class Onboarding implements Serializable {
+
+
+    public static class Onboarding  implements Serializable{
 
         @SerializedName("android")
         @Expose

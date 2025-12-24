@@ -24,14 +24,14 @@ public class BrandingModel
     private String widgetDividerColor;
     private String widgetBodyColor;
     private String botName;
-    private String bubbleShape;
+    private String chatBubbleStyle;
 
-    public void setBubbleShape(String bubbleShape) {
-        this.bubbleShape = bubbleShape;
+    public String getChatBubbleStyle() {
+        return chatBubbleStyle;
     }
 
-    public String getBubbleShape() {
-        return bubbleShape;
+    public void setChatBubbleStyle(String chatBubbleStyle) {
+        this.chatBubbleStyle = chatBubbleStyle;
     }
 
     public String getWidgetFooterHintText() {

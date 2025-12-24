@@ -22,7 +22,7 @@ import java.util.ArrayList;
 import kore.botssdk.R;
 import kore.botssdk.models.AdvanceListTableModel;
 import kore.botssdk.utils.StringUtils;
-import kore.botssdk.view.viewUtils.RoundedCornersTransform;
+import kore.botssdk.viewUtils.RoundedCornersTransform;
 
 public class CardTemplateListAdapter extends RecyclerView.Adapter<CardTemplateListAdapter.ButtonViewHolder> {
     private final LayoutInflater inflater;
@@ -81,12 +81,6 @@ public class CardTemplateListAdapter extends RecyclerView.Adapter<CardTemplateLi
     @Override
     public int getItemCount() {
         return buttons != null ? buttons.size() : 0;
-    }
-
-    boolean isFullView;
-
-    public void setIsFromFullView(boolean isFullView) {
-        this.isFullView = isFullView;
     }
 
     public static class ButtonViewHolder extends RecyclerView.ViewHolder {

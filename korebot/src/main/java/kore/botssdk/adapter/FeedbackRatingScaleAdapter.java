@@ -18,7 +18,7 @@ import kore.botssdk.listener.ChatContentStateListener;
 import kore.botssdk.listener.ComposeFooterInterface;
 import kore.botssdk.models.BotResponse;
 import kore.botssdk.models.FeedbackRatingModel;
-import kore.botssdk.views.CustomTextView;
+import kore.botssdk.view.CustomTextView;
 
 public class FeedbackRatingScaleAdapter extends RecyclerView.Adapter<FeedbackRatingScaleAdapter.ViewHolder> {
     private final List<FeedbackRatingModel> items;
@@ -26,6 +26,7 @@ public class FeedbackRatingScaleAdapter extends RecyclerView.Adapter<FeedbackRat
     private int selectedPos = -1;
     private ComposeFooterInterface composeFooterInterface;
     private ChatContentStateListener listener;
+    private final String msgId;
 
     public void setComposeFooterInterface(ComposeFooterInterface composeFooterInterface) {
         this.composeFooterInterface = composeFooterInterface;
@@ -35,7 +36,8 @@ public class FeedbackRatingScaleAdapter extends RecyclerView.Adapter<FeedbackRat
         this.listener = listener;
     }
 
-    public FeedbackRatingScaleAdapter(List<FeedbackRatingModel> items, boolean isEnabled, int selectedPos) {
+    public FeedbackRatingScaleAdapter(String msgId, List<FeedbackRatingModel> items, boolean isEnabled, int selectedPos) {
+        this.msgId = msgId;
         this.selectedPos = selectedPos;
         this.items = items;
         this.isEnabled = isEnabled;
@@ -63,7 +65,7 @@ public class FeedbackRatingScaleAdapter extends RecyclerView.Adapter<FeedbackRat
         }
         holder.tvRating.setOnClickListener(view -> {
             if (!isEnabled) return;
-            if (listener != null) listener.onSelect(position, BotResponse.SELECTED_FEEDBACK);
+            if (listener != null) listener.onSaveState(msgId, position, BotResponse.SELECTED_FEEDBACK);
             if (composeFooterInterface != null) {
                 composeFooterInterface.onSendClick(ratingModel.getNumberId() + "", ratingModel.getNumberId() + "", false);
             }

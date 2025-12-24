@@ -10,13 +10,12 @@
         android:id="@+id/mainContent"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:alpha="0.0"
         android:background="@android:color/transparent"
         android:clickable="true"
         android:focusable="true"
         android:orientation="vertical"
         android:splitMotionEvents="false"
-        android:visibility="visible">
+        android:visibility="gone">
 
         <!-- Bot Message Fragment resides -->
         <FrameLayout
@@ -34,22 +33,12 @@
             android:background="@color/footerdivider_color"
             android:visibility="gone" />
 
-        <!--<com.kore.koreapp.views.AudioVisualiserView
-            android:id="@+id/bot_bottom_strip"
-            android:layout_width="220dp"
-            android:layout_height="80dp"
-            android:layout_gravity="bottom"
-            android:layout_centerHorizontal="true"
-            android:layout_margin="5dp"
-            android:background="@color/teamPostViewForAlertsStripColor"
-            android:orientation="horizontal"
-            android:visibility="gone"/>-->
-
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/attachment_recycler"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="2dp"
+            android:nestedScrollingEnabled="false"
             android:visibility="gone" />
 
         <RelativeLayout
@@ -59,19 +48,19 @@
             android:layout_gravity="bottom"
             android:background="@color/compose_chase_color"
             android:gravity="center_vertical"
-            android:visibility="visible">
+            android:visibility="gone">
 
-            <RelativeLayout
+            <LinearLayout
                 android:id="@+id/composeFooterRl"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:gravity="center_vertical">
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
 
                 <RelativeLayout
                     android:id="@+id/tasksRl"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_centerVertical="true"
                     android:gravity="center_vertical">
 
                     <ImageView
@@ -104,11 +93,12 @@
 
                     <ImageView
                         android:id="@+id/attachemnt"
-                        android:layout_width="35dp"
-                        android:layout_height="40dp"
+                        android:layout_width="@dimen/dimen_32dp"
+                        android:layout_height="@dimen/dimen_32dp"
                         android:layout_gravity="center_vertical"
+                        android:layout_marginStart="@dimen/dimen_5dp"
                         android:importantForAccessibility="no"
-                        android:padding="3dp"
+                        android:padding="@dimen/dimen_3dp"
                         android:visibility="gone"
                         app:srcCompat="@drawable/attachment_comp" />
 
@@ -147,31 +137,29 @@
 
                 <LinearLayout
                     android:id="@+id/composeFrameLl"
-                    android:layout_width="match_parent"
+                    android:layout_width="0dp"
                     android:layout_height="45dp"
-                    android:layout_centerVertical="true"
                     android:layout_gravity="center"
-                    android:layout_marginStart="@dimen/dimen_5dp"
+                    android:layout_marginStart="@dimen/dimen_10dp"
                     android:layout_marginTop="5dp"
-                    android:layout_marginEnd="15dp"
+                    android:layout_marginEnd="5dp"
                     android:layout_marginBottom="5dp"
-                    android:layout_toStartOf="@+id/btnsend1"
-                    android:layout_toEndOf="@id/tasksRl"
-                    android:background="@drawable/theme1_compose_bg"
+                    android:layout_weight="1"
+                    android:background="@drawable/input_compose"
                     android:gravity="center"
                     android:orientation="horizontal">
 
                     <LinearLayout
-                        android:layout_width="match_parent"
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
+                        android:layout_weight="1"
                         android:orientation="vertical">
 
-                        <EditText
+                        <kore.botssdk.view.CustomEditTextView
                             android:id="@+id/edtTxtMessage"
-                            android:layout_width="fill_parent"
+                            android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:layout_marginStart="@dimen/dimen_5dp"
-                            android:layout_marginEnd="@dimen/dimen_10dp"
                             android:background="@null"
                             android:gravity="center_vertical|start"
                             android:hint="@string/message"
@@ -189,6 +177,16 @@
 
                     </LinearLayout>
 
+                    <ImageView
+                        android:id="@+id/audio_speak_tts"
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:layout_gravity="center_vertical"
+                        android:layout_marginEnd="@dimen/dimen_12dp"
+                        android:contentDescription="@string/speak_out_the_bot_response_text"
+                        android:src="@drawable/ic_volume_up_black_24dp"
+                        android:visibility="gone" />
+
                 </LinearLayout>
 
                 <LinearLayout
@@ -196,14 +194,37 @@
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
                     android:layout_alignParentEnd="true"
+                    android:layout_centerVertical="true"
+                    android:layout_marginEnd="@dimen/dimen_5dp"
                     android:orientation="horizontal">
 
-                    <TextView
-                        android:id="@+id/sendTv"
+                    <LinearLayout
+                        android:id="@+id/llSend"
+                        android:layout_width="@dimen/dimen_35dp"
+                        android:layout_height="@dimen/dimen_35dp"
+                        android:layout_gravity="center_vertical"
+                        android:background="@drawable/ic_send_bg"
+                        android:gravity="center"
+                        android:visibility="gone">
+
+                        <kore.botssdk.view.CustomTextView
+                            android:id="@+id/sendTv"
+                            android:layout_width="@dimen/dimen_20dp"
+                            android:layout_height="@dimen/dimen_20dp"
+                            android:layout_margin="@dimen/dimen_5dp"
+                            android:background="@drawable/ic_send_small" />
+
+                    </LinearLayout>
+
+                    <kore.botssdk.view.CustomTextView
+                        android:id="@+id/sendTv1"
                         android:layout_width="wrap_content"
                         android:layout_height="match_parent"
-                        android:paddingEnd="@dimen/dimen_10dp"
                         android:gravity="center_vertical"
+                        android:paddingStart="5dp"
+                        android:paddingLeft="5dp"
+                        android:paddingEnd="5dp"
+                        android:paddingRight="5dp"
                         android:tag="bold"
                         android:text="@string/send"
                         android:textColor="@color/bgBlueSignup"
@@ -212,29 +233,17 @@
 
                     <ImageView
                         android:id="@+id/rec_audio_img"
-                        android:layout_width="40dp"
-                        android:layout_height="40dp"
+                        android:layout_width="@dimen/dimen_25dp"
+                        android:layout_height="@dimen/dimen_30dp"
                         android:layout_gravity="center_vertical"
-                        android:alpha="0.70"
                         android:importantForAccessibility="no"
-                        android:padding="5dp"
                         android:src="@drawable/ic_mic"
                         android:visibility="gone" />
 
-                    <ImageView
-                        android:id="@+id/audio_speak_tts"
-                        android:layout_width="40dp"
-                        android:layout_height="40dp"
-                        android:layout_gravity="center_vertical"
-                        android:alpha="0.70"
-                        android:importantForAccessibility="no"
-                        android:padding="5dp"
-                        android:src="@drawable/ic_volume_up_black_24dp"
-                        android:visibility="gone" />
 
                 </LinearLayout>
 
-            </RelativeLayout>
+            </LinearLayout>
 
             <LinearLayout
                 android:id="@+id/footerConnectBotWrapper"
@@ -244,7 +253,7 @@
                 android:descendantFocusability="afterDescendants"
                 android:visibility="gone">
 
-                <TextView
+                <kore.botssdk.view.CustomTextView
                     android:id="@+id/tv_footerConnectBot"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
@@ -267,68 +276,80 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:alpha="1.0"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:visibility="gone">
 
-        <TextView
+        <kore.botssdk.view.CustomTextView
             android:id="@+id/text_view_speech"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:ellipsize="marquee"
-            android:gravity="right|end"
+            android:layout_gravity="end"
+            android:layout_marginBottom="@dimen/dimen_3dp"
+            android:background="@drawable/theme1_right_bubble_bg"
             android:padding="5dp"
             android:singleLine="true"
-            android:textColor="@android:color/white"
-            android:textSize="12dp"
+            android:textColor="@color/txtFontBlack"
+            android:textSize="@dimen/text_size_small"
             android:visibility="gone" />
 
         <RelativeLayout
+            android:id="@+id/rlSpeaker"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="#341423"
+            android:background="@color/colorPrimary"
             android:gravity="center_vertical">
 
-
-            <LinearLayout
-                android:id="@+id/linearLayoutProgress"
+            <RelativeLayout
+                android:id="@+id/rlSpeakerCircle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_centerHorizontal="true"
-                android:layout_centerVertical="true"
-                android:orientation="vertical"
-                android:visibility="gone">
+                android:layout_centerInParent="true"
+                android:background="@drawable/speaker_blue_bg">
 
-                <net.gotev.speech.ui.SpeechProgressView
-                    android:id="@+id/progress"
-                    android:layout_width="120dp"
-                    android:layout_height="90dp" />
+                <LinearLayout
+                    android:id="@+id/linearLayoutProgress"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerHorizontal="true"
+                    android:layout_centerVertical="true"
+                    android:orientation="vertical">
 
-            </LinearLayout>
+                    <kore.botssdk.speech.ui.SpeechProgressView
+                        android:id="@+id/progress"
+                        android:layout_width="38dp"
+                        android:layout_height="30dp" />
+
+                </LinearLayout>
+
+            </RelativeLayout>
 
             <ImageView
                 android:id="@+id/keyboard_image"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentStart="true"
-                android:layout_alignParentLeft="true"
                 android:layout_margin="10dp"
                 android:contentDescription="@string/click_hear_to_enter_text"
                 android:padding="5dp"
                 android:src="@drawable/keyboard_white" />
 
-            <TextView
+            <kore.botssdk.view.CustomTextView
                 android:id="@+id/speaker_text"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_centerHorizontal="true"
-                android:layout_centerVertical="true"
+                android:layout_below="@+id/rlSpeakerCircle"
+                android:layout_centerInParent="true"
                 android:layout_gravity="center_horizontal"
-                android:layout_margin="5dp"
-                android:padding="5dp"
+                android:layout_marginEnd="5dp"
+                android:padding="3dp"
                 android:tag="regular"
                 android:text="@string/tap_to_speak"
                 android:textColor="#ffffff"
-                android:textSize="12dp"
+                android:textSize="@dimen/text_size_small"
+                android:visibility="gone"
                 app:drawableTopCompat="@drawable/mic_white" />
         </RelativeLayout>
+
     </LinearLayout>
+
 </LinearLayout>

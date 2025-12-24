@@ -10,6 +10,7 @@ import android.widget.Toast;
 import com.google.gson.Gson;
 
 import java.security.SecureRandom;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -134,6 +135,11 @@ public class BotSocketConnectionManager extends BaseSocketConnectionManager {
         chatListener.onConnectionStateChanged(CONNECTION_STATE.RECONNECTION_STOPPED, false);
     }
 
+    @Override
+    public void onStartCompleted(boolean isReconnect) {
+        chatListener.onStartCompleted(isReconnect);
+    }
+
     private void makeStsJwtCallWithConfig(final boolean isRefresh) {
         Call<JWTTokenResponse> getBankingConfigService = BotJWTRestBuilder.getBotJWTRestAPI().getJWTToken(getRequestObject());
         getBankingConfigService.enqueue(new Callback<JWTTokenResponse>() {
@@ -143,20 +149,22 @@ public class BotSocketConnectionManager extends BaseSocketConnectionManager {
                 if (response.isSuccessful()) {
                     JWTTokenResponse jwtTokenResponse = response.body();
 
-                    try {
-                        String jwt = jwtTokenResponse.getJwt();
-                        botName = SDKConfiguration.Client.bot_name;
-                        streamId = SDKConfiguration.Client.bot_id;
-                        if (!isRefresh) {
-                            botClient.connectAsAnonymousUser(jwt, botName, streamId, botSocketConnectionManager, isReconnect);
-                        } else {
-                            KoreEventCenter.post(jwt);
+                    if (jwtTokenResponse != null) {
+                        try {
+                            String jwt = jwtTokenResponse.getJwt();
+                            botName = SDKConfiguration.Client.bot_name;
+                            streamId = SDKConfiguration.Client.bot_id;
+                            if (!isRefresh) {
+                                botClient.connectAsAnonymousUser(jwt, botName, streamId, botSocketConnectionManager, isReconnect);
+                            } else {
+                                KoreEventCenter.post(jwt);
+                            }
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                            Toast.makeText(mContext, "Something went wrong in fetching JWT", Toast.LENGTH_SHORT).show();
+                            connection_state = isRefresh ? CONNECTION_STATE.CONNECTED_BUT_DISCONNECTED : DISCONNECTED;
+                            if (chatListener != null) chatListener.onConnectionStateChanged(connection_state, false);
                         }
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                        Toast.makeText(mContext, "Something went wrong in fetching JWT", Toast.LENGTH_SHORT).show();
-                        connection_state = isRefresh ? CONNECTION_STATE.CONNECTED_BUT_DISCONNECTED : DISCONNECTED;
-                        if (chatListener != null) chatListener.onConnectionStateChanged(connection_state, false);
                     }
                 } else {
                     connection_state = isRefresh ? CONNECTION_STATE.CONNECTED_BUT_DISCONNECTED : DISCONNECTED;
@@ -190,7 +198,9 @@ public class BotSocketConnectionManager extends BaseSocketConnectionManager {
     }
 
     private HashMap<String, Object> getRequestObject() {
+
         HashMap<String, Object> hsh = new HashMap<>();
+
         hsh.put("clientId", SDKConfiguration.Client.client_id);
         hsh.put("clientSecret", SDKConfiguration.Client.client_secret);
         hsh.put("identity", SDKConfiguration.Client.identity);
@@ -360,7 +370,7 @@ public class BotSocketConnectionManager extends BaseSocketConnectionManager {
         else botClient.sendMessage(message);
 
         //Update the bot content list with the send message
-        RestResponse.BotMessage botMessage = new RestResponse.BotMessage(message);
+        RestResponse.BotMessage botMessage = new RestResponse.BotMessage(message, "");
         RestResponse.BotPayLoad botPayLoad = new RestResponse.BotPayLoad();
         botPayLoad.setMessage(botMessage);
         BotInfoModel botInfo = new BotInfoModel(botName, streamId, null);
@@ -370,6 +380,14 @@ public class BotSocketConnectionManager extends BaseSocketConnectionManager {
 
         BotRequest botRequest = gson.fromJson(jsonPayload, BotRequest.class);
         botRequest.setCreatedOn(DateUtils.isoFormatter.format(new Date()));
+        try {
+            long timeMillis = botRequest.getTimeInMillis(botRequest.getCreatedOn(), false);
+            botRequest.setCreatedInMillis(timeMillis);
+            botRequest.setFormattedDate(DateUtils.formattedSentDateV6(timeMillis));
+            botRequest.setTimeStamp(botRequest.prepareTimeStamp(timeMillis));
+        } catch (ParseException e) {
+            throw new RuntimeException(e);
+        }
         persistBotMessage(null, true, botRequest);
         if (chatListener != null) {
             chatListener.onMessage(new SocketDataTransferModel(EVENT_TYPE.TYPE_MESSAGE_UPDATE, message, botRequest, false));
@@ -379,12 +397,12 @@ public class BotSocketConnectionManager extends BaseSocketConnectionManager {
     public void sendAttachmentMessage(String message, ArrayList<HashMap<String, String>> attachments) {
         stopTextToSpeech();
         if (message != null) {
-            if (attachments != null && attachments.size() > 0) botClient.sendMessage(message, attachments);
+            if (attachments != null && !attachments.isEmpty()) botClient.sendMessage(message, attachments);
             else botClient.sendMessage(message);
-        } else if (attachments != null && attachments.size() > 0) botClient.sendMessage(message, attachments);
+        } else if (attachments != null && !attachments.isEmpty()) botClient.sendMessage(message, attachments);
 
         //Update the bot content list with the send message
-        RestResponse.BotMessage botMessage = new RestResponse.BotMessage(message);
+        RestResponse.BotMessage botMessage = new RestResponse.BotMessage(message, "");
         RestResponse.BotPayLoad botPayLoad = new RestResponse.BotPayLoad();
         botPayLoad.setMessage(botMessage);
         BotInfoModel botInfo = new BotInfoModel(botName, streamId, null);
@@ -394,6 +412,14 @@ public class BotSocketConnectionManager extends BaseSocketConnectionManager {
 
         BotRequest botRequest = gson.fromJson(jsonPayload, BotRequest.class);
         botRequest.setCreatedOn(DateUtils.isoFormatter.format(new Date()));
+        try {
+            long timeMillis = botRequest.getTimeInMillis(botRequest.getCreatedOn(), false);
+            botRequest.setCreatedInMillis(timeMillis);
+            botRequest.setFormattedDate(DateUtils.formattedSentDateV6(timeMillis));
+            botRequest.setTimeStamp(botRequest.prepareTimeStamp(timeMillis));
+        } catch (ParseException e) {
+            throw new RuntimeException(e);
+        }
         persistBotMessage(null, true, botRequest);
         if (chatListener != null) {
             chatListener.onMessage(new SocketDataTransferModel(EVENT_TYPE.TYPE_MESSAGE_UPDATE, message, botRequest, false));
@@ -408,7 +434,7 @@ public class BotSocketConnectionManager extends BaseSocketConnectionManager {
 
 
         //Update the bot content list with the send message
-        RestResponse.BotMessage botMessage = new RestResponse.BotMessage(message);
+        RestResponse.BotMessage botMessage = new RestResponse.BotMessage(message, "");
         RestResponse.BotPayLoad botPayLoad = new RestResponse.BotPayLoad();
         botPayLoad.setMessage(botMessage);
         BotInfoModel botInfo = new BotInfoModel(botName, streamId, null);
@@ -418,34 +444,18 @@ public class BotSocketConnectionManager extends BaseSocketConnectionManager {
 
         BotRequest botRequest = gson.fromJson(jsonPayload, BotRequest.class);
         botRequest.setCreatedOn(DateUtils.isoFormatter.format(new Date()));
+        try {
+            long timeMillis = botRequest.getTimeInMillis(botRequest.getCreatedOn(), false);
+            botRequest.setCreatedInMillis(timeMillis);
+            botRequest.setFormattedDate(DateUtils.formattedSentDateV6(timeMillis));
+            botRequest.setTimeStamp(botRequest.prepareTimeStamp(timeMillis));
+        } catch (ParseException e) {
+            throw new RuntimeException(e);
+        }
         persistBotMessage(null, true, botRequest);
         if (chatListener != null) {
             chatListener.onMessage(new SocketDataTransferModel(EVENT_TYPE.TYPE_MESSAGE_UPDATE, message, botRequest, false));
         }
-
-    }
-
-    public void sendPayloadWithParams(String message, String body, String payLoad) {
-        stopTextToSpeech();
-        botClient.sendFormData(payLoad, body);
-
-        //Update the bot content list with the send message
-        RestResponse.BotMessage botMessage = new RestResponse.BotMessage(message);
-        RestResponse.BotPayLoad botPayLoad = new RestResponse.BotPayLoad();
-        botPayLoad.setMessage(botMessage);
-        botPayLoad.setBotInfo(botClient.getBotInfoModel());
-        Gson gson = new Gson();
-        String jsonPayload = gson.toJson(botPayLoad);
-
-        BotRequest botRequest = gson.fromJson(jsonPayload, BotRequest.class);
-        botRequest.setCreatedOn(DateUtils.isoFormatter.format(new Date()));
-//        socketUpdateListener.onMessageUpdate(message, true, botRequest);
-//        KoreEventCenter.post(new SocketDataTransferModel(BaseSocketConnectionManager.EVENT_TYPE.TYPE_MESSAGE_UPDATE,message,botRequest));
-        persistBotMessage(null, true, botRequest);
-        if (chatListener != null) {
-            chatListener.onMessage(new SocketDataTransferModel(EVENT_TYPE.TYPE_MESSAGE_UPDATE, message, botRequest, false));
-        }
-
     }
 
     @Override

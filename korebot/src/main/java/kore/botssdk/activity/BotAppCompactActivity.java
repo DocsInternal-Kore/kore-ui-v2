@@ -1,38 +1,112 @@
 package kore.botssdk.activity;
 
+import static android.view.View.VISIBLE;
+
 import android.annotation.SuppressLint;
 import android.app.ProgressDialog;
+import android.content.Context;
+import android.content.SharedPreferences;
+import android.graphics.Color;
+import android.os.Build;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.view.Window;
+import android.view.WindowManager;
+import android.widget.FrameLayout;
 import android.widget.TextView;
 
+import androidx.annotation.LayoutRes;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.view.WindowCompat;
-import androidx.core.view.WindowInsetsControllerCompat;
+import androidx.core.content.ContextCompat;
+import androidx.core.graphics.Insets;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
+
+import java.io.Console;
 
 import kore.botssdk.R;
+import kore.botssdk.models.BotResponse;
+import kore.botssdk.net.SDKConfig;
+import kore.botssdk.utils.BundleConstants;
 import kore.botssdk.utils.ToastUtils;
 
-/**
- * Created by Ramachandra Pradeep on 27-Mar-18.
- */
 @SuppressLint("UnknownNullness")
 public class BotAppCompactActivity extends AppCompatActivity {
 
     protected final String LOG_TAG = getClass().getSimpleName();
     private ProgressDialog mProgressDialog;
+    private FrameLayout contentContainer;
+    private View statusBarLayout;
+    private SharedPreferences sharedPreferences;
 
-    // SpiceManager spiceManager = new SpiceManager(BotRestService.class);
     public void finish() {
         super.finish();
     }
 
     protected void onCreate(Bundle data) {
         super.onCreate(data);
-        WindowCompat.setDecorFitsSystemWindows(getWindow(), false);
-        WindowInsetsControllerCompat insetsController = new WindowInsetsControllerCompat(getWindow(), getWindow().getDecorView());
-        insetsController.setAppearanceLightStatusBars(true);
-        insetsController.setAppearanceLightNavigationBars(true);
+        setContentView(R.layout.activity_base);
+        contentContainer = findViewById(R.id.content_container);
+        statusBarLayout = findViewById(R.id.status_bar_bg);
+        sharedPreferences = getSharedPreferences(BotResponse.THEME_NAME, Context.MODE_PRIVATE);
+
+        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.base_frame), (view, windowInsets) -> {
+            Insets insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars());
+            view.setPadding(insets.left, 0, insets.right, insets.bottom);
+            if (sharedPreferences.getInt(BundleConstants.STATUS_BAR_HEIGHT, 0) == 0)
+                sharedPreferences.edit().putInt(BundleConstants.STATUS_BAR_HEIGHT, insets.top).apply();
+            view.setBackgroundColor(ContextCompat.getColor(view.getContext(), R.color.black));
+            return WindowInsetsCompat.CONSUMED;
+        });
+    }
+
+
+    // Method for child activities to set their layout inside the base layout
+    protected void setContentLayout(@LayoutRes int layoutResId) {
+        LayoutInflater.from(this).inflate(layoutResId, contentContainer, true);
+    }
+
+    protected void changeStatusBarColor(String color) {
+        if (Build.VERSION.SDK_INT >= 35) {
+            statusBarLayout.setVisibility(VISIBLE);
+            ViewGroup.LayoutParams params = statusBarLayout.getLayoutParams();
+            params.height = sharedPreferences.getInt(BundleConstants.STATUS_BAR_HEIGHT, 0);
+            statusBarLayout.setLayoutParams(params);
+
+            if (color.isBlank())
+                statusBarLayout.setBackgroundColor(ContextCompat.getColor(BotAppCompactActivity.this, R.color.colorPrimary));
+            else
+                statusBarLayout.setBackgroundColor(Color.parseColor(color));
+        } else {
+            Window window = getWindow();
+            window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+            window.setStatusBarColor(color.isBlank() ? ContextCompat.getColor(BotAppCompactActivity.this, R.color.colorPrimary) : Color.parseColor(color));
+        }
+    }
+
+    protected void changeStatusBarColorWithHeight() {
+        if (Build.VERSION.SDK_INT >= 35) {
+            ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.base_frame), (view, windowInsets) -> {
+                Insets insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars());
+                view.setPadding(insets.left, insets.top, insets.right, insets.bottom);
+                view.setBackgroundColor(ContextCompat.getColor(view.getContext(), R.color.black));
+                return WindowInsetsCompat.CONSUMED;
+            });
+        }
+        else {
+            Window window = getWindow();
+            window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+            window.setStatusBarColor(ContextCompat.getColor(BotAppCompactActivity.this, R.color.black));
+        }
+    }
+
+    // Optional: get container reference
+    protected FrameLayout getContentContainer() {
+        return contentContainer;
     }
 
     protected void showProgress(String msg, boolean isCancelable) {

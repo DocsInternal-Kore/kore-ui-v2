@@ -23,12 +23,11 @@ import com.squareup.picasso.Transformation;
 import java.io.File;
 
 import kore.botssdk.R;
-import kore.botssdk.application.AppControl;
 import kore.botssdk.drawables.ProfileDrawable;
 import kore.botssdk.utils.StringConstants;
-import kore.botssdk.view.viewUtils.DimensionUtil;
+import kore.botssdk.viewUtils.DimensionUtil;
 
-/**
+/*
  * Copyright (c) 2014 Kore Inc. All rights reserved.
  */
 public class CircularProfileView extends RoundedImageView {
@@ -83,8 +82,8 @@ public class CircularProfileView extends RoundedImageView {
         if (!isInEditMode()) {
             dp1 = (int) DimensionUtil.dp1;
             SDK = android.os.Build.VERSION.SDK_INT;
-            DEFAULT_HEIGHT = dp1 * 21;
-            DEFAULT_WIDTH = dp1 * 21;
+            DEFAULT_HEIGHT = dp1 * 52;
+            DEFAULT_WIDTH = dp1 * 52;
             PADDING = dp1 * 4;
             borderPaint = new Paint();
         }
@@ -284,7 +283,7 @@ public class CircularProfileView extends RoundedImageView {
         }
     }
 
-    void updateWithPic(Bitmap bitmap) {
+    private void updateWithPic(Bitmap bitmap) {
         if (bitmap != null) {
             setImageBitmap(bitmap);
         }
@@ -307,6 +306,7 @@ public class CircularProfileView extends RoundedImageView {
         public void onBitmapFailed(Exception e, Drawable errorDrawable) {
             setImageDrawable(null);
             setBackgroundResource(0);
+            setDefaultBackground(profileColor, initials);
         }
 
 
@@ -314,6 +314,7 @@ public class CircularProfileView extends RoundedImageView {
         public void onPrepareLoad(Drawable drawable) {
             setImageDrawable(null);
             setBackgroundResource(0);
+            setDefaultBackground(profileColor, initials);
         }
     };
 

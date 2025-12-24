@@ -20,8 +20,7 @@ import java.util.List;
 import kore.botssdk.R;
 import kore.botssdk.models.CalEventsTemplateModel;
 
-/**
- * Created by Pradeep Mahato on 30-May-16.
+/*
  * Copyright (c) 2014 Kore Inc. All rights reserved.
  */
 public class Utility {
@@ -93,7 +92,8 @@ public class Utility {
         if (metrics.densityDpi <= DisplayMetrics.DENSITY_HIGH) {
             dp = 1.4f;
         }
-        return dp * (metrics.densityDpi / 160f);
+        float px = dp * (metrics.densityDpi / 160f);
+        return px;
     }
 
     public static void showVirtualKeyboard(Activity activity, View view) {
@@ -104,20 +104,20 @@ public class Utility {
         showHideVirtualKeyboard(activity, null, false);
     }
 
-    public static void showHideVirtualKeyboard(Activity activity, View view, boolean show) {
-        if (activity == null) return;
-
+    private static void showHideVirtualKeyboard(Activity activity, View view, boolean show) {
         InputMethodManager imm = (InputMethodManager) activity.getSystemService(Context.INPUT_METHOD_SERVICE);
-        if (imm == null) return;
-
-        View focusView = (view != null) ? view : activity.getCurrentFocus();
-        if (focusView == null) focusView = new View(activity);
 
         if (show) {
-            focusView.requestFocus();
-            imm.showSoftInput(focusView, InputMethodManager.SHOW_IMPLICIT);
+            imm.showSoftInput(view, InputMethodManager.RESULT_UNCHANGED_SHOWN);
+
         } else {
-            imm.hideSoftInputFromWindow(focusView.getWindowToken(), 0);
+
+            View focusView = activity.getCurrentFocus();
+            if (focusView == null) {
+                return;
+            }
+
+            imm.hideSoftInputFromWindow(focusView.getWindowToken(), InputMethodManager.RESULT_UNCHANGED_SHOWN);
         }
     }
 

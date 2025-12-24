@@ -3,6 +3,7 @@ package kore.botssdk.utils;
 import android.annotation.SuppressLint;
 import android.content.Context;
 
+import java.sql.Timestamp;
 import java.text.DateFormatSymbols;
 import java.text.Format;
 import java.text.ParseException;
@@ -14,10 +15,12 @@ import java.util.Objects;
 import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
 
+import kore.botssdk.models.BotResponse;
+
 /**
- * Created by Pradeep Mahato on 09-Jun-16.
  * Copyright (c) 2014 Kore Inc. All rights reserved.
  */
+@SuppressLint("UnKnownNullness")
 public class DateUtils {
     public static final long oneMin = 60 * 1000;
     public static final long fiveMin = 5 * oneMin;
@@ -43,7 +46,7 @@ public class DateUtils {
     public static final Format calendar_list_format = new SimpleDateFormat("EEE, MMM d, yyyy", Locale.ENGLISH);
     public static final Format calendar_list_format_2 = new SimpleDateFormat("hh:mm a", Locale.ENGLISH);
     public static final SimpleDateFormat dateWeekDayTime = new SimpleDateFormat("EE, MMM dd yyyy 'at' hh:mm a", Locale.ENGLISH);
-    public static final SimpleDateFormat dateWeekMsgBubble = new SimpleDateFormat("EE MMM dd", Locale.ENGLISH);
+
     public static final SimpleDateFormat dateWeekDayTime2 = new SimpleDateFormat("MMM dd yyyy 'at' hh:mm a", Locale.ENGLISH);
     public static final SimpleDateFormat dateWeekDayTime3 = new SimpleDateFormat("MMM dd 'at' hh:mm a", Locale.ENGLISH);
     public static final SimpleDateFormat dateWeekDayTime4 = new SimpleDateFormat("dd MMM, yyyy, hh:mm a", Locale.ENGLISH);
@@ -51,6 +54,7 @@ public class DateUtils {
     public static final Format calendar_list_format2 = new SimpleDateFormat("EEE, MMM d, ", Locale.ENGLISH);
     public static final Format calendar_list_req_format2 = new SimpleDateFormat("EEE, MMM d ", Locale.ENGLISH);
     public static final SimpleDateFormat chat_bubble_dateTime = new SimpleDateFormat("EE MMM dd yyyy 'at' hh:mm:ss a", Locale.ENGLISH);
+    public static final SimpleDateFormat date24Time = new SimpleDateFormat("HH:mm", Locale.ENGLISH);
     public static final Format calendar_event_list_format1 = new SimpleDateFormat("EEE, d MMM", Locale.ENGLISH);
 
     private static final Format dateMonthDay = new SimpleDateFormat("MMM dd", Locale.ENGLISH);
@@ -67,9 +71,11 @@ public class DateUtils {
 
     public static final Format dnd_time_format = new SimpleDateFormat("hh:mm a, MMM dd", Locale.ENGLISH);
 
+    private static final Format dynamicDate = new SimpleDateFormat(BotResponse.DATE_FORMAT, Locale.ENGLISH);
+
     public static String getTimeStamp(String timeStamp, boolean timezoneModifiedRequired) throws ParseException {
         if (timeStamp == null || timeStamp.isEmpty()) return "";
-        long timeStampMillis = isoFormatter.parse(timeStamp).getTime() + ((timezoneModifiedRequired) ? TimeZone.getDefault().getRawOffset() : 0);
+        long timeStampMillis = isoFormatter.parse(timeStamp).getTime() + ((timezoneModifiedRequired) ? TimeZone.getDefault().getRawOffset() + TimeZone.getDefault().getDSTSavings() : 0);
         return getTimeStamp(timeStampMillis);
     }
 
@@ -79,7 +85,7 @@ public class DateUtils {
 
     public static long getTimeStampLong(String timeStamp, boolean timezoneModifiedRequired) throws ParseException {
 
-        long timeStampMillis = isoFormatter.parse(timeStamp).getTime() + ((timezoneModifiedRequired) ? TimeZone.getDefault().getRawOffset() : 0);
+        long timeStampMillis = isoFormatter.parse(timeStamp).getTime() + ((timezoneModifiedRequired) ? TimeZone.getDefault().getRawOffset() + TimeZone.getDefault().getDSTSavings() : 0);
 
         return timeStampMillis;
     }
@@ -96,33 +102,7 @@ public class DateUtils {
     }
 
     public static String getTimeInAmPm(long dateInMs) {
-        return chat_bubble_dateTime.format(new Date(dateInMs));
-    }
-
-    public static String formattedSentDate(long lastModified) {
-        // CREATE DateFormatSymbols WITH ALL SYMBOLS FROM (DEFAULT) Locale
-        DateFormatSymbols symbols = new DateFormatSymbols(Locale.getDefault());
-
-        // OVERRIDE SOME symbols WHILE RETAINING OTHERS
-        symbols.setAmPmStrings(new String[]{"am", "pm"});
-        dateWeekDay.setDateFormatSymbols(symbols);
-        int messageYear = Integer.parseInt(yearFormat.format(new Date(lastModified)));
-        int currentYear = Integer.parseInt(yearFormat.format(new Date()));
-
-        String time = "";
-        if (android.text.format.DateUtils.isToday(lastModified)) {
-            time = "Today";
-        } else if (isYesterday(lastModified)) {
-            time = "Yesterday";
-        } else if (isTomorrow(lastModified)) {
-            time = "Tomorrow";
-        }
-        else {
-            time = currentYear == messageYear ? dateWeekMsgBubble.format(new Date(lastModified)) : dateWeekDay.format(new Date(lastModified));
-        }
-
-
-        return time;
+        return date24Time.format(new Date(dateInMs));
     }
 
     /**
@@ -203,18 +183,16 @@ public class DateUtils {
         // OVERRIDE SOME symbols WHILE RETAINING OTHERS
         symbols.setAmPmStrings(new String[]{"am", "pm"});
         dateWeekDay.setDateFormatSymbols(symbols);
-        int messageYear = Integer.parseInt(yearFormat.format(new Date(lastModified)));
-        int currentYear = Integer.parseInt(yearFormat.format(new Date()));
 
         String time = "";
         if (android.text.format.DateUtils.isToday(lastModified)) {
-            time = "Today, " + dateMonthDay.format(new Date(lastModified));
+            time = "Today";
         } else if (isYesterday(lastModified)) {
-            time = "Yesterday, " + dateMonthDay.format(new Date(lastModified));
+            time = "Yesterday";
         } else if (isTomorrow(lastModified)) {
             time = "Tomorrow, " + dateMonthDay.format(new Date(lastModified));
         } else {
-            time = currentYear == messageYear ? dateWeekMsg.format(new Date(lastModified)) : dateWeekDay.format(new Date(lastModified));
+            time = dynamicDate.format(new Date(lastModified));
         }
 
 
@@ -252,6 +230,10 @@ public class DateUtils {
 
     public static String getDateMMMDDYYYY(double startdate, double enddate) {
         return dateWeekDayTime5.format(startdate) + calendar_list_format_2.format(startdate).toLowerCase() + " to " + calendar_list_format_2.format(enddate).toLowerCase();
+    }
+
+    public static String getDateEEMMMDDYYYYHhMmSs(long millis) {
+        return dateWeekDayTime.format(millis);
     }
 
     public static String getDateWithTime(long lastModified) {
@@ -372,6 +354,27 @@ public class DateUtils {
             e.printStackTrace();
         }
         return null;
+    }
+
+    public static long getDateFromFormat(String date, String format, int addDays) {
+        if (date == null || date.isEmpty())
+            return 0;
+        try
+        {
+            if(format.contains("YYYY")) {
+                format = format.replace("YYYY", "yyyy");
+            }
+
+            if(format.contains("/") && date.contains("-"))
+                date = date.replaceAll("-", "/");
+
+            SimpleDateFormat df = new SimpleDateFormat(format.replace("DD", "dd"), Locale.US);
+            Timestamp ts = new Timestamp(Objects.requireNonNull(df.parse(date)).getTime());
+            return ts.getTime() + ((long) addDays * 24 * 60 * 60 * 1000);
+        } catch (ParseException e) {
+            Calendar calendar = Calendar.getInstance();
+            return calendar.getTimeInMillis() - ((long) addDays * 24 * 60 * 60 * 1000);
+        }
     }
 
     public static String getAnnoucementDateDDMMM(long dateformat) {

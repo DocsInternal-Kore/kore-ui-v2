@@ -14,8 +14,7 @@ import java.util.Locale;
 import kore.botssdk.speechtotext.TtsWebSocketWrapper;
 import kore.botssdk.websocket.SocketConnectionListener;
 
-/**
- * Created by Pradeep Mahato on 19-May-17.
+/*
  * Copyright (c) 2014 Kore Inc. All rights reserved.
  */
 @SuppressLint("UnknownNullness")
@@ -157,6 +156,11 @@ public class TTSSynthesizer {
             if (!mediaPlayer.isPlaying() && que.size() <= 1) {
                 PlayAudio(audio);
             }
+        }
+
+        @Override
+        public void onStartCompleted(boolean isStartCompleted) {
+
         }
     };
 
