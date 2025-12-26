@@ -29,7 +29,7 @@ public class BotAppCompactActivity extends AppCompatActivity {
 
     protected void onCreate(Bundle data) {
         super.onCreate(data);
-        WindowCompat.setDecorFitsSystemWindows(getWindow(), false);
+        WindowCompat.setDecorFitsSystemWindows(getWindow(), true);
         WindowInsetsControllerCompat insetsController = new WindowInsetsControllerCompat(getWindow(), getWindow().getDecorView());
         insetsController.setAppearanceLightStatusBars(true);
         insetsController.setAppearanceLightNavigationBars(true);
