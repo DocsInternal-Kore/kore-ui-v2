@@ -1,88 +1,183 @@
-# How to integrate BotSdk with UI through gradle implementation
+# Kore Bot SDK UI Integration (Android)
 
-1. Add below snippet in project/build.gradle
-   
-```
+This document explains **how to integrate Kore Bot SDK with UI** in an Android application using **Gradle**, including detailed inline comments for every configuration option.
+
+---
+
+## Prerequisites
+
+- Android Studio (latest recommended)
+- Android application with Gradle
+- Kore.ai Bot credentials:
+    - Bot ID
+    - Bot Name
+    - Identity
+    - Server URL
+    - Branding URL
+    - JWT Server URL
+- Authentication:
+    - JWT Token OR
+    - Client ID & Client Secret
+
+---
+
+## Step 1: Add JitPack Repository
+
+Add the following snippet in **project-level `build.gradle`**  
+(or `settings.gradle` for newer Android versions):
+
+```gradle
+// Required to download Kore UI SDK from GitHub releases
 maven { url 'https://www.jitpack.io' }
 ```
-2. Add below snippet in app/build.gradle under dependencies
+
+---
+
+## Step 2: Add SDK Dependency
+
+Add the dependency in **app-level `build.gradle`** under `dependencies`:
+
+```gradle
+// Kore Bot UI SDK dependency
+implementation 'com.github.DocsInternal-Kore:kore-ui-v2:0.3.7'
 ```
-implementation 'com.github.DocsInternal-Kore:kore-ui-v2:0.1.9'
-```
-3. You can initialize the bot by providing the bot config like below. You can pass Jwt Token as empty so that we generate token in the SDK. If token is passed we will use it to establish bot connection.
-```
-//If token is empty sdk token generation will happen. if not empty we will use this token for bot connection.
+
+---
+
+## Step 3: SDK Initialization (With Detailed Comments)
+
+The SDK must be initialized **before launching the bot UI**.
+
+```java
+// JWT Token
+// If empty, SDK will generate token using clientId & clientSecret
 String jwtToken = "";
 
-//Set clientId, If jwtToken is empty this value is mandatory
+// Client ID
+// Mandatory only when jwtToken is empty
 String clientId = "PLEASE_ENTER_CLIENT_ID";
 
-//Set clientSecret, If jwtToken is empty this value is mandatory
+// Client Secret
+// Mandatory only when jwtToken is empty
 String clientSecret = "PLEASE_ENTER_CLIENT_SECRET";
 
-//Set botId, This value is mandatory
+// Bot ID
+// Mandatory - identifies the bot to connect
 String botId = "PLEASE_ENTER_BOT_ID";
 
-//Set identity, This value is mandatory
+// Identity
+// Mandatory - unique user identifier
 String identity = "PLEASE_ENTER_IDENTITY";
 
-//Set botName, This value is mandatory
+// Bot Name
+// Mandatory - used for UI and session identification
 String botName = "PLEASE_ENTER_BOT_NAME";
 
-//Set serverUrl, This value is mandatory
+// Server URL
+// Mandatory - Kore.ai bot server endpoint
 String serverUrl = "PLEASE_ENTER_SERVER_URL";
 
-//Set brandingUrl, This value is mandatory
+// Branding URL
+// Mandatory - used to fetch UI branding configuration
 String brandingUrl = "PLEASE_ENTER_BRANDING_SERVER_URL";
 
-//Set JwtServerUrl, This value is mandatory
+// JWT Server URL
+// Mandatory - endpoint used for JWT token generation
 String jwtServerUrl = "PLEASE_ENTER_JWT_SERVER_URL";
 
-//Set Server url
-SDKConfig.setServerUrl(serverUrl);
-//Set Branding url
-SDKConfig.setBrandingUrl(brandingUrl);
-//Set JwtServer url
-SDKConfig.setJWTUrl(jwtServerUrl);
+// Webhook configuration
+// false = WebSocket (default)
+// true  = Webhook based communication
+SDKConfig.isWebHook(false);
 
-new AppControl(MainActivity.this);
+// Initialize Kore SDK
+// If jwtToken is empty, clientId & clientSecret will be used
+SDKConfig.initialize(
+        botId,
+        botName,
+        clientId,
+        clientSecret,
+        identity,
+        jwtToken,
+        serverUrl,
+        brandingUrl,
+        jwtServerUrl
+);
 
-//Initialize the bot with bot config
-//You can pass client id and client secret as empty when you pass jwt token
-SDKConfig.initialize(botId, botName, clientId, clientSecret, identity, jwtToken);
+// Optional: Set query parameters for socket connection
+// Sample format can be derived from getQueryParams()
+SDKConfig.setQueryParams(getQueryParams());
 
-//Inject the custom template like below
-SDKConfig.setCustomTemplateView("link", new LinkTemplateView(MainActivity.this));
+// Inject custom template rendering
+// "link" refers to template type
+SDKConfig.setCustomTemplateViewHolder("link", LinkTemplateHolder.class);
 
-//Flag to show the bot icon beside the bot response
-SDKConfiguration.BubbleColors.showIcon = true;
+// Show bot icon next to bot messages
+SDKConfig.setIsShowIcon(true);
 
-//Flag to show the bot icon in top position or bottom of the bot response
-SDKConfiguration.BubbleColors.showIconTop = false;
+// Position bot icon
+// true  = top of message
+// false = bottom of message
+SDKConfig.setIsShowIconTop(false);
 
-//Flag to show the Speech to text micro phone icon
-SDKConfiguration.BubbleColors.showASRMicroPhone = true;
+// Enable timestamps for user & bot messages
+SDKConfig.setIsTimeStampsRequired(true);
 
-//Flag to show the text to speech Speaker icon
-SDKConfiguration.BubbleColors.showTextToSpeech = true;
+// Show or hide the bot header
+SDKConfig.setIsShowHeader(true);
 
-//Flag to show the attachment icon
-SDKConfiguration.BubbleColors.showAttachment = true;
+// Show minimize icon in header
+SDKConfig.showHeaderMinimize(true);
 
-//Flag to show the quickReplies at Bottom
-SDKConfiguration.BubbleColors.showQuickRepliesBottom = false;
+// Override branding API response with local branding model
+// false = use server branding
+// true  = use local branding
+SDKConfig.setLocalBranding(false, getLocalBrandingModel());
 
-//Flag to show timestamp of each bot and user messages
-SDKConfiguration.setTimeStampsRequired(true);
+// Update status bar color based on header background
+SDKConfig.setIsUpdateStatusBarColor(false);
 
-// To add the custom data
-RestResponse.BotCustomData customData = new RestResponse.BotCustomData()
+// Reset existing bot session (optional)
+// Use when switching users or restarting conversation
+// SDKConfig.disconnectBotSession(MainActivity.this);
+
+// Enable or disable attachments
+SDKConfiguration.OverrideKoreConfig.showAttachment = true;
+
+// Enable microphone for ASR (speech-to-text)
+SDKConfiguration.OverrideKoreConfig.showASRMicroPhone = true;
+
+// Enable Text-to-Speech for bot messages
+SDKConfiguration.OverrideKoreConfig.showTextToSpeech = true;
+
+// Enable emoji shortcut decryption if bot supports it
+SDKConfiguration.OverrideKoreConfig.isEmojiShortcutEnable = false;
+
+// Pass custom data to bot
+// Useful for sending app-specific metadata
+RestResponse.BotCustomData customData = new RestResponse.BotCustomData();
 customData.put("key", "value");
-SDKConfiguration.Server.setCustomData(customData)
+SDKConfig.setCustomData(customData);
+```
 
-```
-4. You can navigate to the bot chat window through Intent as below snippet
-```
-Intent intent = new Intent(MainActivity.this, BotChatActivity.class);
+---
+
+## Step 4: Launch Bot Chat Screen
+
+Navigate to the bot chat UI using an `Intent`:
+
+```java
+// Launch Kore Bot chat activity
+Intent intent = new Intent(MainActivity.this, NewBotChatActivity.class);
 startActivity(intent);
 ```
+
+---
+
+## Best Practices
+
+- Initialize SDK only once (preferably in Application or launcher activity)
+- Do not hardcode client secrets in production builds
+- Call `disconnectBotSession()` when user identity changes
+
+---
