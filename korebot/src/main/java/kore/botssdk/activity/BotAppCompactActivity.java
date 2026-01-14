@@ -55,8 +55,11 @@ public class BotAppCompactActivity extends AppCompatActivity {
         sharedPreferences = getSharedPreferences(BotResponse.THEME_NAME, Context.MODE_PRIVATE);
 
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.base_frame), (view, windowInsets) -> {
+            Insets ime = windowInsets.getInsets(WindowInsetsCompat.Type.ime());
             Insets insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars());
-            view.setPadding(insets.left, 0, insets.right, insets.bottom);
+            int bottom = ime.bottom;
+            if (bottom == 0) bottom = insets.bottom;
+            view.setPadding(insets.left,0, insets.right, bottom);
             if (sharedPreferences.getInt(BundleConstants.STATUS_BAR_HEIGHT, 0) == 0)
                 sharedPreferences.edit().putInt(BundleConstants.STATUS_BAR_HEIGHT, insets.top).apply();
             view.setBackgroundColor(ContextCompat.getColor(view.getContext(), R.color.black));
