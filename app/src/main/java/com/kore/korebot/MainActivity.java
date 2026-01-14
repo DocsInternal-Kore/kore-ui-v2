@@ -11,7 +11,6 @@ import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.kore.korebot.customtemplates.LinkTemplateHolder;
-import com.kore.koreui.R;
 
 import java.util.HashMap;
 import java.util.Locale;
