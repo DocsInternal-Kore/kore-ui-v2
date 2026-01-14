@@ -2,8 +2,7 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/base_frame"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="#EEE">
+    android:layout_height="match_parent">
 
     <View
         android:id="@+id/status_bar_bg"
@@ -19,6 +18,4 @@
         android:layout_below="@+id/status_bar_bg"
         android:layout_gravity="center"
         android:background="#FFF"/>
-
-
 </RelativeLayout>
