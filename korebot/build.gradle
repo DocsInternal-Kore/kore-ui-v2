@@ -56,6 +56,11 @@ android {
     }
 
     namespace 'kore.botssdk'
+    publishing {
+        singleVariant("release") {
+            withSourcesJar()
+        }
+    }
 }
 
 dependencies {
