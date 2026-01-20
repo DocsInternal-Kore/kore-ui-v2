@@ -222,8 +222,6 @@ public class NewBotChatActivity extends BotAppCompactActivity implements BotChat
 
         setupTextToSpeech();
         KoreEventCenter.register(this);
-
-        changeStatusBarColor(SDKConfig.isUpdateStatusBarColor() ? sharedPreferences.getString(BundleConstants.STATUS_BAR_COLOR, "#FF3F51B5") : "");
     }
 
     private void setupTextToSpeech() {
@@ -262,6 +260,7 @@ public class NewBotChatActivity extends BotAppCompactActivity implements BotChat
             }
 
             sharedPreferences.edit().putString(BundleConstants.STATUS_BAR_COLOR, brandingModel.getWidgetHeaderColor()).apply();
+            changeStatusBarColor(SDKConfig.isUpdateStatusBarColor() ? brandingModel.getWidgetHeaderColor() : "");
         }
     }
 
