@@ -1,33 +1,37 @@
-package com.kore.korebot.customtemplates;
+package kore.botssdk.viewholders;
 
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
 
+import android.graphics.Color;
+import android.graphics.drawable.GradientDrawable;
 import android.os.Environment;
 import android.util.Base64;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-
-import com.kore.korebot.R;
+import androidx.core.content.res.ResourcesCompat;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
+import kore.botssdk.R;
 import kore.botssdk.fileupload.utils.StringUtils;
 import kore.botssdk.models.BaseBotMessage;
+import kore.botssdk.models.BotResponse;
 import kore.botssdk.models.PayloadInner;
 import kore.botssdk.utils.DownloadUtils;
-import kore.botssdk.viewholders.BaseViewHolder;
+import kore.botssdk.viewUtils.FileUtils;
 
 public class LinkTemplateHolder extends BaseViewHolder {
-    private final ImageView ivPdfDownload;
+    private final ImageView ivPdfDownload, ivPdfImage;
     private final TextView tvPdfName;
     private final ProgressBar pbDownload;
 
@@ -37,9 +41,20 @@ public class LinkTemplateHolder extends BaseViewHolder {
 
     private LinkTemplateHolder(@NonNull View view) {
         super(view, view.getContext());
-        tvPdfName = view.findViewById(kore.botssdk.R.id.tv_pdf_item_title);
-        ivPdfDownload = view.findViewById(kore.botssdk.R.id.ivPdfDownload);
-        pbDownload = view.findViewById(kore.botssdk.R.id.pbDownload);
+        tvPdfName = view.findViewById(R.id.tv_pdf_item_title);
+        ivPdfDownload = view.findViewById(R.id.ivPdfDownload);
+        pbDownload = view.findViewById(R.id.pbDownload);
+        ivPdfImage = view.findViewById(R.id.iv_pdf_image);
+
+        RelativeLayout rlLinkView = view.findViewById(R.id.rlLinkView);
+
+        String leftBgColor = sharedPreferences.getString(BotResponse.BUBBLE_LEFT_BG_COLOR, "#FFFFFF");
+        GradientDrawable leftDrawable = (GradientDrawable) ResourcesCompat.getDrawable(context.getResources(), R.drawable.theme1_left_bubble_bg, context.getTheme());
+        if(leftDrawable != null) {
+            leftDrawable.setColor(Color.parseColor(leftBgColor));
+            rlLinkView.setBackground(leftDrawable);
+        }
+
     }
 
     @Override
@@ -47,7 +62,19 @@ public class LinkTemplateHolder extends BaseViewHolder {
         PayloadInner payloadInner = getPayloadInner(baseBotMessage);
         if (payloadInner == null) return;
 
-        tvPdfName.setText(payloadInner.getFileName());
+        if(!StringUtils.isNullOrEmpty(payloadInner.getFileName()))
+            tvPdfName.setText((payloadInner.getFileName()));
+        else if(!StringUtils.isNullOrEmpty(payloadInner.getName()))
+            tvPdfName.setText((payloadInner.getName()));
+
+        if(tvPdfName.getText().toString().contains("."))
+        {
+            String extension = tvPdfName.getText().toString().substring(tvPdfName.getText().toString().lastIndexOf("."));
+            ivPdfImage.setImageResource(FileUtils.getDrawableByExt(!StringUtils.isNullOrEmpty(extension) ? extension.toLowerCase().replace(".", "") : ""));
+
+        }
+
+
         ivPdfDownload.setOnClickListener(v -> {
             if (!StringUtils.isNullOrEmpty(payloadInner.getUrl())) {
                 if (payloadInner.getUrl().contains("base64,")) {

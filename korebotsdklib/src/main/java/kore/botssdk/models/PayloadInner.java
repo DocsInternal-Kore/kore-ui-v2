@@ -85,6 +85,7 @@ public class PayloadInner {
     private boolean url_present;
     private boolean isSortEnabled;
     private boolean isSearchEnabled;
+    private String name;
 
     private List<RadioOptionModel> radioOptions;
 
@@ -126,6 +127,14 @@ public class PayloadInner {
 
     public String getFileName() {
         return fileName;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getName() {
+        return name;
     }
 
     public void setFileName(String fileName) {

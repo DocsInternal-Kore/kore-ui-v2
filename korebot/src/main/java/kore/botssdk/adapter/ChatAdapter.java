@@ -46,6 +46,7 @@ import kore.botssdk.viewholders.DropDownTemplateHolder;
 import kore.botssdk.viewholders.FeedbackTemplateHolder;
 import kore.botssdk.viewholders.FormTemplateHolder;
 import kore.botssdk.viewholders.LineChartTemplateHolder;
+import kore.botssdk.viewholders.LinkTemplateHolder;
 import kore.botssdk.viewholders.ListTemplateHolder;
 import kore.botssdk.viewholders.ListViewTemplateHolder;
 import kore.botssdk.viewholders.ListWidgetTemplateHolder;
@@ -106,6 +107,7 @@ public class ChatAdapter extends RecyclerView.Adapter<BaseViewHolder> implements
     public static final int TEMPLATE_MULTI_SELECT = 30;
     public static final int TEMPLATE_ADVANCE_MULTI_SELECT = 31;
     public static final int TEMPLATE_RESULTS = 32;
+    public static final int TEMPLATE_LINK = 33;
 
     private final HashMap<Integer, String> customTemplates = new HashMap<>();
 
@@ -242,6 +244,8 @@ public class ChatAdapter extends RecyclerView.Adapter<BaseViewHolder> implements
                             return payInner.getSliderView() && bottomSheetDialog == null ? TEMPLATE_BUBBLE_RESPONSE : TEMPLATE_ADVANCE_MULTI_SELECT;
                         case BotResponse.TEMPLATE_TYPE_RESULTS_LIST:
                             return TEMPLATE_RESULTS;
+                        case BotResponse.COMPONENT_TYPE_LINK:
+                            return TEMPLATE_LINK;
                         default:
                             return TEMPLATE_BUBBLE_RESPONSE;
                     }
@@ -258,7 +262,10 @@ public class ChatAdapter extends RecyclerView.Adapter<BaseViewHolder> implements
                     if (customTemplateType != -1) return customTemplateType;
                     return TEMPLATE_MEDIA;
                 }
-            } else if (!StringUtils.isNullOrEmpty(payOuter.getType())) {
+            }
+            else if (BotResponse.COMPONENT_TYPE_LINK.equalsIgnoreCase(payOuter.getType()) && payInner != null)
+                return TEMPLATE_LINK;
+            else if (!StringUtils.isNullOrEmpty(payOuter.getType())) {
                 int customTemplateType = getCustomTemplateType(payOuter.getType());
                 if (customTemplateType != -1) return customTemplateType;
 
@@ -349,6 +356,7 @@ public class ChatAdapter extends RecyclerView.Adapter<BaseViewHolder> implements
             case TEMPLATE_ADVANCE_MULTI_SELECT ->
                     AdvanceMultiSelectTemplateHolder.getInstance(parent);
             case TEMPLATE_RESULTS -> ResultsTemplateHolder.getInstance(parent);
+            case TEMPLATE_LINK -> LinkTemplateHolder.getInstance(parent);
             default -> ResponseTextTemplateHolder.getInstance(parent);
         };
     }
