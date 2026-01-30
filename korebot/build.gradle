@@ -66,8 +66,6 @@ android {
 dependencies {
     implementation 'androidx.documentfile:documentfile:1.0.1'
     implementation 'io.reactivex.rxjava2:rxandroid:2.1.1'
-    implementation 'com.google.android.gms:play-services-basement:18.4.0'
-    implementation 'com.google.android.gms:play-services-base:18.5.0'
     implementation 'com.google.android.gms:play-services-auth:21.2.0'
     testImplementation 'junit:junit:4.13.2'
     implementation 'androidx.appcompat:appcompat:1.6.1'
@@ -94,23 +92,11 @@ dependencies {
         exclude module: 'support-v4'
     }
 
-//    implementation 'org.apache.httpcomponents:httpclient:4.5.13'
-//    implementation 'org.apache.httpcomponents:httpcore:4.4.15'
-//    implementation 'org.apache.httpcomponents:httpmime:4.5.6'
-
-    implementation 'com.j256.ormlite:ormlite-android:4.48'
-    implementation 'com.j256.ormlite:ormlite-core:4.48'
     implementation "androidx.swiperefreshlayout:swiperefreshlayout:1.1.0"
-    implementation 'com.squareup.picasso:picasso:2.71828'
     implementation 'com.github.bumptech.glide:glide:4.16.0'
-    implementation 'com.github.emojione:emojione-android:3.1.0'
     implementation 'com.github.cachapa:ExpandableLayout:2.9.2'
     implementation 'com.google.android.flexbox:flexbox:3.0.0'
 
     implementation 'org.apache.httpcomponents:httpclient:4.5.3'
     implementation 'org.apache.httpcomponents:httpcore:4.4.6'
-
-    implementation 'io.noties.markwon:core:4.6.2'
-    implementation 'io.noties.markwon:linkify:4.6.2'
-    implementation 'io.noties.markwon:html:4.6.2'
 }
