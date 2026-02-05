@@ -74,15 +74,15 @@ public class KaCaptureImageActivity extends KaAppCompatActivity implements KoreM
     public static final String THUMBNAIL_FILE_PATH = "filePathThumbnail";
     private static Uri cameraMediaUri;
     private String imagePickType = null;
-    private String fileContext = null;
-    private static boolean NORMAL_PORTRAIT;
+    String fileContext = null;
+    static boolean NORMAL_PORTRAIT;
     private final int compressQualityInt = 100;
     private String MEDIA_TYPE = MEDIA_TYPE_IMAGE;
-    private String MEDIA_FILENAME;
-    private String MEDIA_FILE_PATH;
-    private String MEDIA_EXTENSION;
-    private String thumbnailFilePath;
-    private Intent resultIntent = null;
+    String MEDIA_FILENAME;
+    String MEDIA_FILE_PATH;
+    String MEDIA_EXTENSION;
+    String thumbnailFilePath;
+    Intent resultIntent = null;
     String mCurrentMediaPath = null;
 
     @Override
@@ -224,11 +224,12 @@ public class KaCaptureImageActivity extends KaAppCompatActivity implements KoreM
 
             } else if (mediaPickType.equals(CHOOSE_TYPE_VIDEO_PICK)) {
                 //use standard intent to pick a video from gallery
-                Intent videoPickerIntent = new Intent(Intent.ACTION_GET_CONTENT);
+                Intent videoPickerIntent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+                videoPickerIntent.addCategory(Intent.CATEGORY_OPENABLE);
                 videoPickerIntent.setType("video/*");
-                videoPickerIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-                videoPickerIntent.addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
-                //we will handle the returned data in onActivityResult
+                videoPickerIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION |
+                                Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION
+                );
                 videoActivityResultLauncher.launch(videoPickerIntent);
 
             } else if (mediaPickType.equals(CHOOSE_TYPE_DOCUMENT_PICK)) {
@@ -316,7 +317,7 @@ public class KaCaptureImageActivity extends KaAppCompatActivity implements KoreM
                                         KaMediaUtils.saveFileToKorePath(realPath, MEDIA_FILE_PATH);
 
                                     MEDIA_FILENAME = MEDIA_FILE_PATH.substring(MEDIA_FILE_PATH.lastIndexOf("/") + 1);
-                                    finishOperation(selectedFile, fileExtn, result.getResultCode());
+                                    finishOperation(selectedFile, fileExtn);
 
                                 } else {
                                     Cursor returnCursor =
@@ -332,7 +333,7 @@ public class KaCaptureImageActivity extends KaAppCompatActivity implements KoreM
                                         if (MEDIA_FILE_PATH != null) {
                                             MEDIA_FILENAME = MEDIA_FILE_PATH.substring(MEDIA_FILE_PATH.lastIndexOf("/") + 1);
                                         }
-                                        finishOperation(null, fileExtn, result.getResultCode());
+                                        finishOperation(null, fileExtn);
                                     }
                                 }
                             }
@@ -408,7 +409,10 @@ public class KaCaptureImageActivity extends KaAppCompatActivity implements KoreM
                     if (result.getResultCode() == Activity.RESULT_OK) {
                         if (result.getData() != null) {
                             Uri selectedImage = result.getData().getData();
-                            if (fileContext.equalsIgnoreCase(FOR_MESSAGE) && selectedImage != null) {
+
+                            getContentResolver().takePersistableUriPermission(selectedImage, Intent.FLAG_GRANT_READ_URI_PERMISSION);
+
+                            if (fileContext.equalsIgnoreCase(FOR_MESSAGE)) {
 
                                 File file = null;
                                 try {
@@ -425,9 +429,7 @@ public class KaCaptureImageActivity extends KaAppCompatActivity implements KoreM
                                 MEDIA_EXTENSION = MEDIA_FILE_PATH.substring(MEDIA_FILE_PATH.lastIndexOf(".") + 1);
                                 //display the returned video
                                 int CHOOSE_VIDEO = 4;
-                                finishOperation(selectedImage, BitmapUtils.getExtensionFromFileName(MEDIA_FILE_PATH), CHOOSE_VIDEO);
-                            } else if (selectedImage == null) {
-                                finishAndCancelOperation();
+                                finishOperation(selectedImage, BitmapUtils.getExtensionFromFileName(MEDIA_FILE_PATH));
                             }
                         } else {
                             finish();
@@ -455,7 +457,7 @@ public class KaCaptureImageActivity extends KaAppCompatActivity implements KoreM
         return image;
     }
 
-    private String getFileNameByUri(Context context, Uri uri) {
+    String getFileNameByUri(Context context, Uri uri) {
         String filepath = "";
         File file;
         if (Objects.requireNonNull(uri.getScheme()).compareTo("content") == 0) {
@@ -497,7 +499,7 @@ public class KaCaptureImageActivity extends KaAppCompatActivity implements KoreM
         }
     }
 
-    void finishOperation(Uri uri, String fileExtn, int resultCode) {
+    void finishOperation(Uri uri, String fileExtn) {
         resultIntent = new Intent();
         resultIntent.putExtra("action", KoreMedia.CHOOSE_TYPE_DOCUMENT_PICK);
         resultIntent.putExtra("fileName", MEDIA_FILENAME);
@@ -589,7 +591,7 @@ public class KaCaptureImageActivity extends KaAppCompatActivity implements KoreM
     }
 
 
-    private void getFullImage() {
+    void getFullImage() {
 
         String path = null;
         path = mCurrentMediaPath;
