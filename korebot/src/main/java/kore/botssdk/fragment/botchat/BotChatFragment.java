@@ -19,7 +19,9 @@ import android.os.Handler;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -204,6 +206,8 @@ public class BotChatFragment extends Fragment implements BotChatViewListener, Co
                 baseFooterFragment.changeThemeBackGround(brandingModel.getWidgetFooterColor(), brandingModel.getWidgetFooterHintColor());
 
             if (botHeaderFragment != null) {
+                botHeaderFragment.setBrandingDetails(brandingModel);
+
                 if(botHeaderFragment.getMinimize() != null)
                 {
                     botHeaderFragment.getMinimize().setVisibility(SDKConfig.isIsShowHeaderMinimize() ? View.VISIBLE : View.GONE);
@@ -211,7 +215,6 @@ public class BotChatFragment extends Fragment implements BotChatViewListener, Co
                         showCloseAlert();
                     });
                 }
-                botHeaderFragment.setBrandingDetails(brandingModel);
             }
 
             sharedPreferences.edit().putString(BundleConstants.STATUS_BAR_COLOR, brandingModel.getWidgetHeaderColor()).apply();
@@ -320,6 +323,15 @@ public class BotChatFragment extends Fragment implements BotChatViewListener, Co
 
     @Override
     public void uploadBulkFile(String fileName, String filePath, String extension, String filePathThumbnail, String orientation) {
+    }
+
+    @Override
+    public void addStreamingMessage(String message, boolean endFlag) {
+        if(!message.isBlank())
+        {
+            botContentFragment.addStreamingMessage(message);
+            baseFooterFragment.enableOrDisableSendButton(endFlag);
+        }
     }
 
     @Override
@@ -460,8 +472,34 @@ public class BotChatFragment extends Fragment implements BotChatViewListener, Co
             }
 
         };
-        AlertDialog.Builder builder = new AlertDialog.Builder(requireActivity());
-        builder.setMessage(R.string.close_or_minimize).setCancelable(false).setPositiveButton(R.string.minimize, dialogClickListener).setNegativeButton(R.string.close, dialogClickListener).setNeutralButton(R.string.cancel, dialogClickListener).show();
+
+        AlertDialog dialog = new AlertDialog.Builder(requireActivity())
+                .setMessage(R.string.close_or_minimize)
+                .setCancelable(false)
+                .setPositiveButton(R.string.minimize, dialogClickListener)
+                .setNegativeButton(R.string.close, dialogClickListener)
+                .setNeutralButton(R.string.cancel, dialogClickListener)
+                .create();
+
+        dialog.show();
+
+        if(SDKConfiguration.getRegular() != null)
+        {
+            // 1️⃣ Set message font
+            TextView messageView = dialog.findViewById(android.R.id.message);
+            if (messageView != null) {
+                messageView.setTypeface(SDKConfiguration.getRegular());
+            }
+
+            // 2️⃣ Set button fonts
+            Button positiveButton = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
+            Button negativeButton = dialog.getButton(AlertDialog.BUTTON_NEGATIVE);
+            Button neutralButton  = dialog.getButton(AlertDialog.BUTTON_NEUTRAL);
+
+            if (positiveButton != null) positiveButton.setTypeface(SDKConfiguration.getRegular());
+            if (negativeButton != null) negativeButton.setTypeface(SDKConfiguration.getRegular());
+            if (neutralButton != null)  neutralButton.setTypeface(SDKConfiguration.getRegular());
+        }
     }
 
     private void showTemplateBottomSheet(BotResponse botResponse) {
@@ -489,8 +527,8 @@ public class BotChatFragment extends Fragment implements BotChatViewListener, Co
                 String topClassName = Objects.requireNonNull(taskList.get(0).getTaskInfo().topActivity).toString();
                 if (!topClassName.contains(requireContext().getPackageName())) {
 
-                    if (botClient != null) {
-                        botClient.sendAgentCloseMessage("", SDKConfiguration.Client.bot_name, SDKConfiguration.Client.bot_id);
+//                    if (botClient != null) {
+//                        botClient.sendAgentCloseMessage("", SDKConfiguration.Client.bot_name, SDKConfiguration.Client.bot_id);
 
                         LogUtils.e("onStop", "onStop called");
 
@@ -500,7 +538,7 @@ public class BotChatFragment extends Fragment implements BotChatViewListener, Co
                         prefsEditor.putBoolean(BundleConstants.IS_RECONNECT, false);
                         prefsEditor.putInt(BotResponse.HISTORY_COUNT, 0);
                         prefsEditor.apply();
-                    }
+//                    }
                 }
             }
         }

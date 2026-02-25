@@ -48,7 +48,7 @@ public class MainActivity extends AppCompatActivity {
 //        SDKConfig.addCustomFooterFragment(new CustomFooterFragment());
 
         //If token is empty sdk token generation will happen. if not empty we will use this token for bot connection.
-        String jwtToken = "PLEASE_ENTER_JWT_TOKEN";//getConfigValue("jwtToken");
+        String jwtToken = "";
 
         //Set clientId, If jwtToken is empty this value is mandatory
         String clientId = "PLEASE_ENTER_CLIENT_ID";//getConfigValue("clientId");//PLEASE_ENTER_BOT_CLIENT_ID
@@ -103,13 +103,16 @@ public class MainActivity extends AppCompatActivity {
         SDKConfig.setIsShowHeader(true);
 
         //Flag to show bot header minimize icon or hide
-        SDKConfig.showHeaderMinimize(true);
+        SDKConfig.showHeaderMinimize(false);
+
+        //Flag to send the custom fonts to the SDK
+        //SDKConfig.setFontFamily(ResourcesCompat.getFont(MainActivity.this, R.font.fss_light), ResourcesCompat.getFont(MainActivity.this, R.font.fss_regular), ResourcesCompat.getFont(MainActivity.this, R.font.fss_bold));
 
         //Set local branding model by overriding the branding api response
         SDKConfig.setLocalBranding(false, getLocalBrandingModel());
 
         // Flag to set status bar color as header background color
-        SDKConfig.setIsUpdateStatusBarColor(false);
+        SDKConfig.setIsUpdateStatusBarColor(true);
 
         //Method to reset the bot connection and start a new session by overriding the previous state
         // SDKConfig.disconnectBotSession(MainActivity.this);

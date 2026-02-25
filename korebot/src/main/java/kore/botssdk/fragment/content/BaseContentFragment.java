@@ -1,5 +1,6 @@
 package kore.botssdk.fragment.content;
 
+import android.content.res.Configuration;
 import android.os.Bundle;
 import android.view.View;
 
@@ -79,6 +80,8 @@ public abstract class BaseContentFragment extends Fragment implements BotContent
     public abstract void setQuickRepliesIntoFooter(BotResponse botResponse);
 
     public abstract void addMessageToBotChatAdapter(BotResponse botResponse);
+
+    public abstract void addStreamingMessage(String message);
 
     public abstract void addMessagesToBotChatAdapter(ArrayList<BaseBotMessage> list, boolean scrollToBottom);
 
@@ -271,10 +274,15 @@ public abstract class BaseContentFragment extends Fragment implements BotContent
 
         if (!SDKConfiguration.Client.isWebHook)
             mContentViewModel.loadReconnectionChatHistory(_offset, limit, SocketWrapper.getInstance(requireActivity().getApplicationContext()).getAccessToken(), botsChatAdapter.getBaseBotMessageArrayList());
-        else mContentViewModel.loadReconnectionChatHistory(_offset, limit, jwt, botsChatAdapter.getBaseBotMessageArrayList());
+        else
+            mContentViewModel.loadReconnectionChatHistory(_offset, limit, jwt, botsChatAdapter.getBaseBotMessageArrayList());
     }
 
-    public boolean getmChannelIconURL() {
-        return getmChannelIconURL();
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        if (botsChatAdapter != null && botsChatAdapter.getItemCount() > 0) {
+            botsChatAdapter.notifyItemRangeChanged(0, botsChatAdapter.getItemCount() - 1);
+        }
     }
 }

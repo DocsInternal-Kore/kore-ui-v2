@@ -14,11 +14,14 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.content.res.Configuration;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 
 import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.Nullable;
@@ -257,6 +260,14 @@ public class NewBotChatActivity extends BotAppCompactActivity implements BotChat
 
             if (botHeaderFragment != null) {
                 botHeaderFragment.setBrandingDetails(brandingModel);
+
+                if(botHeaderFragment.getMinimize() != null)
+                {
+                    botHeaderFragment.getMinimize().setVisibility(SDKConfig.isIsShowHeaderMinimize() ? View.VISIBLE : View.GONE);
+                    botHeaderFragment.getMinimize().setOnClickListener(v -> {
+                        showCloseAlert();
+                    });
+                }
             }
 
             sharedPreferences.edit().putString(BundleConstants.STATUS_BAR_COLOR, brandingModel.getWidgetHeaderColor()).apply();
@@ -365,11 +376,18 @@ public class NewBotChatActivity extends BotAppCompactActivity implements BotChat
     }
 
     @Override
+    public void addStreamingMessage(String message, boolean endFlag) {
+        botContentFragment.addStreamingMessage(message);
+        baseFooterFragment.setDisabled(!endFlag);
+    }
+
+    @Override
     public void onSendClick(String message, boolean isFromUtterance) {
         botContentFragment.showTypingStatus();
 
         if (!StringUtils.isNullOrEmpty(message)) {
-            if (!SDKConfiguration.Client.isWebHook) BotSocketConnectionManager.getInstance().sendMessage(message, null);
+            if (!SDKConfiguration.Client.isWebHook)
+                BotSocketConnectionManager.getInstance().sendMessage(message, null);
             else {
                 mViewModel.addSentMessageToChat(message);
                 mViewModel.sendWebHookMessage(jwt, false, message, null);
@@ -403,7 +421,8 @@ public class NewBotChatActivity extends BotAppCompactActivity implements BotChat
     public void onSendClick(String message, ArrayList<HashMap<String, String>> attachments, boolean isFromUtterance) {
         botContentFragment.showTypingStatus();
         if (attachments != null && !attachments.isEmpty()) {
-            if (!SDKConfiguration.Client.isWebHook) BotSocketConnectionManager.getInstance().sendAttachmentMessage(message, attachments);
+            if (!SDKConfiguration.Client.isWebHook)
+                BotSocketConnectionManager.getInstance().sendAttachmentMessage(message, attachments);
             else {
                 mViewModel.addSentMessageToChat(message);
                 mViewModel.sendWebHookMessage(jwt, false, message, attachments);
@@ -516,8 +535,33 @@ public class NewBotChatActivity extends BotAppCompactActivity implements BotChat
             }
         };
 
-        AlertDialog.Builder builder = new AlertDialog.Builder(NewBotChatActivity.this);
-        builder.setMessage(R.string.close_or_minimize).setCancelable(false).setPositiveButton(R.string.minimize, dialogClickListener).setNegativeButton(R.string.close, dialogClickListener).setNeutralButton(R.string.cancel, dialogClickListener).show();
+        AlertDialog dialog = new AlertDialog.Builder(NewBotChatActivity.this)
+                .setMessage(R.string.close_or_minimize)
+                .setCancelable(false)
+                .setPositiveButton(R.string.minimize, dialogClickListener)
+                .setNegativeButton(R.string.close, dialogClickListener)
+                .setNeutralButton(R.string.cancel, dialogClickListener)
+                .create();
+
+        dialog.show();
+
+        if(SDKConfiguration.getRegular() != null)
+        {
+            // 1️⃣ Set message font
+            TextView messageView = dialog.findViewById(android.R.id.message);
+            if (messageView != null) {
+                messageView.setTypeface(SDKConfiguration.getRegular());
+            }
+
+            // 2️⃣ Set button fonts
+            Button positiveButton = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
+            Button negativeButton = dialog.getButton(AlertDialog.BUTTON_NEGATIVE);
+            Button neutralButton  = dialog.getButton(AlertDialog.BUTTON_NEUTRAL);
+
+            if (positiveButton != null) positiveButton.setTypeface(SDKConfiguration.getRegular());
+            if (negativeButton != null) negativeButton.setTypeface(SDKConfiguration.getRegular());
+            if (neutralButton != null)  neutralButton.setTypeface(SDKConfiguration.getRegular());
+        }
     }
 
     private void showTemplateBottomSheet(BotResponse botResponse) {
@@ -545,8 +589,8 @@ public class NewBotChatActivity extends BotAppCompactActivity implements BotChat
                 String topClassName = Objects.requireNonNull(taskList.get(0).getTaskInfo().topActivity).toString();
                 if (!topClassName.contains(getApplicationContext().getPackageName())) {
 
-                    if (botClient != null) {
-                        botClient.sendAgentCloseMessage("", SDKConfiguration.Client.bot_name, SDKConfiguration.Client.bot_id);
+//                    if (botClient != null) {
+//                        botClient.sendAgentCloseMessage("", SDKConfiguration.Client.bot_name, SDKConfiguration.Client.bot_id);
 
                         LogUtils.e("onStop", "onStop called");
 
@@ -556,7 +600,7 @@ public class NewBotChatActivity extends BotAppCompactActivity implements BotChat
                         prefsEditor.putBoolean(BundleConstants.IS_RECONNECT, false);
                         prefsEditor.putInt(BotResponse.HISTORY_COUNT, 0);
                         prefsEditor.apply();
-                    }
+//                    }
                 }
             }
         }
@@ -568,5 +612,20 @@ public class NewBotChatActivity extends BotAppCompactActivity implements BotChat
     public void onStart() {
         new Handler().post(() -> BotSocketConnectionManager.getInstance().subscribe());
         super.onStart();
+    }
+
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+
+        if (botContentFragment != null) {
+            botContentFragment.onConfigurationChanged(newConfig);
+        }
+        if (baseFooterFragment != null) {
+            baseFooterFragment.onConfigurationChanged(newConfig);
+        }
+        if (botHeaderFragment != null) {
+            botHeaderFragment.onConfigurationChanged(newConfig);
+        }
     }
 }

@@ -121,6 +121,20 @@ public class BotResponse extends BaseBotMessage {
     private String icon;
     private long timestamp;
     private String key;
+    private boolean sM;
+    private boolean endChunk;
+
+    public void setsM(boolean sM) {
+        this.sM = sM;
+    }
+
+    public boolean issM() {
+        return sM;
+    }
+
+    public boolean isEndChunk() {
+        return endChunk;
+    }
 
     private boolean fromAgent = false;
 
@@ -182,15 +196,6 @@ public class BotResponse extends BaseBotMessage {
 
     public void setContentState(Map<String, Object> contentState) {
         this.contentState = contentState;
-    }
-
-    /*
-     * returns null if there are no messages
-     *
-     * @return
-     */
-    public BotResponseMessage getTempMessage() {
-        return message != null && message.size() > 0 ? message.get(0) : null;
     }
 
     public BotInfoModel getBotInfo() {

@@ -10,23 +10,21 @@ import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.ActivityNotFoundException;
-import android.content.ContentUris;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
-import android.media.MediaMetadataRetriever;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
-import android.provider.DocumentsContract;
 import android.provider.MediaStore;
 import android.provider.OpenableColumns;
 import android.view.OrientationEventListener;
+import android.webkit.MimeTypeMap;
 import android.widget.Toast;
 
 import androidx.activity.OnBackPressedCallback;
@@ -40,12 +38,9 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.exifinterface.media.ExifInterface;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -66,6 +61,7 @@ import kore.botssdk.utils.BundleConstants;
 import kore.botssdk.utils.KaMediaUtils;
 import kore.botssdk.utils.KaPermissionsHelper;
 import kore.botssdk.utils.LogUtils;
+import kore.botssdk.utils.StringUtils;
 
 @SuppressLint("UnknownNullness")
 public class KaCaptureImageActivity extends KaAppCompatActivity implements KoreMedia, ActivityResultCallback<ActivityResult> {
@@ -73,6 +69,8 @@ public class KaCaptureImageActivity extends KaAppCompatActivity implements KoreM
     public static final int THUMBNAIL_HEIGHT = 240;
     public static final String THUMBNAIL_FILE_PATH = "filePathThumbnail";
     private static Uri cameraMediaUri;
+    private static File videoMediaFilePath;
+    static String LOG_TAG = KaCaptureImageActivity.class.getName();
     private String imagePickType = null;
     String fileContext = null;
     static boolean NORMAL_PORTRAIT;
@@ -188,7 +186,7 @@ public class KaCaptureImageActivity extends KaAppCompatActivity implements KoreM
                     captureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
                     cameraMediaUri = photoURI;
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    LogUtils.e(LOG_TAG, e + " Error");
                 }
                 //we will handle the returned data in onActivityResult
                 captureActivityResultLauncher.launch(captureIntent);
@@ -196,17 +194,13 @@ public class KaCaptureImageActivity extends KaAppCompatActivity implements KoreM
             } else if (CHOOSE_TYPE_CAPTURE_VIDEO.equals(mediaPickType)) {
                 // in case picture is chosen from gallery
                 //use standard intent to pick an image from gallery
+                File videoFile = createVideoFile();
                 Intent intent = new Intent(MediaStore.ACTION_VIDEO_CAPTURE);
 
-                try {
-                    Uri videoURI = FileProvider.getUriForFile(this, getPackageName() + ".provider",
-                            Objects.requireNonNull(createVideoFile()));
-                    intent.putExtra(MediaStore.EXTRA_OUTPUT, videoURI);
-                    cameraMediaUri = videoURI;
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-
+                Uri videoURI = FileProvider.getUriForFile(this, getPackageName() + ".provider",
+                        videoFile);
+                intent.putExtra(MediaStore.EXTRA_OUTPUT, videoURI);
+                videoMediaFilePath = videoFile.getAbsoluteFile();
                 intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
                 intent.addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
                 //we will handle the returned data in onActivityResult
@@ -228,7 +222,7 @@ public class KaCaptureImageActivity extends KaAppCompatActivity implements KoreM
                 videoPickerIntent.addCategory(Intent.CATEGORY_OPENABLE);
                 videoPickerIntent.setType("video/*");
                 videoPickerIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION |
-                                Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION
+                        Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION
                 );
                 videoActivityResultLauncher.launch(videoPickerIntent);
 
@@ -249,7 +243,7 @@ public class KaCaptureImageActivity extends KaAppCompatActivity implements KoreM
                 documentPickerActivityResultLauncher.launch(documentPickerIntent);
             }
 
-        } catch (ActivityNotFoundException anfe) {
+        } catch (ActivityNotFoundException | IOException anfe) {
             //display an error message
             String errorMessage = "Your device doesn't support capturing images!";
             Toast toast = Toast.makeText(this, errorMessage, Toast.LENGTH_SHORT);
@@ -277,7 +271,7 @@ public class KaCaptureImageActivity extends KaAppCompatActivity implements KoreM
     // You can do the assignment inside onAttach or onCreate, i.e, before the activity is displayed
     final ActivityResultLauncher<Intent> documentPickerActivityResultLauncher = registerForActivityResult(
             new ActivityResultContracts.StartActivityForResult(),
-            new ActivityResultCallback<ActivityResult>() {
+            new ActivityResultCallback<>() {
                 @Override
                 public void onActivityResult(ActivityResult result) {
                     if (result.getResultCode() == Activity.RESULT_OK) {
@@ -293,7 +287,7 @@ public class KaCaptureImageActivity extends KaAppCompatActivity implements KoreM
 
                             if (selectedFile != null) {
                                 String realPath = getFileNameByUri(KaCaptureImageActivity.this, selectedFile);
-                                String realFileName = "";
+                                String realFileName;
                                 if (realPath != null) {
                                     try {
                                         realFileName = realPath.substring(realPath.lastIndexOf("/") + 1);
@@ -305,9 +299,10 @@ public class KaCaptureImageActivity extends KaAppCompatActivity implements KoreM
                                     fileExtn = BitmapUtils.getExtensionFromFileName(realFileName);  // will not be null but "" and will return as not whitelisted
                                     File file = null;
                                     try {
-                                        file = KaMediaUtils.getOutputMediaFile(BitmapUtils.obtainMediaTypeOfExtn(fileExtn), realFileName);
-                                    } catch (NoExternalStorageException | NoWriteAccessException e) {
-                                        e.printStackTrace();
+                                        file = KaMediaUtils.getOutputMediaFile(BitmapUtils.obtainMediaTypeOfExtn(fileExtn), realFileName, fileExtn);
+                                    } catch (NoExternalStorageException |
+                                             NoWriteAccessException e) {
+                                        LogUtils.e(LOG_TAG, e + " Error");
                                     }
                                     if (file != null) {
                                         MEDIA_FILE_PATH = file.getAbsolutePath();
@@ -327,7 +322,7 @@ public class KaCaptureImageActivity extends KaAppCompatActivity implements KoreM
                                         returnCursor.moveToFirst();
                                         MEDIA_FILENAME = returnCursor.getString(nameIndex);
                                         fileExtn = BitmapUtils.getExtensionFromFileName(MEDIA_FILENAME);  // will not be null but "" and will return as not whitelisted
-                                        MEDIA_FILE_PATH = KaMediaUtils.saveFileToKoreWithStream(KaCaptureImageActivity.this, selectedFile, MEDIA_FILENAME, fileExtn);
+                                        MEDIA_FILE_PATH = KaMediaUtils.saveFileToKoreWithStream(KaCaptureImageActivity.this, selectedFile, MEDIA_FILENAME, "."+fileExtn);
                                         returnCursor.close();
 
                                         if (MEDIA_FILE_PATH != null) {
@@ -347,7 +342,7 @@ public class KaCaptureImageActivity extends KaAppCompatActivity implements KoreM
             });
     final ActivityResultLauncher<Intent> captureActivityResultLauncher = registerForActivityResult(
             new ActivityResultContracts.StartActivityForResult(),
-            new ActivityResultCallback<ActivityResult>() {
+            new ActivityResultCallback<>() {
                 @Override
                 public void onActivityResult(ActivityResult result) {
                     if (result.getResultCode() == Activity.RESULT_OK) {
@@ -373,8 +368,8 @@ public class KaCaptureImageActivity extends KaAppCompatActivity implements KoreM
             new ActivityResultContracts.StartActivityForResult(),
             result -> {
                 if (result.getResultCode() == Activity.RESULT_OK) {
-                    if (fileContext.equalsIgnoreCase(FOR_MESSAGE) && cameraMediaUri != null) {
-                        getImageForGalleryFooter(cameraMediaUri);
+                    if (fileContext.equalsIgnoreCase(FOR_MESSAGE)) {
+                        processCapturedVideo(videoMediaFilePath);
                     } else {
                         finishAndCancelOperation();
                     }
@@ -390,7 +385,7 @@ public class KaCaptureImageActivity extends KaAppCompatActivity implements KoreM
                         Uri selectedImage = result.getData().getData();
                         if ((fileContext.equalsIgnoreCase(FOR_MESSAGE) || fileContext.equalsIgnoreCase(FOR_PROFILE)) && selectedImage != null) {
                             // keep track of choose image intent
-                            getImageForGalleryFooter(selectedImage);
+                            processCapturedImage(selectedImage);
                         } else if (selectedImage == null) {
                             finishAndCancelOperation();
                         }
@@ -403,11 +398,11 @@ public class KaCaptureImageActivity extends KaAppCompatActivity implements KoreM
             });
     final ActivityResultLauncher<Intent> videoActivityResultLauncher = registerForActivityResult(
             new ActivityResultContracts.StartActivityForResult(),
-            new ActivityResultCallback<ActivityResult>() {
+            new ActivityResultCallback<>() {
                 @Override
                 public void onActivityResult(ActivityResult result) {
                     if (result.getResultCode() == Activity.RESULT_OK) {
-                        if (result.getData() != null) {
+                        if (result.getData() != null && result.getData().getData() != null) {
                             Uri selectedImage = result.getData().getData();
 
                             getContentResolver().takePersistableUriPermission(selectedImage, Intent.FLAG_GRANT_READ_URI_PERMISSION);
@@ -416,9 +411,9 @@ public class KaCaptureImageActivity extends KaAppCompatActivity implements KoreM
 
                                 File file = null;
                                 try {
-                                    file = KaMediaUtils.getOutputMediaFile(KoreMedia.MEDIA_TYPE_VIDEO, null);
+                                    file = KaMediaUtils.getOutputMediaFile(KoreMedia.MEDIA_TYPE_VIDEO, null, KaMediaUtils.getMediaExtension(KoreMedia.MEDIA_TYPE_VIDEO));
                                 } catch (NoExternalStorageException e) {
-                                    e.printStackTrace();
+                                    LogUtils.e(LOG_TAG, e + " Error");
                                 } catch (NoWriteAccessException e) {
                                     throw new RuntimeException(e);
                                 }
@@ -428,7 +423,6 @@ public class KaCaptureImageActivity extends KaAppCompatActivity implements KoreM
                                 MEDIA_FILENAME = MEDIA_FILENAME.substring(0, MEDIA_FILENAME.lastIndexOf("."));
                                 MEDIA_EXTENSION = MEDIA_FILE_PATH.substring(MEDIA_FILE_PATH.lastIndexOf(".") + 1);
                                 //display the returned video
-                                int CHOOSE_VIDEO = 4;
                                 finishOperation(selectedImage, BitmapUtils.getExtensionFromFileName(MEDIA_FILE_PATH));
                             }
                         } else {
@@ -461,7 +455,7 @@ public class KaCaptureImageActivity extends KaAppCompatActivity implements KoreM
         String filepath = "";
         File file;
         if (Objects.requireNonNull(uri.getScheme()).compareTo("content") == 0) {
-            Cursor cursor = context.getContentResolver().query(uri, new String[]{android.provider.MediaStore.Images.ImageColumns.DATA, MediaStore.Images.Media.ORIENTATION}, null, null, null);
+            Cursor cursor = context.getContentResolver().query(uri, new String[]{MediaStore.Images.ImageColumns.DATA, MediaStore.Images.Media.ORIENTATION}, null, null, null);
             if (cursor != null) {
                 int column_index = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
                 cursor.moveToFirst();
@@ -478,7 +472,7 @@ public class KaCaptureImageActivity extends KaAppCompatActivity implements KoreM
                     filepath = file.getAbsolutePath();
 
             } catch (URISyntaxException e) {
-                e.printStackTrace();
+                LogUtils.e(LOG_TAG, e+" Error");
             }
         } else {
             filepath = uri.getPath();
@@ -519,82 +513,100 @@ public class KaCaptureImageActivity extends KaAppCompatActivity implements KoreM
         this.finish();
     }
 
-    private void getImageForGalleryFooter(Uri imageUri) {
-        OutputStream fOut = null;
-        try {
-            Bitmap highResBitmap = null;
-            if (imageUri.toString().endsWith(".mp4")) {
-                MediaMetadataRetriever retriever = new MediaMetadataRetriever();
-                try {
-                    retriever.setDataSource(this, imageUri);
-                    // Get frame at the 1st second as a thumbnail
-                    highResBitmap = retriever.getFrameAtTime(1000000, MediaMetadataRetriever.OPTION_CLOSEST_SYNC);
-                } catch (IllegalArgumentException ex) {
-                    // Handle any exceptions that occur when setting data source
-                    ex.printStackTrace();
-                } finally {
-                    retriever.release();
-                }
-            } else {
-                highResBitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), imageUri);
-            }
-            Bitmap bitmapPic = BitmapUtils.getScaledBitmap(highResBitmap);
-            LogUtils.d(LOG_TAG, "getImageForGalleryFooter() :: ***** picture height ::" + bitmapPic.getHeight() + " and width::" + bitmapPic.getWidth());
-            String fileName = null;
-            try (Cursor returnCursor = getContentResolver().query(imageUri, null, null, null, null)) {
-                if (returnCursor != null) {
-                    int nameIndex = returnCursor.getColumnIndex(OpenableColumns.DISPLAY_NAME);
-                    returnCursor.moveToFirst();
-                    returnCursor.getString(nameIndex);
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
+    private void processCapturedVideo(File videoMediaFilePath) {
+        try
+        {
+            // Use the already created video file
+            if (videoMediaFilePath == null || !videoMediaFilePath.exists()) {
+                LogUtils.e(LOG_TAG, "Video file does not exist!");
+                return;
             }
 
-            File file = KaMediaUtils.getOutputMediaFile(MEDIA_TYPE, fileName);
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                fOut = Files.newOutputStream(file.toPath());
-            } else fOut = new FileOutputStream(file);
-            bitmapPic.compress(Bitmap.CompressFormat.JPEG, compressQualityInt, fOut);
-            fOut.flush();
+            MEDIA_FILE_PATH = videoMediaFilePath.getAbsolutePath();
+            String fileName = videoMediaFilePath.getName();
+            MEDIA_FILENAME = fileName.substring(0, fileName.lastIndexOf("."));
+            MEDIA_EXTENSION = "mp4";
 
-            MEDIA_FILE_PATH = file.getAbsolutePath();
-            LogUtils.d(LOG_TAG, " file absolute path::" + MEDIA_FILE_PATH);
-
-            MEDIA_FILENAME = MEDIA_FILE_PATH.substring(MEDIA_FILE_PATH.lastIndexOf("/") + 1);
-            MEDIA_FILENAME = MEDIA_FILENAME.substring(0, MEDIA_FILENAME.lastIndexOf("."));
-            MEDIA_EXTENSION = MEDIA_FILE_PATH.substring(MEDIA_FILE_PATH.lastIndexOf(".") + 1);
-
-            bitmapPic = rotateIfNecessary(MEDIA_FILE_PATH, bitmapPic);
-
-            // create thumbnail and return as base64
-            createImageThumbnail(MEDIA_FILE_PATH, bitmapPic);
         } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            try {
-                if (fOut != null)
-                    fOut.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            LogUtils.e(LOG_TAG, e + " Video Error");
         }
 
-        //display the returned cropped image
-        if (resultIntent == null) resultIntent = new Intent();
+        returnResult();
+    }
+
+    private void returnResult() {
+
+        if (resultIntent == null)
+            resultIntent = new Intent();
+
         resultIntent.putExtra("fileName", MEDIA_FILENAME);
         resultIntent.putExtra("filePath", MEDIA_FILE_PATH);
         resultIntent.putExtra("filePathThumbnail", thumbnailFilePath);
         resultIntent.putExtra("fileExtension", MEDIA_EXTENSION);
+
         setResult(RESULT_OK, resultIntent);
         finish();
     }
 
+    private void processCapturedImage(Uri mediaUri) {
+        OutputStream fOut = null;
+        try
+        {
+            Bitmap highResBitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), mediaUri);
+            Bitmap bitmapPic = BitmapUtils.getScaledBitmap(highResBitmap);
+            String fileName = "IMG_" + System.currentTimeMillis() + ".jpg";
+            String fileExt = getFileExtension(KaCaptureImageActivity.this, mediaUri);
+
+            if(!StringUtils.isNullOrEmpty(fileExt))
+            {
+                fileName = "IMG_" + System.currentTimeMillis() +"."+fileExt;
+            }
+            else fileExt = ".jpg";
+
+            File file = KaMediaUtils.getOutputMediaFile(MEDIA_TYPE, fileName, fileExt);
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                fOut = Files.newOutputStream(file.toPath());
+            } else {
+                fOut = new FileOutputStream(file);
+            }
+
+            bitmapPic.compress(Bitmap.CompressFormat.JPEG, compressQualityInt, fOut);
+            fOut.flush();
+
+            MEDIA_FILE_PATH = file.getAbsolutePath();
+            MEDIA_FILENAME = fileName.substring(0, fileName.lastIndexOf("."));
+            MEDIA_EXTENSION = "jpg";
+
+            bitmapPic = rotateIfNecessary(MEDIA_FILE_PATH, bitmapPic);
+            createImageThumbnail(MEDIA_FILE_PATH, bitmapPic);
+        } catch (Exception e) {
+            LogUtils.e(LOG_TAG, e + " Image Error");
+        } finally {
+            try {
+                if (fOut != null)
+                    fOut.close();
+            } catch (IOException ignored) {}
+        }
+
+        returnResult();
+    }
+
+
+    public static String getFileExtension(Context context, Uri uri) {
+        ContentResolver cr = context.getContentResolver();
+        String mimeType = cr.getType(uri);
+
+        if (mimeType != null) {
+            return MimeTypeMap.getSingleton()
+                    .getExtensionFromMimeType(mimeType);
+        }
+        return null;
+    }
 
     void getFullImage() {
 
-        String path = null;
-        path = mCurrentMediaPath;
+        String path = mCurrentMediaPath;
         File file = new File(path);
 
         LogUtils.d(LOG_TAG, "real image path  " + path);
@@ -624,7 +636,7 @@ public class KaCaptureImageActivity extends KaAppCompatActivity implements KoreM
                 assert fOut != null;
                 fOut.close();
             } catch (Exception e) {
-                e.printStackTrace();
+                LogUtils.e(LOG_TAG, e+" Error");
             }
         }
 
@@ -637,12 +649,12 @@ public class KaCaptureImageActivity extends KaAppCompatActivity implements KoreM
         try {
             Thread.sleep(100);
         } catch (InterruptedException e) {
-            e.printStackTrace();
+            LogUtils.e(LOG_TAG, e+" Error");
         }
         try {
             createImageThumbnail(MEDIA_FILE_PATH, thePic);
         } catch (Exception e) {
-            e.printStackTrace();
+            LogUtils.e(LOG_TAG, e+" Error");
         }
     }
 
@@ -663,14 +675,14 @@ public class KaCaptureImageActivity extends KaAppCompatActivity implements KoreM
     }
 
     private void createImageThumbnail(String filePath, Bitmap finalMap) {
-        Bitmap scaledBitmap = null;
-        Bitmap extBitmap = null;
+        Bitmap scaledBitmap;
+        Bitmap extBitmap;
         int originalOrien = 0;
         int degrees = 0;
         int original_H = finalMap.getHeight();
         int original_W = finalMap.getWidth();
-        int target_W = 0;
-        int target_H = 0;
+        int target_W;
+        int target_H;
         LogUtils.d(LOG_TAG, "createImageThumbnail() :: original height" + original_H);
         LogUtils.d(LOG_TAG, "createImageThumbnail() :: original width" + original_W);
 
@@ -680,7 +692,7 @@ public class KaCaptureImageActivity extends KaAppCompatActivity implements KoreM
 
             LogUtils.d(LOG_TAG, "createImageThumbnail() :: Original image orientation" + originalOrien);
         } catch (IOException e) {
-            e.printStackTrace();
+            LogUtils.e(LOG_TAG, e+" Error");
         }
 
         if (!NORMAL_PORTRAIT) {
@@ -736,7 +748,6 @@ public class KaCaptureImageActivity extends KaAppCompatActivity implements KoreM
             extBitmap = rotateIfNecessary(thumbNailfile.getAbsolutePath(), extBitmap);
 
         } catch (Exception ee) {
-            ee.printStackTrace();
             LogUtils.e(LOG_TAG, "Error while create Image Thumbnail" + ee);
         } finally {
             scaledBitmap.recycle();
@@ -747,7 +758,7 @@ public class KaCaptureImageActivity extends KaAppCompatActivity implements KoreM
                 try {
                     out.close();
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    LogUtils.e(LOG_TAG, e+" Error");
                 }
             }
         }
@@ -765,7 +776,7 @@ public class KaCaptureImageActivity extends KaAppCompatActivity implements KoreM
                 bitmap = rotate(bitmap, 180);
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            LogUtils.e(LOG_TAG, e+" Error");
         }
 
         return bitmap;
@@ -845,176 +856,5 @@ public class KaCaptureImageActivity extends KaAppCompatActivity implements KoreM
     public void getFileTokenAndStartUpload() {
 
     }
-
-    /**
-     * Get a file path from a Uri. This will get the the path for Storage Access
-     * Framework Documents, as well as the _data field for the MediaStore and
-     * other file-based ContentProviders.
-     *
-     * @param context The context.
-     * @param uri     The Uri to query.
-     * @author paulburke
-     */
-    @SuppressLint("NewApi")
-    private String getPath(final Context context, final Uri uri) {
-        if (DocumentsContract.isDocumentUri(context, uri)) {
-            if (isExternalStorageDocument(uri)) {
-                final String docId = DocumentsContract.getDocumentId(uri);
-                final String[] split = docId.split(":");
-                final String type = split[0];
-
-                if ("primary".equalsIgnoreCase(type)) {
-                    return Environment.getExternalStorageDirectory() + "/" + split[1];
-                }
-            }
-            // DownloadsProvider
-            else if (isDownloadsDocument(uri)) {
-
-                final String id;
-                id = DocumentsContract.getDocumentId(uri);
-                final Uri contentUri = ContentUris.withAppendedId(
-                        Uri.parse("content://downloads/public_downloads"), Long.parseLong(id));
-
-                return getDataColumn(context, contentUri, null, null);
-            }
-            // MediaProvider
-            else if (isMediaDocument(uri)) {
-                final String docId = DocumentsContract.getDocumentId(uri);
-                final String[] split = docId.split(":");
-                final String type = split[0];
-
-                Uri contentUri = null;
-                if ("image".equals(type)) {
-                    contentUri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
-                } else if ("video".equals(type)) {
-                    contentUri = MediaStore.Video.Media.EXTERNAL_CONTENT_URI;
-                } else if ("audio".equals(type)) {
-                    contentUri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
-                }
-
-                final String selection = "_id=?";
-                final String[] selectionArgs = new String[]{
-                        split[1]
-                };
-
-                return getDataColumn(context, contentUri, selection, selectionArgs);
-            }
-            // MediaStore (and general) - GoogleDrive fetching comes over here
-            else if ("content".equalsIgnoreCase(uri.getScheme())) {
-                return fetchRemoteContentAddress(context, uri);
-            }
-        }
-        // MediaStore (and general) - Google Photos and normal gallery pics is fetched over here
-        else if ("content".equalsIgnoreCase(uri.getScheme())) {
-            return fetchRemoteContentAddress(context, uri);
-        }
-        // File
-        else if ("file".equalsIgnoreCase(uri.getScheme())) {
-            return uri.getPath();
-        }
-
-        return null;
-    }
-
-    private String fetchRemoteContentAddress(Context context, Uri uri) {
-        // Return the remote address
-        String url;
-        if (isGooglePhotosUri(uri)) {
-            url = getDataColumnWithAuthority(context, uri);
-            return getDataColumn(context, Uri.parse(url), null, null);
-        }
-        return getDataColumn(context, uri, null, null);
-    }
-
-    /**
-     * @param uri The Uri to check.
-     * @return Whether the Uri authority is Google Photos.
-     */
-    private boolean isGooglePhotosUri(Uri uri) {
-        return uri.getAuthority() != null;
-    }
-
-    /**
-     * Function for fixing synced folder image picking bug
-     **/
-    private String getDataColumnWithAuthority(Context context, Uri uri) {
-        InputStream is = null;
-        if (uri.getAuthority() != null) {
-            try {
-                is = context.getContentResolver().openInputStream(uri);
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
-            }
-            Bitmap bmp = BitmapFactory.decodeStream(is);
-            return getImageUri(context, bmp).toString();
-        }
-        return null;
-    }
-
-    private Uri getImageUri(Context inContext, Bitmap inImage) {
-        ByteArrayOutputStream bytes = new ByteArrayOutputStream();
-        inImage.compress(Bitmap.CompressFormat.JPEG, 100, bytes);
-        String path = MediaStore.Images.Media.insertImage(inContext.getContentResolver(), inImage, "Title", null);
-        return Uri.parse(path);
-    }
-
-    /**
-     * Get the value of the data column for this Uri. This is useful for
-     * MediaStore Uris, and other file-based ContentProviders.
-     *
-     * @param context       The context.
-     * @param uri           The Uri to query.
-     * @param selection     (Optional) Filter used in the query.
-     * @param selectionArgs (Optional) Selection arguments used in the query.
-     * @return The value of the _data column, which is typically a file path.
-     */
-    public static String getDataColumn(Context context, Uri uri, String selection,
-                                       String[] selectionArgs) {
-
-        Cursor cursor = null;
-        final String column = "_data";
-        final String[] projection = {
-                column
-        };
-
-        try {
-            cursor = context.getContentResolver().query(uri, projection, selection, selectionArgs,
-                    null);
-            if (cursor != null && cursor.moveToFirst()) {
-                final int column_index = cursor.getColumnIndexOrThrow(column);
-                return cursor.getString(column_index);
-            }
-        } finally {
-            if (cursor != null)
-                cursor.close();
-        }
-        return null;
-    }
-
-
-    /**
-     * @param uri The Uri to check.
-     * @return Whether the Uri authority is ExternalStorageProvider.
-     */
-    public static boolean isExternalStorageDocument(Uri uri) {
-        return "com.android.externalstorage.documents".equals(uri.getAuthority());
-    }
-
-    /**
-     * @param uri The Uri to check.
-     * @return Whether the Uri authority is DownloadsProvider.
-     */
-    public static boolean isDownloadsDocument(Uri uri) {
-        return "com.android.providers.downloads.documents".equals(uri.getAuthority());
-    }
-
-    /**
-     * @param uri The Uri to check.
-     * @return Whether the Uri authority is MediaProvider.
-     */
-    public static boolean isMediaDocument(Uri uri) {
-        return "com.android.providers.media.documents".equals(uri.getAuthority()) || "com.android.providers.media.photopicker".equals(uri.getAuthority());
-    }
-    //===============================Gallery fetch code ends=====================================//
 }
 

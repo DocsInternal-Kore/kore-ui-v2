@@ -482,4 +482,20 @@ public class ChatAdapter extends RecyclerView.Adapter<BaseViewHolder> implements
             notifyItemChanged(foundIndex);
         }
     }
+
+    public void addStreamingMessage(String message)
+    {
+        BotResponse botResponse = (BotResponse) baseBotMessageArrayList.get(baseBotMessageArrayList.size()-1);
+        PayloadOuter payOuter;
+        if (!botResponse.getMessage().isEmpty()) {
+            ComponentModel compModel = botResponse.getMessage().get(0).getComponent();
+            if (compModel != null) {
+                payOuter = compModel.getPayload();
+                if (payOuter != null) {
+                    payOuter.setText(payOuter.getText() + message);
+                    notifyItemChanged(baseBotMessageArrayList.size()-1);
+                }
+            }
+        }
+    }
 }

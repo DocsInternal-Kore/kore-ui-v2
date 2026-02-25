@@ -180,6 +180,11 @@ public class CustomContentFragment extends BaseContentFragment {
         botsBubblesListView.smoothScrollToPosition(botsChatAdapter.getItemCount());
     }
 
+    @Override
+    public void addStreamingMessage(String message) {
+
+    }
+
     protected void initializeBotTypingStatus(View view, String mChannelIconURL) {
         botTypingStatusRl = view.findViewById(R.id.botTypingStatus);
         CircularProfileView botTypingStatusIcon = view.findViewById(R.id.typing_status_item_cpv);

@@ -10,7 +10,6 @@ import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -27,13 +26,12 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
-import java.io.Console;
 import java.util.Objects;
 
 import kore.botssdk.R;
 import kore.botssdk.models.BotResponse;
-import kore.botssdk.net.SDKConfig;
 import kore.botssdk.utils.BundleConstants;
+import kore.botssdk.utils.StringUtils;
 import kore.botssdk.utils.ToastUtils;
 
 @SuppressLint("UnknownNullness")
@@ -57,11 +55,8 @@ public class BotAppCompactActivity extends AppCompatActivity {
         sharedPreferences = getSharedPreferences(BotResponse.THEME_NAME, Context.MODE_PRIVATE);
 
 //        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.base_frame), (view, windowInsets) -> {
-//            Insets ime = windowInsets.getInsets(WindowInsetsCompat.Type.ime());
 //            Insets insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars());
-//            int bottom = ime.bottom;
-//            if (bottom == 0) bottom = insets.bottom;
-//            view.setPadding(insets.left,0, insets.right, bottom);
+//            view.setPadding(insets.left, 0, insets.right, insets.bottom);
 //            if (sharedPreferences.getInt(BundleConstants.STATUS_BAR_HEIGHT, 0) == 0)
 //                sharedPreferences.edit().putInt(BundleConstants.STATUS_BAR_HEIGHT, insets.top).apply();
 //            view.setBackgroundColor(ContextCompat.getColor(view.getContext(), R.color.black));
@@ -99,7 +94,7 @@ public class BotAppCompactActivity extends AppCompatActivity {
             params.height = sharedPreferences.getInt(BundleConstants.STATUS_BAR_HEIGHT, 0);
             statusBarLayout.setLayoutParams(params);
 
-            if (color.isBlank())
+            if (StringUtils.isNullOrEmpty(color))
                 statusBarLayout.setBackgroundColor(ContextCompat.getColor(BotAppCompactActivity.this, R.color.colorPrimary));
             else
                 statusBarLayout.setBackgroundColor(Color.parseColor(color));

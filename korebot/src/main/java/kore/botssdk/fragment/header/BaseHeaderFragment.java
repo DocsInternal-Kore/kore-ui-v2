@@ -1,6 +1,7 @@
 package kore.botssdk.fragment.header;
 
-import android.widget.ImageButton;
+import android.content.res.Configuration;
+
 import android.widget.ImageView;
 
 import androidx.fragment.app.Fragment;
@@ -25,4 +26,9 @@ public abstract class BaseHeaderFragment extends Fragment {
 
     public abstract ImageView getMinimize();
 
+
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+    }
 }

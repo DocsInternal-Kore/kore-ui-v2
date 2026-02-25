@@ -6,14 +6,12 @@ import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 
 import kore.botssdk.R;
-import kore.botssdk.models.BrandingHeaderModel;
 import kore.botssdk.models.BrandingModel;
 import kore.botssdk.net.SDKConfiguration;
 
@@ -42,8 +40,10 @@ public class BotHeaderFragment extends BaseHeaderFragment {
             tvBotTitle.setText(!TextUtils.isEmpty(title) ? title : SDKConfiguration.Client.bot_name);
             if (brandingModel.getWidgetHeaderColor() != null)
                 view.setBackgroundColor(Color.parseColor(brandingModel.getWidgetHeaderColor()));
-            if (brandingModel.getWidgetTextColor() != null)
+            if (brandingModel.getWidgetTextColor() != null) {
                 tvBotTitle.setTextColor(Color.parseColor(brandingModel.getWidgetTextColor()));
+                ivHeaderMinimize.setColorFilter(Color.parseColor(brandingModel.getWidgetTextColor()));
+            }
         }
     }
 

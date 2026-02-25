@@ -1,18 +1,25 @@
 package com.kore.korebot;
 
 import android.annotation.SuppressLint;
+import android.os.Build;
 import android.os.Bundle;
+import android.view.WindowInsetsController;
 
 import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.graphics.Insets;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowCompat;
+import androidx.core.view.WindowInsetsCompat;
+import androidx.core.view.WindowInsetsControllerCompat;
 import androidx.fragment.app.FragmentTransaction;
 
 import com.kore.korebot.customtemplates.LinkTemplateHolder;
-import com.kore.korebot.fragment.CustomHeaderFragment;
 
 import java.util.HashMap;
 import java.util.Locale;
+import java.util.Objects;
 import java.util.TimeZone;
 
 import kore.botssdk.fragment.botchat.BotChatFragment;
@@ -25,7 +32,6 @@ import kore.botssdk.utils.LangUtils;
 import kore.botssdk.utils.LogUtils;
 import kore.botssdk.utils.NetworkUtility;
 
-@SuppressLint("HardcodedPassword")
 public class FragmentActivity extends AppCompatActivity implements BotChatCloseListener {
     BotChatFragment botChatFragment;
 
@@ -34,11 +40,34 @@ public class FragmentActivity extends AppCompatActivity implements BotChatCloseL
         super.onCreate(savedInstanceState);
         setContentView(R.layout.fragment_activity);
 
+        WindowCompat.setDecorFitsSystemWindows(getWindow(), false);
+
+        WindowInsetsControllerCompat controller =
+                new WindowInsetsControllerCompat(getWindow(), getWindow().getDecorView());
+
+        controller.setAppearanceLightStatusBars(true);
+        controller.setAppearanceLightNavigationBars(true);
+
+        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.flChatBot), (view, windowInsets) -> {
+            Insets ime = windowInsets.getInsets(WindowInsetsCompat.Type.ime());
+            Insets insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars());
+            int bottom = ime.bottom;
+            if (bottom == 0) bottom = insets.bottom;
+            view.setPadding(insets.left,insets.top, insets.right, bottom);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                Objects.requireNonNull(getWindow().getInsetsController()).setSystemBarsAppearance(
+                        WindowInsetsController.APPEARANCE_LIGHT_NAVIGATION_BARS,
+                        WindowInsetsController.APPEARANCE_LIGHT_NAVIGATION_BARS
+                );
+            }
+            return WindowInsetsCompat.CONSUMED;
+        });
+
         //Can set Language for Bot SDK
         LangUtils.setAppLanguages(this, LangUtils.LANG_EN);
 
 //        Can set your customized Header view in the chat window by using this method. By extending BaseHeaderFragment. Can find examples under fragments package
-        SDKConfig.addCustomHeaderFragment(new CustomHeaderFragment());
+//        SDKConfig.addCustomHeaderFragment(new CustomHeaderFragment());
 
 //        Can set your customized Content view in the chat window by using this method. By extending BaseContentFragment. Can find examples under fragments package
 //        SDKConfig.addCustomContentFragment(new CustomContentFragment());
@@ -47,7 +76,7 @@ public class FragmentActivity extends AppCompatActivity implements BotChatCloseL
 //        SDKConfig.addCustomFooterFragment(new CustomFooterFragment());
 
         //If token is empty sdk token generation will happen. if not empty we will use this token for bot connection.
-        String jwtToken = "PLEASE_ENTER_JWT_TOKEN";//getConfigValue("jwtToken");
+        String jwtToken = "";
 
         //Set clientId, If jwtToken is empty this value is mandatory
         String clientId = "PLEASE_ENTER_CLIENT_ID";//getConfigValue("clientId");//PLEASE_ENTER_BOT_CLIENT_ID
@@ -108,10 +137,13 @@ public class FragmentActivity extends AppCompatActivity implements BotChatCloseL
         SDKConfig.setLocalBranding(false, getLocalBrandingModel());
 
         // Flag to set status bar color as header background color
-        SDKConfig.setIsUpdateStatusBarColor(false);
+        SDKConfig.setIsUpdateStatusBarColor(true);
+
+        //Flag to send the custom fonts to the SDK
+        //SDKConfig.setFontFamily(ResourcesCompat.getFont(MainActivity.this, R.font.fss_light), ResourcesCompat.getFont(MainActivity.this, R.font.fss_regular), ResourcesCompat.getFont(MainActivity.this, R.font.fss_bold));
 
         //Method to reset the bot connection and start a new session by overriding the previous state
-        // SDKConfig.disconnectBotSession(MainActivity.this);
+        // SDKConfig.disconnectBotSession(FragmentActivity.this);
 
         SDKConfiguration.OverrideKoreConfig.showAttachment = true;
         SDKConfiguration.OverrideKoreConfig.showASRMicroPhone = true;

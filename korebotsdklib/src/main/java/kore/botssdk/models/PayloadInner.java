@@ -82,10 +82,10 @@ public class PayloadInner {
     private ArrayList<FeedbackListModel> feedbackList;
     private String text_message;
     private String fileName;
+    private String name;
     private boolean url_present;
     private boolean isSortEnabled;
     private boolean isSearchEnabled;
-    private String name;
 
     private List<RadioOptionModel> radioOptions;
 
@@ -125,16 +125,12 @@ public class PayloadInner {
         this.url_present = url_present;
     }
 
-    public String getFileName() {
-        return fileName;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
     public String getName() {
         return name;
+    }
+
+    public String getFileName() {
+        return fileName;
     }
 
     public void setFileName(String fileName) {
