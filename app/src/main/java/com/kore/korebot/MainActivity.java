@@ -51,28 +51,28 @@ public class MainActivity extends AppCompatActivity {
         String jwtToken = "";
 
         //Set clientId, If jwtToken is empty this value is mandatory
-        String clientId = "PLEASE_ENTER_CLIENT_ID";//getConfigValue("clientId");//PLEASE_ENTER_BOT_CLIENT_ID
+        String clientId = "cs-85793e30-ace9-5c27-9ae7-060033c4d66a";
 
         //Set clientSecret, If jwtToken is empty this value is mandatory
-        String clientSecret = "PLEASE_ENTER_CLIENT_SECRET";//getConfigValue("clientSecret");//PLEASE_ENTER_BOT_CLIENT_SECRET
+        String clientSecret = "ukcwzz+f3sBgRkENx89uqqtzcMmmV0/Kv7KHsBo3IwY=";
 
         //Set botId, This value is mandatory
-        String botId = "PLEASE_ENTER_BOT_ID";//getConfigValue("botId");//PLEASE_ENTER_BOT_ID
+        String botId = "st-8a564fcb-9b29-5428-b56c-00dd920804db";
 
         //Set identity, This value is mandatory
-        String identity = "PLEASE_ENTER_IDENTITY";//getConfigValue("identity");//PLEASE_ENTER_IDENTITY
+        String identity = "PLEASE_ENTER_IDENTITY";
 
         //Set botName, This value is mandatory
-        String botName = "PLEASE_ENTER_BOT_NAME";//getConfigValue("botName");//PLEASE_ENTER_BOT_NAME
+        String botName = "Bank Assist Attachment Staging";
 
         //Set serverUrl, This value is mandatory
-        String serverUrl = "PLEASE_ENTER_SERVER_URL";//getConfigValue("serverUrl");//PLEASE_ENTER_SERVER_URL
+        String serverUrl = "https://staging-xo.korebots.com/";
 
         //Set brandingUrl, This value is mandatory
-        String brandingUrl = "PLEASE_ENTER_BRANDING_URL";//getConfigValue("brandingUrl");//PLEASE_ENTER_BRANDING_SERVER_URL
+        String brandingUrl = "https://staging-xo.korebots.com/";
 
-        //Set JwtServerUrl, This value is mandatory
-        String jwtServerUrl = "PLEASE_ENTER_JWT_URL";//getConfigValue("jwtServerUrl");//PLEASE_ENTER_JWT_SERVER_URL
+        //Set jwtServerUrl, This value is mandatory
+        String jwtServerUrl = "https://mk2r2rmj21.execute-api.us-east-1.amazonaws.com/dev/";
 
         //Set isWebHook
         SDKConfig.isWebHook(false);
@@ -103,7 +103,7 @@ public class MainActivity extends AppCompatActivity {
         SDKConfig.setIsShowHeader(true);
 
         //Flag to show bot header minimize icon or hide
-        SDKConfig.showHeaderMinimize(false);
+        SDKConfig.showHeaderMinimize(true);
 
         //Flag to send the custom fonts to the SDK
         //SDKConfig.setFontFamily(ResourcesCompat.getFont(MainActivity.this, R.font.fss_light), ResourcesCompat.getFont(MainActivity.this, R.font.fss_regular), ResourcesCompat.getFont(MainActivity.this, R.font.fss_bold));
